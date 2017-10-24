@@ -7,3 +7,7 @@
 *.nls
 *.out
 *.toc
+*.bbl
+*.blg
+*.pdf
+*.gz
