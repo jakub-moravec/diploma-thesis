@@ -1,0 +1,24 @@
+\chapter{Teoretická část}
+%TODO write something nice
+
+\section{Data Layer}
+
+\section{Data(base) Layer Abstraction}
+Abstrakce datové vrstvy (a databází) je historicky hojně diskutovaným tématem, %TODO zdroj
+střetává se zde několik zájmů. Nejčastější argumenty proti tomuto principu míří na 
+ztrátu výkonost při zařazování abstraktních vrstev. Tato ztráta výkonu je potom často způsobena 
+právě úrovní abstrakce, konkrétně neschopností vývojáře použít konstrukty specifické pro dané databázové systémy. 
+Je ale důležité si uvědomit, že odstranění vendor lockingu není jediným a ani primárním cílem \nom{DLA}{Database Layer Abstraction}.
+Důležitějším cílem je zjednodušení aplikační logiky a její očištění o konstrukty z databázového světa. 
+
+%TODO úrovně abstrakce viz http://blog.gauffin.org/2013/01/data-layer-the-right-way/ + dohledat lepší zdroj
+
+%TODO data access alternatives - pokud to není to samé, ten samý zdroj
+
+%TODO Data layer patterns -ten samý zdroj + https://thinkinginobjects.com/2012/08/26/dont-use-dao-use-repository/ or https://medium.com/@krzychukosobudzki/repository-design-pattern-bc490b256006
+
+%==================================%
+%              NOTES               %
+%==================================%
+
+% - domain and data mapping layer
