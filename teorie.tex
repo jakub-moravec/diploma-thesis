@@ -1,6 +1,42 @@
 \chapter{Teoretická část}
 %TODO write something nice
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Grafové databáze}
+%todo
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Architektury a API} %todo maybe better heading
+
+%todo RPC
+
+%todo CORBA
+
+%todo Java RMI
+
+%todo mention HTTP 1.0 specification 1996
+
+%todo mention XML specification 1996
+
+%todo XML-RPC 
+\subsection{XML-RPC}
+V roce 1998 se objevil soubor pravidel, který popisuje jak využívat technilogie RPC, XML a HTTP k vzdálenému volání procedur přes internet - \nom{XML-RPC}{Remote Procedure Calling protokol používající XML pro komuniakci přes internet}.\cite{Winner99} XML poskytuje slovník pro popis RPC volání přenášená mezi počítači pomocí HTTP protokolu (ačkoliv je popsán také obecný přístup nezávislý na konkrétním protokolu). Uživatel pošle požadavek na server implementující protokol. Uživatelem je typicky software volající konkrétní proceduru vzdáleného systému. Volání může obasahovat více vstupních parametrů a očekává jedny výstupní hodnotu. Vstupní parametry mohou být vnořené do kolekcí jako jsou mapy a listy, mohou být tedy posílány rozsáhlé struktury. Proto je možné používat XML-RPC pro posílání objektů a struktur (jako vstupních i výsupních parametrů). Díky možnosti popsání předávaných informací pomocí XML umožňuje XML-RPC prakticky vytváření \nomExpl{API}{aplikačních rozhraní} a tím komunikaci dvou a více nehomogeních prostředí.\cite{Laurent01}  
+% Because XML-RPC is layered on top of HTTP, it inherits the inefficiencies of HTTP. This
+% does place some limitations on its use in large-scale, high-speed applications, but inefficiency
+% isn't important in many places. Although there are definitely high-profile projects for which
+% systems must scale to millions of transactions at a time, keeping response time to a minimum,
+% there are also many projects to which systems need to send information or request
+% processing far less often -- from once a second to once a week -- and for which response
+% time isn't absolutely critical. For these cases, XML-RPC can simplify developers' lives
+% tremendously. 
+
+%todo SOAP, maybe UDDI and WSDL, maybe JAX-RPC
+
+%todo REST
+
+%todo HATEOS
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Data Layer}
 
 \section{Data(base) Layer Abstraction}
@@ -15,7 +51,8 @@ Důležitějším cílem je zjednodušení aplikační logiky a její očištěn
 
 %TODO data access alternatives - pokud to není to samé, ten samý zdroj
 
-%TODO Data layer patterns -ten samý zdroj + https://thinkinginobjects.com/2012/08/26/dont-use-dao-use-repository/ or https://medium.com/@krzychukosobudzki/repository-design-pattern-bc490b256006
+%TODO Data layer patterns -ten samý zdroj + https://thinkinginobjects.com/2012/08/26/dont-use-dao-use-repository/ or https://medium.com/@krzychukosobudzki/repository-design-pattern-bc490b256006 
+% and https://martinfowler.com/eaaCatalog/repository.html (!)
 
 %==================================%
 %              NOTES               %
