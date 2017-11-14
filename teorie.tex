@@ -3,7 +3,94 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Grafové databáze}
-%todo
+
+Grafy jsou velice přirozeným způsobem reprezentaci dat, zvláště v době, kdy většina dat je vytvářena uživateli v nestrukturované formě. Grafy pomocí uzlů a hran popisují objekty a vztahy mezi nimi s elegancí a přirozeností, jaké mohou jiné reprezentace dat těžko dosáhnout. Grafy usnadňují proces objevování informací v datech a přitom nevynucují náročné datové modelování skutečnosti do složitých datových struktur. Díky tomu, že grafy umožňují jednoduché prohladávání objektů, které mezi sebou mají vztahy (uzlů propojených hranami), jsou operace tohoto typu nad grafy relativně\footnote{Například vůči \nom{RDBMS}{relačním databázím} - čas nutný pro průchod přes několik hran je výrazně nižší než čas nutný ke spojení několika tabulek.} levné. 
+
+\nom{GDB}{Grafové databáze} umožňují data reprezentovaná grafem ukládat a procházet tak, aby byly tyto přirozené výhody grafů zachovány a zároveň byly zajištěny alespoň některé vlastnosti \nom{RDBMS}{relačních databázových systémů}. 
+% todo case studies https://neo4j.com/resources/top-use-cases-graph-databases-white-paper/
+
+\subsection{Grafy}
+% Matematická definice
+Před popisem vlastních \nom{GDB}{grafových databází} blíže popíšeme grafy jako takové a jejich typy. Nejdříve uvedeme základní matematický rámec teorie grafů, se kterým budeme dále pracovat. 
+
+Graf G je trojice (V, E, $\epsilon$), kde V je množina vrcholů\footnote{nebo také uzlů} a E množina hran. $\epsilon$ je přiřazení, které každé hraně přiřazuje: 
+\begin{itemize} 
+	\item{} množinu dvou vrcholů (koncové vrcholy) pro \textit{neorientovaný graf}
+	\item{} uspořádanou dvojici vrzcholů (počáteční a koncový vrchol) pro \textit{orientovaný graf}
+\end{itemize}
+
+% Multigrafy / prosté grafy
+Pokud graf neobsahuje paralelní hrany\footnote{nebo také multihrany}, tedy hrany, které mají stejné počáteční a koncové vrcholy (orientovaný graf), respektive stejné koncové vrcholy (neorientovaný graf), je označován jako \textit{prostý graf}. Naopak pokud graf paralelní hrany obsahuje, je označován jako \textit{multigraf}.\cite{Demlova17}
+
+% Labeled grafy
+Grafy z pohledu informačních technologií matematickou definici grafu dále rozšiřují. Umožňují definovat typy hran a uzlů, čímž vzniká \textit{ohodnocený graf}\footnote{Ohodnocený graf bývá také často označován jako labeled graf. Jeho opakem, tedy "neohodnoceným" grafem je jednovztahový nebo také homogenní graf.} Například ohodnocený graf na obrázku \ref{fig:labeled_graf} obsahuje dva typy uzlů (:OSOBA a :ČLÁNEK) a dva typy hran (:ZNÁ a :ČETL).
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=14cm]{figures/labeled_graph}
+\caption{Ohodnocený graf}
+\label{fig:labeled_graf}
+\end{center}
+\end{figure}
+
+% Property grafy
+Ohodnocené grafy nám sice poskytují možnost rozlišit typy hran a uzlů, v mnoha situacích je ale žádoucí zachytit do grafu více informací. \textit{Atributové grafy} umožňují přiřadit hranám a uzlům libovolný počet atributů (dvojic klíč-hodnota), které obsahují informace o daném uzlu, respektive hraně. Příkladem může být věk osob, či datum vydání článku (viz obrázek \ref{fig:property_graf}). Většina grafových databází pracuje právě s atributovými grafy.\cite{Lal15}
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=14cm]{figures/property_graph}
+\caption{Atributový graf}
+\label{fig:property_graf}
+\end{center}
+\end{figure}
+
+% Hypergrafy
+Generalizací grafu je tzv. \textit{hypergraf}. Ten se proti grafu liší tím, že zatímco hrana grafu je množinou právě dvou vrcholů (či uspořádanou dvojicí v případě orientovaného grafu), hyperhrana (tedy hrana v hypergrafu) je mnoužinou jednoho a více vrcholů.\cite{Diestel00} Hypergrafy jsou používány k reprezentaci dat v mnoha oborech a některé GDB je přímo podporují (například HypergraphDB\footnote{http://hypergraphdb.org/}).
+
+
+%TODO
+\subsection{Perzistence}
+%Přestože GDB jsou relativně novým pojmem ve světě informačních technologií (TODO cite vypuštění Neo4J), potřeba perzistence dat ve formě grafů byla i dříve. 
+
+%TODO ukládání grafů
+% RDBMS (NEO Reasons to use graph databases)
+% Grafové struktury
+% - adj matrix
+% - adj list
+% - inc matric
+% - laplacean matrix
+% - COMPRESSED ADJACENCY LISTS
+% RDF
+% - (haxtree)
+% - (bitmap)
+
+% TODO prostorová lokalita
+
+
+%TODO
+\subsection{Dotazování}
+%todo možná samostatná sekce?
+
+%typy dotazů 
+% - podgraf
+% - nadgrafb
+
+
+%TODO
+\subsection{Indexy}
+% - mining based 
+% - non-mining base 
+
+%TODO
+\subsection{Transakce}
+
+%TODO
+\subsection{Paralelizace}
+%TODO Partitioning
+
+%TODO 
+\subsection{Databáze - příklady}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Architektury a API} %todo maybe better heading
