@@ -50,12 +50,34 @@ Generalizací grafu je tzv. \textit{hypergraf}. Ten se proti grafu liší tím, 
 
 %TODO
 \subsection{Perzistence}
-%Přestože GDB jsou relativně novým pojmem ve světě informačních technologií (TODO cite vypuštění Neo4J), potřeba perzistence dat ve formě grafů byla i dříve. 
+Aby bylo možné v dalších kapitolách popsat pokročilé aspekty \nom{GDB}{grafových databází} (jako například indexování, či transakce), je nejdříve nutné popsat jejich základní principy. Nutnost ukládat data ve formě grafů je starší než pojem \nom{GDB}{grafové databáze} ve smyslu, v jakém je prezentován zde. Existuje tak mnoho způsobů uložení grafů z nichž ty nejběžnější zde popíšeme. Ještě předtím je nutno poznamenat, k jakým typům úkolů jsou \nom{GDB}{grafové databáze} zejména využívány. Častými grafovými úlohami jsou \nomExpl{BSF\footnote{Breadth-first search}}{průchod do hloubky} a \nomExpl{DFS\footnote{Depth-first search}}{průchod do šířky} a respektive jejich variace. Oba tyto algoritmy musí projít v nejhorším případě\footnote{Pro konkrétní problémy jsou často \nom{BFS} a \nom{DFS} algoritmy upravovány tak, aby bylo možné některé větve průchodu tzv. ořezávat - tedy procházet pouze jejich část, nebo je neprocházet vůbec.} všechny hrany grafu, je tedy vidět, že pro efektivitu \nom{GDB}{grafové databáze} je klíčová efektivity přechodu z jednodoho uzlu do (všech) jeho sousedů pomocí existujících hran.
 
-%TODO ukládání grafů
 % RDBMS (NEO Reasons to use graph databases)
+% TODO zjistit zda se reálně někdy někde používalo a ozdrojovat
+% https://inviqa.com/blog/graphs-database-sql-meets-social-network
+Než se pustíme do popisu nativních grafových uložišť, krátce popíšeme možnost ukládání grafů pomocí \nom{RDBMS}{relačních databází}. Jedním z možných řešení může být dvojice tabulek \textit{UZLY} a \textit{HRANY}. Tabulka uzlů by obsahovala identifikátor uzlu a případné další parametry uzlu, tabulka hrany by obsahovala referenci na počáteční a koncový uzel hrany a případné další parametry hrany\footnote{V tomto případě předpokládáme orientovaný prostý atributový graf, pro jiné grafy by bylo nutné tuto strukturu upravit (což ale není těžké).}. Všechny hrany grafu je tedy možné získat pomocí spojení těchto tabulek pomocí cízího klíče, složitější průchody potom mohou být docíleny pomocí relace tabulky hran na sebe sama. Problém tohoto přístupu je právě zejména nutnost rekurzivních operací \textit{join} a jejich vysokých nákladů\footnote{Spojování tabulek pomocí cizích klíčů je jedna z nejdražších operací ve světě \nom{RDBMS}{relačních databází}}. Tyto problémy mohou být částečně eliminovány použitím sloupcových (TODO příklady) či dokumentových (todo příklady) NoSQL databází. Přestože v tomto případě nejsou používány rekurzivní join operace (ve světě NoSQL tato operace neexistuje), je k datům přistupováno pomocí prohledávání indexů a operace je tak stále výrazěn dražší, než při použití nativního grafového uložiště.\cite{Lal15} 
+%TODO zmínit objektové db a objektovou reprezentaci grafu
+
+% Matice sousednosti TODO dodělat
+Nejzákladnější nativní reprezentací grafu je tzv \textit{matice sousednosti}. Ta využívá možnosti reprezentování hran grafu jako dvojice uzlů a reprezentuje graf jako matici \textit{M} o rozměrech \textit{nxn}, kde \textit{n} je počet uzlů grafu. Pokud existuje mezi uzly \textit{i} a \textit{j} hrana, pak bude \texit{M\subindex{i,j} != 0}. Pokud nás zajímá pouze existence hrany, nabývá matice pouze hodnot \textit{\{0, 1\}}. Pokud jsou hrany ohodnocené, pak nenulová hodnota buňky na dané pozici ukazuje nejen existenci hrany mezi danými uzly, ale také její ohodnocení. Pokud je graf neorientovaný, je matice symetrická. Pokud je graf orientovaný, potom \textit{M\subindex{i,j}} určuje existenci hrany z uzlu \textit{i} do uzlu \textit{j} a \textit{M\subindex{j,i}} naopak existenci hrany z uzlu \textit{j} do uzlu \textit{i}.
+% Although this implementation is very efficient
+% for adding/removing edges or checking if two
+% nodes are connected because the operation is immediate,
+% it has three important drawbacks. First, it
+% takes a quadratic space with respect to the number
+% of nodes, independently of the number of edges,
+% and hence it is not adequate if the graph is sparse,
+% which tends to be the case. Second, the addition
+% of nodes is expensive because a new matrix is
+% reallocated and the contents copied to the new
+% structure. Finally, third, the operation to retrieve
+% all the neighboring nodes takes linear time with
+% respect to the number of vertices in the graph.
+% Since the most used operation for traversals is
+% obtaining the neighbors of one node, matrix arrays
+% are not adequate for traversing large graphs.
+
 % Grafové struktury
-% - adj matrix
 % - adj list
 % - inc matric
 % - laplacean matrix
