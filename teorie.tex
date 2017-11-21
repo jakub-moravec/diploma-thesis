@@ -76,21 +76,27 @@ Další možnou maticovou reprezentací grafu je \textbf{matice incidence}. Jedn
 Některé problémy matice sousednosti řeší \textbf{list sousednosti}. Ten je implementován jako množina listů, kde každému uzlu připadá jeden list sousedních uzlů (TODO viz obrázek). Paměťová náročnost této reprezentace je tedy $\Theta$(|V|+|E|), kde |V| je počet uzlů a tedy počet listů sousednosti a |E| je počet hran a tedy celkový počet prvků obsažených v listech sousednosti. List sousednosti je tedy výrazně úspornější reprezentace z paměťového hlediska, než je matice sousednosti a je tedy vhodný i pro řídké grafy. Zároveň umožňuje rychlé nalezení všech sousedních uzlů pro daný uzel, v listu jsou vypsány pouze ty uzly, se kterými je uzel propojen a procházení grafu je tak rychlé. Přidání hrany do grafu je přidáním jednoho prvku do listu (respektive dvou listů v případě neorientovaného grafu) a přidání uzlu je také relativně efektivní - znamená vytvoření nového listu a přidání ho do množiny ostatních listů. Drahé jsou naopak operace odebrání hrany (je nutné projít všechny sousedy obou koncových uzlů hrany) a odebrání uzlu (je nutné projít všechny hrany). Také ověření existence konkrétní hrany je relativně drahé (je potřeba opět projít všechny sousedy daného uzlu). Toto může být řešeno alternativní implementací, napříkald mohou být listy sousedů řazeny. Tím se sice sníží složitost ověření existence hrany, ale zvýší se složitost přidání nové hrany. (TODO zdroje)
 Při reprezentaci velkých grafů pomocí listů sousednosti se používají kompresní techniky, díky kterým je možné dále snižovat paměťovou náročnost.\cite{Boldi04} % TODO možná více ke komprimovanému listu sousednosti
 
+% TODO prostorová lokalita
 
-% Grafové struktury
-% RDF
+% TODO RDF
 % - (haxtree)
 % - (bitmap)
 
 % TODO obrázky
 
-% TODO prostorová lokalita
-
-
-
 %TODO
 \subsection{Typy dotazů}
 %todo možná samostatná sekce?
+
+\subsubsection{Traversal pattern}
+
+Na rozdíl od indexově náročných množinových operací relačních databází využívají grafové databáze bezindexové místní prohledávání, tzv. traverzování.\cite{Anglels08} Relační databáze obsahují data typicky v normalizované formě v několika separátních tabulkách tak, aby bylo zamezeno duplikaci dat. Řádky těchto tabulek mohou být chápány jako objekty popsané svými vlastnostmi. Vztahy mezi objekty jsou definovány primárními a cizími klíči a musí být při dotazování explicitně vytvořeny spojením tabulek pomocí \textit{join} operace. Jak vyhledávání záznamů v tabulkách, tak spojování tabulek je (v ideálním případě) realizováno pomocí vyhledávacích indexů, které časovou složitost těchto operací značně snižují, obecně ale ne dostatečně. Databázové vyhledávací indexy jsou realizovány pomocí binárních vyhledávacích stromů (TODO cite), vyhledání zánamu má tedy složitost \textit{$\O$(n)}. 
+Grafové databáze na druhé straně obsahují typicky pouze jednu strukturu - graf. Ten ve své fyzické reprezentaci obsahuje všechny hrany, které obsahuje, vztahy mezi objekty (vrcholy) v grafu jsou tedy implicitní, není potřeba je při každém dotazu vytvářet. Tato skutečnost s sebou nese výhody i nevýhody. 
+
+%todo - nevýhoda - nedělitelnost grafu
+
+%todo - výhoda - rychlost průchodů
+
 
 %typy dotazů 
 % - podgraf
@@ -108,6 +114,7 @@ Při reprezentaci velkých grafů pomocí listů sousednosti se používají kom
 %TODO
 \subsection{Paralelizace}
 %TODO Partitioning
+% sharding str 30 vlevo dole
 
 %TODO 
 \subsection{Databáze - příklady}
