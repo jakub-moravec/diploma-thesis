@@ -58,39 +58,38 @@ Aby bylo možné v dalších kapitolách popsat pokročilé aspekty \nom{GDB}{gr
 Než se pustíme do popisu nativních grafových uložišť, krátce popíšeme možnost ukládání grafů pomocí \nom{RDBMS}{relačních databází}. Jedním z možných řešení může být dvojice tabulek \textit{UZLY} a \textit{HRANY}. Tabulka uzlů by obsahovala identifikátor uzlu a případné další parametry uzlu, tabulka hrany by obsahovala referenci na počáteční a koncový uzel hrany a případné další parametry hrany\footnote{V tomto případě předpokládáme orientovaný prostý atributový graf, pro jiné grafy by bylo nutné tuto strukturu upravit (což ale není těžké).}. Všechny hrany grafu je tedy možné získat pomocí spojení těchto tabulek pomocí cízího klíče, složitější průchody potom mohou být docíleny pomocí relace tabulky hran na sebe sama. Problém tohoto přístupu je právě zejména nutnost rekurzivních operací \textit{join} a jejich vysokých nákladů\footnote{Spojování tabulek pomocí cizích klíčů je jedna z nejdražších operací ve světě \nom{RDBMS}{relačních databází}}. Tyto problémy mohou být částečně eliminovány použitím sloupcových (TODO příklady) či dokumentových (todo příklady) NoSQL databází. Přestože v tomto případě nejsou používány rekurzivní join operace (ve světě NoSQL tato operace neexistuje), je k datům přistupováno pomocí prohledávání indexů a operace je tak stále výrazěn dražší, než při použití nativního grafového uložiště.\cite{Lal15} 
 %TODO zmínit objektové db a objektovou reprezentaci grafu
 
-% Matice sousednosti TODO dodělat
-Nejzákladnější nativní reprezentací grafu je tzv \textit{matice sousednosti}. Ta využívá možnosti reprezentování hran grafu jako dvojice uzlů a reprezentuje graf jako matici \textit{M} o rozměrech \textit{nxn}, kde \textit{n} je počet uzlů grafu. Pokud existuje mezi uzly \textit{i} a \textit{j} hrana, pak bude \texit{M\subindex{i,j} != 0}. Pokud nás zajímá pouze existence hrany, nabývá matice pouze hodnot \textit{\{0, 1\}}. Pokud jsou hrany ohodnocené, pak nenulová hodnota buňky na dané pozici ukazuje nejen existenci hrany mezi danými uzly, ale také její ohodnocení. Pokud je graf neorientovaný, je matice symetrická. Pokud je graf orientovaný, potom \textit{M\subindex{i,j}} určuje existenci hrany z uzlu \textit{i} do uzlu \textit{j} a \textit{M\subindex{j,i}} naopak existenci hrany z uzlu \textit{j} do uzlu \textit{i}.
-% Although this implementation is very efficient
-% for adding/removing edges or checking if two
-% nodes are connected because the operation is immediate,
-% it has three important drawbacks. First, it
-% takes a quadratic space with respect to the number
-% of nodes, independently of the number of edges,
-% and hence it is not adequate if the graph is sparse,
-% which tends to be the case. Second, the addition
-% of nodes is expensive because a new matrix is
-% reallocated and the contents copied to the new
-% structure. Finally, third, the operation to retrieve
-% all the neighboring nodes takes linear time with
-% respect to the number of vertices in the graph.
-% Since the most used operation for traversals is
-% obtaining the neighbors of one node, matrix arrays
-% are not adequate for traversing large graphs.
+%TODO všechna matematika jako italics
+
+% Matice sousednosti
+Nejzákladnější nativní reprezentací grafu je tzv. \textbf{matice sousednosti}. Ta využívá možnosti reprezentování hran grafu jako dvojice uzlů a reprezentuje graf jako matici \textit{M} o rozměrech \textit{|V|x|V|}, kde \textit{|V|} je počet uzlů grafu. Pokud existuje mezi uzly \textit{i} a \textit{j} hrana, pak bude \textit{M\textsubscript{i,j} != 0}. 
+Pokud nás zajímá pouze existence hrany, nabývá matice pouze hodnot \textit{\{0, 1\}}. Pokud jsou hrany ohodnocené, pak nenulová hodnota buňky na dané pozici ukazuje nejen existenci hrany mezi danými uzly, ale také její ohodnocení. Pokud je graf neorientovaný, je matice symetrická. Pokud je graf orientovaný, potom \textit{M\textsubscript{i,j}} určuje existenci hrany z uzlu \textit{i} do uzlu \textit{j} a \textit{M\textsubscript{j,i}} naopak existenci hrany z uzlu \textit{j} do uzlu \textit{i}. 
+Tato reprezentace grafu zajišťuje vysokou efektivitu přidávání, odstraňování a kontroly existence hran - tyto operace jsou okamžité, tedy $\Theta$(1).  Na druhou stranu přidání nového uzlu do grafu je nákladná operace, matice musí být přealokována a překopírována. Vzhledem k tomu, že paměťová náročnost matice sousednosti je kvadratická vzhledem k počtu uzlů a nezávisle na počtu hran (není tedy vhodná pro řídké matice\footnote{TODO poznámka o tom, že řídké matice jsou what u need}), je drahé i její překopírování - přidání nového uzlu má časovou složitost $\Theta$(|V|\textsuperscript{2}). 
+Pro nalezení všech sousedních uzlů je nutné všechny uzly projít a zkontrolovat, zda hrana existuje, či nikoliv - $\Theta$(|V|). Hledání sousedních uzlů je nejčastější operací při průchodu grafu, tato reprezentace tedy není vhodná ani na složitější průchody. (TODO zdroje)
+
+% Laplaceovská matice
+Speciální variantou matice sousednosti je \textbf{Laplaceovská matice}. Ta má stejně jako matice sousednosti rozměry \textit{|V|x|V|}. Diagonála Laplaceovské matice ukazuje stupeň vrcholu a pokud existuje mezi dvěmi vrcholy hrana, je hodnota matice na dané pozici \textit{-1}. Pokud mezi vrcholy hrana naní, hodnota je \textit{0}. Hlavní výhodnou reprezentace grafu Laplaceovskou maticí je umožňění spektrální analýzy grafu\cite{Bernard93}, kdy jsou pomocí vlastních čísel matice analyzovány vlastnosti grafu.
+
+% Matice incidence
+Další možnou maticovou reprezentací grafu je \textbf{matice incidence}. Jedná se o dvoudimenzionální matici o rozměrech \textit{|V|x|E|}, kde každý sloupec matice odpovídá jedné hraně a řádek jednomu uzlu. Pokud je uzel \textit{v} účastníkem hrany \textit{e}, potom \textit{M\textsubscript{v,e} != 0}. Pokud se jedná o neorientované grafy, nabývá matice pouze hodnot \textit{\{0, 1\}}. Pokud je graf orientovaný, potom je odchozí hrana kódována jako \textit{-1} a příchozí jako \textit{1}. V případě ohodnoceného grafu mohou být hodnoty obecně všechna celá čísla (podobně jako u matice sousednosti), přičemž opět platí, že záporné číslo značí odchozí hranu a kládné číslo příchozí. Vzhledem k tomu, že pro většinu grafů platí, že počet hran |E| je vyšší než počet uzlů |V| (často, například u sociálních sítí, je výrazně vyšší), je tato reprezentace pro svou vysokou paměťovou náročnost ve většině případů nevhodná. Narozdíl od ostatních reprezentací ale umožňuje ukládání hypergrafů (hrany hypergrafu mohou zahrnovat libovolný počet vrcholů). Zatímco u běžného grafu by každý sloupec matice incidence obsahoval právě dva nenulové prvky, u hypergrafu jich může být libovolný počet. (TODO zdroje)
+
+% List sousednosti 
+Některé problémy matice sousednosti řeší \textbf{list sousednosti}. Ten je implementován jako množina listů, kde každému uzlu připadá jeden list sousedních uzlů (TODO viz obrázek). Paměťová náročnost této reprezentace je tedy $\Theta$(|V|+|E|), kde |V| je počet uzlů a tedy počet listů sousednosti a |E| je počet hran a tedy celkový počet prvků obsažených v listech sousednosti. List sousednosti je tedy výrazně úspornější reprezentace z paměťového hlediska, než je matice sousednosti a je tedy vhodný i pro řídké grafy. Zároveň umožňuje rychlé nalezení všech sousedních uzlů pro daný uzel, v listu jsou vypsány pouze ty uzly, se kterými je uzel propojen a procházení grafu je tak rychlé. Přidání hrany do grafu je přidáním jednoho prvku do listu (respektive dvou listů v případě neorientovaného grafu) a přidání uzlu je také relativně efektivní - znamená vytvoření nového listu a přidání ho do množiny ostatních listů. Drahé jsou naopak operace odebrání hrany (je nutné projít všechny sousedy obou koncových uzlů hrany) a odebrání uzlu (je nutné projít všechny hrany). Také ověření existence konkrétní hrany je relativně drahé (je potřeba opět projít všechny sousedy daného uzlu). Toto může být řešeno alternativní implementací, napříkald mohou být listy sousedů řazeny. Tím se sice sníží složitost ověření existence hrany, ale zvýší se složitost přidání nové hrany. (TODO zdroje)
+Při reprezentaci velkých grafů pomocí listů sousednosti se používají kompresní techniky, díky kterým je možné dále snižovat paměťovou náročnost.\cite{Boldi04} % TODO možná více ke komprimovanému listu sousednosti
+
 
 % Grafové struktury
-% - adj list
-% - inc matric
-% - laplacean matrix
-% - COMPRESSED ADJACENCY LISTS
 % RDF
 % - (haxtree)
 % - (bitmap)
 
+% TODO obrázky
+
 % TODO prostorová lokalita
 
 
+
 %TODO
-\subsection{Dotazování}
+\subsection{Typy dotazů}
 %todo možná samostatná sekce?
 
 %typy dotazů 
@@ -112,6 +111,9 @@ Nejzákladnější nativní reprezentací grafu je tzv \textit{matice sousednost
 
 %TODO 
 \subsection{Databáze - příklady}
+
+%TODO 
+\subsection{Dotazovací jazyky}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
