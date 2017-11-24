@@ -9,7 +9,32 @@ Grafy jsou velice přirozeným způsobem reprezentaci dat, zvláště v době, k
 \nom{GDB}{Grafové databáze} umožňují data reprezentovaná grafem ukládat a procházet tak, aby byly tyto přirozené výhody grafů zachovány a zároveň byly zajištěny alespoň některé vlastnosti \nom{RDBMS}{relačních databázových systémů}. 
 % todo case studies https://neo4j.com/resources/top-use-cases-graph-databases-white-paper/
 
+% TODO
+\subsection{NoSQL}
+NoSQL databázové systémy sice nemají s touto prací mnoho společného, grafové databáze nicméně bývají zařazovány jako podkategorie NoSQL a bylo by tedy vhodné základní principe této skupiny technologií ve zkratce popsat. Samotná zkratka NoSQL je vykládaná různě, většinou jako \textit{"Not only SQL"\footnote{Eric Evans [82] Holubová TODO}} a vykládá se jako označení pro databáze nerelačního typu určené pro zpracování \textit{Big Data}\footnote{TODO definice big data, cite bp}. Mezi hlavní uváděné výhody NoSQL databází patří: 
+
+\begin{itemize}
+  \item{\textit{Škálovatelnost:}} Zatímco klasické databázové systémy využívají \textit{vertikální škálovatelnost}\footnote{TODO popis vetikální škálovatelnosti}, NoSQL databáze umožňují efektivní \textit{horizntální škálování}\footnote{TODO popis horizontálního škálování}. Data v NoSQL databázích bývají tedy typicky distribuovaná na několik uzlů (\textit{clusterů}\footnote{TODO vysvětlit clustery}) a jejich zpracování tak může probíhat paralelně. 
+  \item{\textit{Efektivní čtení:}} NoSQL datatabáze jsou silně orientovány na rychlé čtení (koncept \textit{write once, read many times}). Ve většině již nejsou data po zapsání do databáze nikdy modifikována, pouze nad nimi jsou vykonávány analýzy (dotazy). Za cenu potenciálně pomalejšího zápisu dat do databáze (který nám nevadí) získáme tedy výrazně vyšší rychlost čtení dat.  
+  \item{\textit{Flexibilní datový model:}} NoSQL databáze buď nevyžadují žádné datové schéma, nebo je schéma volné (a lze ho tedy upravovat bez nutnosti úpravy stávajících dat). Dodržování schématu dat je tedy na aplikaci, která NoSQL databázi používá.  
+  \item{\textit{Ekonomická stránka:}} jak již bylo uvedeno, relační databáze je nutné typicky škálovat vertikálně a to je nákladné\footnote{Jsou navyšovány prostředky jednoho stroje, což má technická omezení a čím více se těmto omezením blížíme, tím je škálování dražší. Vedlejším efektem této skutečnosti je často takzvaný \textit{vendor-locking}, tedy situace, kdy jsme nuceni používat specifický hardware (často od jedné konkrétní společnosti), který je velmi nákladný.}. Na druhé horizontální škálování je relativně levné - škáluje se přidáním nového uzlu. Vzhledem k tomu, že NoSQL databáze nevyžadují žádný konkrétní hardware, je možné používat takzvaný \textit{komoditní hardware} (uzly nemusí být hardwarově homogenní), který je levný.  
+\end{itemize}
+
+Aby těchto výhod NoSQL databáze dosáhly, využívají různé přístupy k reprezentaci dat a manipulaci s daty. Jejich hlavní rozdělení je následující: 
+
+%TODO citace a příklady
+\begin{itemize}
+	% TODO cite redis
+  \item{\textit{Databáze typu klíč-hodnota:}} Tyto databáze mají zcela volné datové schéma, jsou realizovány jako mapa klíčů a hodnot. Hodnota přitom typicků může nabývat několika datových typů (například číslo, text, binární řetězec, kolekce některého z předchozích). Operace nad tímto uložištěm jsou poměrně jednoduché a zpravidla neposkytují pokročilé nástroje pro analýzu dat na základě obsahu - pouze na základě klíče. 
+  \item{\textit{Dokumentová databáze:}} Dokumentové databáze ukládají a spravují zpravidla strukturované dokumenty. Nejčastější formáty dokumentů jsou \nomExpl{\textit{JSON}\footnote{TODO popsat JSON}}{JavaScript Simple Object Notation} a \nomExpl{\textit{XML}\footnote{TODO popsat XML}}{Extensible Markup Language}. Narozdíl od databází typu klíč-hodnota umožňují dokumentové databáze přistupovat k dokumentům a analyzovat je dle jejich obsahu. 
+  \item{\textit{Sloupcové databáze:}} Sloupcové databáze se skládají z tabulek, ve kterých může mít každý řádek libovolný počet sloupců (nezávislý na ostatních řádcích). Volné vkládání sloupců sloupců nijak nesnižuje výkon sloupcových databází, které bývají masivně distribuované.
+  \item{\textit{Grafové databáze:}} Konečně posledním a pro nás nejzajímavějším typem NoSQL databází jsou grafové databáze. Tyto databáze jsou určené pro data, která je vhodné modelovat a dotazovat jako grafy (viz. kapitola \ref{sec:gdb-grafy}). Vnitřní reprezentace grafů může být různá podle toho, pro jaký typ grafových úlovh je daná databáze primárně určena.
+\end{itemize}
+
+% Typy NoSQL databází
+
 \subsection{Grafy}
+\label{sec:gdb-grafy}
 % Matematická definice
 Před popisem vlastních \nom{GDB}{grafových databází} blíže popíšeme grafy jako takové a jejich typy. Nejdříve uvedeme základní matematický rámec teorie grafů, se kterým budeme dále pracovat. 
 
@@ -54,6 +79,7 @@ Aby bylo možné v dalších kapitolách popsat pokročilé aspekty \nom{GDB}{gr
 
 % RDBMS (NEO Reasons to use graph databases)
 % TODO zjistit zda se reálně někdy někde používalo a ozdrojovat
+% TODO 166 holoubová
 % https://inviqa.com/blog/graphs-database-sql-meets-social-network
 Než se pustíme do popisu nativních grafových uložišť, krátce popíšeme možnost ukládání grafů pomocí \nom{RDBMS}{relačních databází}. Jedním z možných řešení může být dvojice tabulek \textit{UZLY} a \textit{HRANY}. Tabulka uzlů by obsahovala identifikátor uzlu a případné další parametry uzlu, tabulka hrany by obsahovala referenci na počáteční a koncový uzel hrany a případné další parametry hrany\footnote{V tomto případě předpokládáme orientovaný prostý atributový graf, pro jiné grafy by bylo nutné tuto strukturu upravit (což ale není těžké).}. Všechny hrany grafu je tedy možné získat pomocí spojení těchto tabulek pomocí cízího klíče, složitější průchody potom mohou být docíleny pomocí relace tabulky hran na sebe sama. Problém tohoto přístupu je právě zejména nutnost rekurzivních operací \textit{join} a jejich vysokých nákladů\footnote{Spojování tabulek pomocí cizích klíčů je jedna z nejdražších operací ve světě \nom{RDBMS}{relačních databází}}. Tyto problémy mohou být částečně eliminovány použitím sloupcových (TODO příklady) či dokumentových (todo příklady) NoSQL databází. Přestože v tomto případě nejsou používány rekurzivní join operace (ve světě NoSQL tato operace neexistuje), je k datům přistupováno pomocí prohledávání indexů a operace je tak stále výrazěn dražší, než při použití nativního grafového uložiště.\cite{Lal15} 
 %TODO zmínit objektové db a objektovou reprezentaci grafu
@@ -108,7 +134,7 @@ Grafové databáze na druhé straně obsahují typicky pouze jednu strukturu - g
 % - mining based 
 % - non-mining base 
 
-%TODO
+%TODO doplnit
 \subsection{Transakce}
 
 %ACID
@@ -125,17 +151,76 @@ Jak už bylo zmíněno, grafové databáze jsou typem NoSQL databází. Přesto 
 % TODO zámky
 
 %TODO
-\subsection{Paralelizace}
+\subsection{Distribuovatelnost}
 \label{sec:gdb-distribution}
 %TODO Partitioning
+
+% strana 56 holub
+
+%strana 9
+
 % sharding str 30 vlevo dole
+
+% Sharding is the process of partitioning data
+% across multiple machines in order to scale a system
+% horizontally.3 In a graph, with unconstrained, direct
+% references between vertices and edges, there usually
+% does not exist a clean data partition. Thus, it
+% becomes difficult to scale graph databases beyond
+% the confines of a single machine and at the same
+% time, maintain the speed of a traversal across
+% sharded borders. However, at the expense of this
+% drawback there is a significant advantage: there
+% is a constant time cost for retrieving an adjacent
+% vertex or edge. That is, regardless of the size of
+% the graph as a whole, the cost of a local read operation
+% at a vertex or edge remains constant. This
+% benefit is so important that it creates the primary
+% means by which users interact with graph databases
+% – traversals. Graphs offer a unique vantage
+% point on data, where the solution to a problem is
+% seen as abstractly defined traversals through its
+% vertices and edges
+
 
 %TODO 
 \subsection{Databáze - příklady}
 \label{sec:gdb-databaze}
 
+% TODO Neo4J
+
+% TODO Sparksee
+
+% TODO InfiniteGraph
+
+% OrientDB
+
+% Titan
+
+% JanusGraph
+
+% HyperGraph DB
+
+% Jena
+
 %TODO 
 \subsection{Dotazovací jazyky}
+
+% TODO nativní API
+
+% TODO GraphQL
+
+% TODO PQL
+
+% TODO BPMN-Q
+
+% TODO GOOD / GOQL
+
+% TODO SPARQL (pro úplnost)
+ 
+% TODO GREMLIN
+
+% TODO Cypher
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -175,9 +260,9 @@ Přestože specifikace SOAPu byla vytvořena už v roce 1998, byla zveřejněna 
 \nomExpl{WSDL}{Web Service Description Language} je formální strojově čitelný popis webové služby. Služba je popsána pomocí portů a koncových bodů
 
 
-The WSDL describes services as collections of network endpoints, or ports. The WSDL specification provides an XML format for documents for this purpose. The abstract definitions of ports and messages are separated from their concrete use or instance, allowing the reuse of these definitions. A port is defined by associating a network address with a reusable binding, and a collection of ports defines a service. Messages are abstract descriptions of the data being exchanged, and port types are abstract collections of supported operations. The concrete protocol and data format specifications for a particular port type constitutes a reusable binding, where the operations and messages are then bound to a concrete network protocol and message format. In this way, WSDL describes the public interface to the Web service.
-WSDL is often used in combination with SOAP and an XML Schema to provide Web services over the Internet. A client program connecting to a Web service can read the WSDL file to determine what operations are available on the server. Any special datatypes used are embedded in the WSDL file in the form of XML Schema. The client can then use SOAP to actually call one of the operations listed in the WSDL file using for example XML over HTTP.
-The current version of the specification is 2.0; version 1.1 has not been endorsed by the W3C but version 2.0 is a W3C recommendation.[1] WSDL 1.2 was renamed WSDL 2.0 because of its substantial differences from WSDL 1.1. By accepting binding to all the HTTP request methods (not only GET and POST as in version 1.1), the WSDL 2.0 specification offers better support for RESTful web services, and is much simpler to implement.[2][3] However support for this specification is still poor in software development kits for Web Services which often offer tools only for WSDL 1.1.[needs update][citation needed] For example, the version 2.0 of the Business Process Execution Language (BPEL) only supports WSDL 1.1.
+% The WSDL describes services as collections of network endpoints, or ports. The WSDL specification provides an XML format for documents for this purpose. The abstract definitions of ports and messages are separated from their concrete use or instance, allowing the reuse of these definitions. A port is defined by associating a network address with a reusable binding, and a collection of ports defines a service. Messages are abstract descriptions of the data being exchanged, and port types are abstract collections of supported operations. The concrete protocol and data format specifications for a particular port type constitutes a reusable binding, where the operations and messages are then bound to a concrete network protocol and message format. In this way, WSDL describes the public interface to the Web service.
+% WSDL is often used in combination with SOAP and an XML Schema to provide Web services over the Internet. A client program connecting to a Web service can read the WSDL file to determine what operations are available on the server. Any special datatypes used are embedded in the WSDL file in the form of XML Schema. The client can then use SOAP to actually call one of the operations listed in the WSDL file using for example XML over HTTP.
+% The current version of the specification is 2.0; version 1.1 has not been endorsed by the W3C but version 2.0 is a W3C recommendation.[1] WSDL 1.2 was renamed WSDL 2.0 because of its substantial differences from WSDL 1.1. By accepting binding to all the HTTP request methods (not only GET and POST as in version 1.1), the WSDL 2.0 specification offers better support for RESTful web services, and is much simpler to implement.[2][3] However support for this specification is still poor in software development kits for Web Services which often offer tools only for WSDL 1.1.[needs update][citation needed] For example, the version 2.0 of the Business Process Execution Language (BPEL) only supports WSDL 1.1.
 
 
 %todo REST
