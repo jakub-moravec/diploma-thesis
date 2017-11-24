@@ -10,11 +10,13 @@ Grafy jsou velice přirozeným způsobem reprezentaci dat, zvláště v době, k
 % todo case studies https://neo4j.com/resources/top-use-cases-graph-databases-white-paper/
 
 % TODO
+% TODO cite 144 z holuba
 \subsection{NoSQL}
+\label{sec:gdb-nosql}
 NoSQL databázové systémy sice nemají s touto prací mnoho společného, grafové databáze nicméně bývají zařazovány jako podkategorie NoSQL a bylo by tedy vhodné základní principe této skupiny technologií ve zkratce popsat. Samotná zkratka NoSQL je vykládaná různě, většinou jako \textit{"Not only SQL"\footnote{Eric Evans [82] Holubová TODO}} a vykládá se jako označení pro databáze nerelačního typu určené pro zpracování \textit{Big Data}\footnote{TODO definice big data, cite bp}. Mezi hlavní uváděné výhody NoSQL databází patří: 
 
 \begin{itemize}
-  \item{\textit{Škálovatelnost:}} Zatímco klasické databázové systémy využívají \textit{vertikální škálovatelnost}\footnote{TODO popis vetikální škálovatelnosti}, NoSQL databáze umožňují efektivní \textit{horizntální škálování}\footnote{TODO popis horizontálního škálování}. Data v NoSQL databázích bývají tedy typicky distribuovaná na několik uzlů (\textit{clusterů}\footnote{TODO vysvětlit clustery}) a jejich zpracování tak může probíhat paralelně. 
+  \item{\textit{Škálovatelnost:}} Zatímco klasické databázové systémy využívají \textit{vertikální škálovatelnost}\footnote{TODO popis vetikální škálovatelnosti}, NoSQL databáze umožňují efektivní \textit{horizntální škálování}\footnote{TODO popis horizontálního škálování}. Data v NoSQL databázích bývají tedy typicky distribuovaná na několik uzlů\footnote{TODO vysvětlit clustery} a jejich zpracování tak může probíhat paralelně. 
   \item{\textit{Efektivní čtení:}} NoSQL datatabáze jsou silně orientovány na rychlé čtení (koncept \textit{write once, read many times}). Ve většině již nejsou data po zapsání do databáze nikdy modifikována, pouze nad nimi jsou vykonávány analýzy (dotazy). Za cenu potenciálně pomalejšího zápisu dat do databáze (který nám nevadí) získáme tedy výrazně vyšší rychlost čtení dat.  
   \item{\textit{Flexibilní datový model:}} NoSQL databáze buď nevyžadují žádné datové schéma, nebo je schéma volné (a lze ho tedy upravovat bez nutnosti úpravy stávajících dat). Dodržování schématu dat je tedy na aplikaci, která NoSQL databázi používá.  
   \item{\textit{Ekonomická stránka:}} jak již bylo uvedeno, relační databáze je nutné typicky škálovat vertikálně a to je nákladné\footnote{Jsou navyšovány prostředky jednoho stroje, což má technická omezení a čím více se těmto omezením blížíme, tím je škálování dražší. Vedlejším efektem této skutečnosti je často takzvaný \textit{vendor-locking}, tedy situace, kdy jsme nuceni používat specifický hardware (často od jedné konkrétní společnosti), který je velmi nákladný.}. Na druhé horizontální škálování je relativně levné - škáluje se přidáním nového uzlu. Vzhledem k tomu, že NoSQL databáze nevyžadují žádný konkrétní hardware, je možné používat takzvaný \textit{komoditní hardware} (uzly nemusí být hardwarově homogenní), který je levný.  
@@ -102,7 +104,7 @@ Další možnou maticovou reprezentací grafu je \textbf{matice incidence}. Jedn
 Některé problémy matice sousednosti řeší \textbf{list sousednosti}. Ten je implementován jako množina listů, kde každému uzlu připadá jeden list sousedních uzlů (TODO viz obrázek). Paměťová náročnost této reprezentace je tedy $\Theta$(|V|+|E|), kde |V| je počet uzlů a tedy počet listů sousednosti a |E| je počet hran a tedy celkový počet prvků obsažených v listech sousednosti. List sousednosti je tedy výrazně úspornější reprezentace z paměťového hlediska, než je matice sousednosti a je tedy vhodný i pro řídké grafy. Zároveň umožňuje rychlé nalezení všech sousedních uzlů pro daný uzel, v listu jsou vypsány pouze ty uzly, se kterými je uzel propojen a procházení grafu je tak rychlé. Přidání hrany do grafu je přidáním jednoho prvku do listu (respektive dvou listů v případě neorientovaného grafu) a přidání uzlu je také relativně efektivní - znamená vytvoření nového listu a přidání ho do množiny ostatních listů. Drahé jsou naopak operace odebrání hrany (je nutné projít všechny sousedy obou koncových uzlů hrany) a odebrání uzlu (je nutné projít všechny hrany). Také ověření existence konkrétní hrany je relativně drahé (je potřeba opět projít všechny sousedy daného uzlu). Toto může být řešeno alternativní implementací, napříkald mohou být listy sousedů řazeny. Tím se sice sníží složitost ověření existence hrany, ale zvýší se složitost přidání nové hrany. (TODO zdroje)
 Při reprezentaci velkých grafů pomocí listů sousednosti se používají kompresní techniky, díky kterým je možné dále snižovat paměťovou náročnost.\cite{Boldi04} % TODO možná více ke komprimovanému listu sousednosti
 
-% TODO prostorová lokalita
+% TODO prostorová lokalita - 220 holub
 
 % TODO RDF
 % - (haxtree)
@@ -153,34 +155,39 @@ Jak už bylo zmíněno, grafové databáze jsou typem NoSQL databází. Přesto 
 %TODO
 \subsection{Distribuovatelnost}
 \label{sec:gdb-distribution}
-%TODO Partitioning
+V kapitole \ref{sec:gdb-nosql} jsme zmínili, že distribuovanost dat je klíčovou vlastností NoSQL databází\footnote{Pokud je to možné, je vždy efektivnější když data distribuovaná nejsou. K jejich distribuování přikračujeme až ve chvíli, kdy nás k tomu nutí okolnosti - například velikost dat.}. Pro distribuci dat se využívá kombinování dvou technik - \textit{rozdělení (sharding)} a \textit{replikace} dat. 
 
-% strana 56 holub
+% Sharding
+Rozdělení dat je základním předpokladem pro jejich distribuci - musí dojít k rozdělení dat na vhodné množiny a ty uložit na různé uzly v clusteru. Při manipulaci s daty je tak přistopováno na jeden nebo více uzlů podle toho, jaká data jsou zpracovávána. Při rozdělování dat je bráno v potaz jejich rovnoměrné rozdělení, minimalizace počtu uzlů využívaných k provádění operací nad daty a optimalizace jejich fyzického rozmístění. 
+
+% Replikace
+Aby byla při případném výpadku části uzlů stále přístapná všechna data (všechny \textit{shardy}) jsou po částech mezi uzly několikrát replikována. Tím je zajištěno, že při selhání (ať už dočasném, nebo trvalém) jednoho uzlu nedojde ke ztrátě dat samotných, ani ke ztrátě přístupu k nim (pokud neselžou všechny repliky obsahující danou část dat). Počet, kolikrát jsou data v databázi replikována (replikační faktor) určuje mimo jiné algoritmus, pomocí kterého jsou data na repliky ukládána a rychlost jejich čtení. 
+
+% Kontext grafů TODO
+U grafových databází je ale distribuce dat (a tedy horizontální škálování) výrazně komplikovanější, než u ostatních NoSQL databází. Ty se typická skládají z několika struktur (tabulek, dokumentů, dvojic klíč-hodnota), zatímco obsahem grafové databáze je typicky pouze jediná struktura - graf. Rozdělení grafu na podgrafy je obtížný (zvláště pokud se jedná například o úplný graf), proto obecně ne mnoho grafových databází tuto možnost vůbec umožňuje. Přesto existují metody, které se distribucí grafu zabývají. Výsledná distribuce je potom typicky optimální pouze pro podmnožinu grafových úloh (distribucí grafu na několik uzlů se mění čas, v jakém je možné získat seznam sousedních vrcholů grafu v případech, kdy hrana mezi vrcholem a jeho sousedem spojuje dva podgrafy na dvou různých uzlech). 
+
+%1D a 2D dělení matice sousednosti TODO
+
+
+
+
+% strana 221 holub
 
 %strana 9
 
 % sharding str 30 vlevo dole
 
-% Sharding is the process of partitioning data
-% across multiple machines in order to scale a system
-% horizontally.3 In a graph, with unconstrained, direct
-% references between vertices and edges, there usually
-% does not exist a clean data partition. Thus, it
+
+%Thus, it
 % becomes difficult to scale graph databases beyond
 % the confines of a single machine and at the same
 % time, maintain the speed of a traversal across
-% sharded borders. However, at the expense of this
+% sharded borders. 
+
+% However, at the expense of this
 % drawback there is a significant advantage: there
 % is a constant time cost for retrieving an adjacent
-% vertex or edge. That is, regardless of the size of
-% the graph as a whole, the cost of a local read operation
-% at a vertex or edge remains constant. This
-% benefit is so important that it creates the primary
-% means by which users interact with graph databases
-% – traversals. Graphs offer a unique vantage
-% point on data, where the solution to a problem is
-% seen as abstractly defined traversals through its
-% vertices and edges
+% vertex or edge. 
 
 
 %TODO 
