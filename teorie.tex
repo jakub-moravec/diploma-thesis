@@ -1,22 +1,20 @@
 \chapter{Teoretická část}
-%TODO write something nice
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Grafové databáze}
 
-Grafy jsou velice přirozeným způsobem reprezentaci dat, zvláště v době, kdy většina dat je vytvářena uživateli v nestrukturované formě. Grafy pomocí uzlů a hran popisují objekty a vztahy mezi nimi s elegancí a přirozeností, jaké mohou jiné reprezentace dat těžko dosáhnout. Grafy usnadňují proces objevování informací v datech a přitom nevynucují náročné datové modelování skutečnosti do složitých datových struktur. Díky tomu, že grafy umožňují jednoduché prohladávání objektů, které mezi sebou mají vztahy (uzlů propojených hranami), jsou operace tohoto typu nad grafy relativně\footnote{Například vůči \nom{RDBMS}{relačním databázím} - čas nutný pro průchod přes několik hran je výrazně nižší než čas nutný ke spojení několika tabulek.} levné. 
+Grafy jsou velice přirozeným způsobem reprezentaci dat, zvláště v době, kdy většina dat je vytvářena uživateli a není strukturovaná. Grafy pomocí uzlů a hran přirozeně popisují objekty a vztahy mezi nimi, nevynucují náročné datové modelování skutečnosti do složitých datových struktur a usnadňují tak proces objevování informací v datech. Díky tomu, že grafy umožňují jednoduché prohladávání objektů, které mezi sebou mají vztahy (uzlů propojených hranami), jsou operace tohoto typu nad grafy relativně (například vůči relačním databázím) rychlé. 
 
-\nom{GDB}{Grafové databáze} umožňují data reprezentovaná grafem ukládat a procházet tak, aby byly tyto přirozené výhody grafů zachovány a zároveň byly zajištěny alespoň některé vlastnosti \nom{RDBMS}{relačních databázových systémů}. 
-% todo case studies https://neo4j.com/resources/top-use-cases-graph-databases-white-paper/
+Grafové databáze umožňují data reprezentovaná grafem ukládat a procházet tak, aby byly tyto přirozené výhody grafů zachovány a v některých případech byly také zajištěny některé vlastnosti relačních databázových systémů (jako například atomicitu transakcí). Problémů, pro které je vhodné využití grafových databází je mnoho, příkladem může být ochrana proti podvodům v bankovním sektoru. Některé vzorce v datech je složité odhalit pomocí modelů relačních databází. Grafové databáze naopak přináší nový pohled na data a implicitně ukazují vztahy mezi nimi. Umožňují tak odhalit v datech více podezřelých vzorců, které často mohou znamen právě bankovní podvody.\cite{Webber17} Dalším z mnoha příkladů jsou také řešení v oblasti \textit{data lineage}, která si kladou za cíl sledovat vztahy mezi daty společností a mapovat proces jejich zpracování. 
 
-% TODO
-% TODO cite 144 z holuba
+Tato kapitola má za cíl představit základní principy grafových databází. Popisuje reprezentaci grafů v databázi, možnosti analýzy dat a rozhraní, kterých je k tomu možné použít.
+
 \subsection{NoSQL}
 \label{sec:gdb-nosql}
-NoSQL databázové sice nejsou předmětem této práce, grafové databáze nicméně bývají zařazovány jako podkategorie NoSQL a proto zde základní principy této skupiny technologií popíšeme. Samotná zkratka NoSQL je vykládaná různě, většinou jako \textit{"Not only SQL"\footnote{Eric Evans [82] Holubová TODO}} a vykládá se jako označení pro databáze nerelačního typu určené pro zpracování \textit{Big Data}\footnote{TODO definice big data, cite bp}. Mezi hlavní uváděné výhody NoSQL databází patří: 
+NoSQL databázové sice nejsou předmětem této práce, grafové databáze nicméně bývají zařazovány jako podkategorie NoSQL a proto zde základní principy této skupiny technologií popíšeme. Samotná zkratka NoSQL je vykládaná různě, většinou jako \textit{"Not only SQL"} \cite{Evans09} a vykládá se jako označení pro databáze nerelačního typu určené pro zpracování \textit{Big Data}\footnote{Big Data jsou soubory dat velkého objemu, velké rychlosti a/nebo velké různorodosti, která vyžadují nové formy zpracování pro umožnění lepšího rozhodování, většího porozumění domény a optimalizace procesů.\cite{Laney01}}. Mezi hlavní uváděné výhody NoSQL databází patří: 
 
 \begin{itemize}
-  \item{\textit{Škálovatelnost:}} Zatímco klasické databázové systémy využívají \textit{vertikální škálovatelnost}\footnote{TODO popis vetikální škálovatelnosti}, NoSQL databáze umožňují efektivní \textit{horizntální škálování}\footnote{TODO popis horizontálního škálování}. Data v NoSQL databázích bývají tedy typicky distribuovaná na několik uzlů\footnote{TODO vysvětlit clustery} a jejich zpracování tak může probíhat paralelně. 
+  \item{\textit{Škálovatelnost:}} Zatímco klasické databázové systémy využívají \textit{vertikální škálovatelnost}\footnote{Vertikální škálování je prováděno pomocí navýšení zdrojů (ať už výpočetní kapacity, nebo paměti) jednoho zařízení.}, NoSQL databáze umožňují efektivní \textit{horizntální škálování}\footnote{Systém je horizontálně škálovatelný, jestliže lze navýšit jeho výkon a/nebo kapacitu přidáním dalšího zařízení. Jedná se tedy o síť spolupracujících zařízení.}. Data v NoSQL databázích bývají tedy typicky distribuovaná na několik uzlů\footnote{Pojem sluster může mít několik významů, zde je požíván jako množina síťově propojených počítačů.} a jejich zpracování tak může probíhat paralelně. 
   \item{\textit{Efektivní čtení:}} NoSQL datatabáze jsou silně orientovány na rychlé čtení (koncept \textit{write once, read many times}). Ve většině již nejsou data po zapsání do databáze nikdy modifikována, pouze nad nimi jsou vykonávány analýzy (dotazy). Za cenu potenciálně pomalejšího zápisu dat do databáze (který nám nevadí) získáme tedy výrazně vyšší rychlost čtení dat.  
   \item{\textit{Flexibilní datový model:}} NoSQL databáze buď nevyžadují žádné datové schéma, nebo je schéma volné (a lze ho tedy upravovat bez nutnosti úpravy stávajících dat). Dodržování schématu dat je tedy na aplikaci, která NoSQL databázi používá.  
   \item{\textit{Ekonomická stránka:}} jak již bylo uvedeno, relační databáze je nutné typicky škálovat vertikálně a to je nákladné\footnote{Jsou navyšovány prostředky jednoho stroje, což má technická omezení a čím více se těmto omezením blížíme, tím je škálování dražší. Vedlejším efektem této skutečnosti je často takzvaný \textit{vendor-locking}, tedy situace, kdy jsme nuceni používat specifický hardware (často od jedné konkrétní společnosti), který je velmi nákladný.}. Na druhé horizontální škálování je relativně levné - škáluje se přidáním nového uzlu. Vzhledem k tomu, že NoSQL databáze nevyžadují žádný konkrétní hardware, je možné používat takzvaný \textit{komoditní hardware} (uzly nemusí být hardwarově homogenní), který je levný.  
@@ -25,13 +23,11 @@ NoSQL databázové sice nejsou předmětem této práce, grafové databáze nicm
 Aby těchto výhod NoSQL databáze dosáhly, využívají různé přístupy k reprezentaci dat a manipulaci s daty. Jejich hlavní rozdělení je následující: 
 
 % Typy NoSQL databází
-%TODO citace a příklady
 \begin{itemize}
-	% TODO cite redis
-  \item{\textit{Databáze typu klíč-hodnota:}} Tyto databáze mají zcela volné datové schéma, jsou realizovány jako mapa klíčů a hodnot. Hodnota přitom typicků může nabývat několika datových typů (například číslo, text, binární řetězec, kolekce některého z předchozích). Operace nad tímto uložištěm jsou poměrně jednoduché a zpravidla neposkytují pokročilé nástroje pro analýzu dat na základě obsahu - pouze na základě klíče. 
-  \item{\textit{Dokumentová databáze:}} Dokumentové databáze ukládají a spravují zpravidla strukturované dokumenty. Nejčastější formáty dokumentů jsou \nomExpl{\textit{JSON}\footnote{TODO popsat JSON}}{JavaScript Simple Object Notation} a \nomExpl{\textit{XML}\footnote{TODO popsat XML}}{Extensible Markup Language}. Narozdíl od databází typu klíč-hodnota umožňují dokumentové databáze přistupovat k dokumentům a analyzovat je dle jejich obsahu. 
-  \item{\textit{Sloupcové databáze:}} Sloupcové databáze se skládají z tabulek, ve kterých může mít každý řádek libovolný počet sloupců (nezávislý na ostatních řádcích). Volné vkládání sloupců sloupců nijak nesnižuje výkon sloupcových databází, které bývají masivně distribuované.
-  \item{\textit{Grafové databáze:}} Konečně posledním a pro nás nejzajímavějším typem NoSQL databází jsou grafové databáze. Tyto databáze jsou určené pro data, která je vhodné modelovat a dotazovat jako grafy (viz. kapitola \ref{sec:gdb-grafy}). Vnitřní reprezentace grafů může být různá podle toho, pro jaký typ grafových úlovh je daná databáze primárně určena.
+  \item{\textit{Databáze typu klíč-hodnota:}} Tyto databáze mají zcela volné datové schéma, jsou realizovány jako mapa klíčů a hodnot. Hodnota přitom typicků může nabývat několika datových typů (například číslo, text, binární řetězec, kolekce některého z předchozích). Operace nad tímto uložištěm jsou poměrně jednoduché a zpravidla neposkytují pokročilé nástroje pro analýzu dat na základě obsahu - pouze na základě klíče. Příklady tohoto typu databází jsou Redis\footnote{https://redis.io/}, Riak\footnote{http://basho.com/products/}, nebo Voldemort\footnote{http://www.project-voldemort.com/voldemort/}.
+  \item{\textit{Dokumentová databáze:}} Dokumentové databáze ukládají a spravují zpravidla strukturované dokumenty. Nejčastější formáty dokumentů jsou \textit{\nomExpl{JSON}{JavaScript Simple Object Notation}} a \textit{\nomExpl{XML}{Extensible Markup Language}}. Narozdíl od databází typu klíč-hodnota umožňují dokumentové databáze přistupovat k dokumentům a analyzovat je dle jejich obsahu. Příkladem mohou být MongoDB\footnote{https://www.mongodb.com/} a CouchDB\footnote{http://couchdb.apache.org/}.  
+  \item{\textit{Sloupcové databáze:}} Sloupcové databáze se skládají z tabulek, ve kterých může mít každý řádek libovolný počet sloupců (nezávislý na ostatních řádcích). Volné vkládání sloupců sloupců nijak nesnižuje výkon sloupcových databází, které bývají masivně distribuované. Příklady sloupcových databází jsou HBase\footnote{https://hbase.apache.org/}, BigTable\footnote{https://cloud.google.com/bigtable/} a Cassandra\footnote{http://cassandra.apache.org/}.
+  \item{\textit{Grafové databáze:}} Konečně posledním a pro nás nejzajímavějším typem NoSQL databází jsou grafové databáze. Tyto databáze jsou určené pro data, která je vhodné modelovat a dotazovat jako grafy (viz. kapitola \ref{sec:gdb-grafy}). Vnitřní reprezentace grafů může být různá podle toho, pro jaký typ grafových úlovh je daná databáze primárně určena. Konkrétní databáze budou popsány v kapitole \ref{sec:gdb-databaze}.
 \end{itemize}
 
 
@@ -165,14 +161,9 @@ U grafových databází je ale distribuce dat (a tedy horizontální škálován
 
 %1D a 2D dělení matice sousednosti TODO
 
-
-
-
 % strana 221 holub
 
 %strana 9
-
-% sharding str 30 vlevo dole
 
 
 %Thus, it
