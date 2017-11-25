@@ -13,7 +13,7 @@ Grafy jsou velice přirozeným způsobem reprezentaci dat, zvláště v době, k
 % TODO cite 144 z holuba
 \subsection{NoSQL}
 \label{sec:gdb-nosql}
-NoSQL databázové systémy sice nemají s touto prací mnoho společného, grafové databáze nicméně bývají zařazovány jako podkategorie NoSQL a bylo by tedy vhodné základní principe této skupiny technologií ve zkratce popsat. Samotná zkratka NoSQL je vykládaná různě, většinou jako \textit{"Not only SQL"\footnote{Eric Evans [82] Holubová TODO}} a vykládá se jako označení pro databáze nerelačního typu určené pro zpracování \textit{Big Data}\footnote{TODO definice big data, cite bp}. Mezi hlavní uváděné výhody NoSQL databází patří: 
+NoSQL databázové sice nejsou předmětem této práce, grafové databáze nicméně bývají zařazovány jako podkategorie NoSQL a proto zde základní principy této skupiny technologií popíšeme. Samotná zkratka NoSQL je vykládaná různě, většinou jako \textit{"Not only SQL"\footnote{Eric Evans [82] Holubová TODO}} a vykládá se jako označení pro databáze nerelačního typu určené pro zpracování \textit{Big Data}\footnote{TODO definice big data, cite bp}. Mezi hlavní uváděné výhody NoSQL databází patří: 
 
 \begin{itemize}
   \item{\textit{Škálovatelnost:}} Zatímco klasické databázové systémy využívají \textit{vertikální škálovatelnost}\footnote{TODO popis vetikální škálovatelnosti}, NoSQL databáze umožňují efektivní \textit{horizntální škálování}\footnote{TODO popis horizontálního škálování}. Data v NoSQL databázích bývají tedy typicky distribuovaná na několik uzlů\footnote{TODO vysvětlit clustery} a jejich zpracování tak může probíhat paralelně. 
@@ -24,6 +24,7 @@ NoSQL databázové systémy sice nemají s touto prací mnoho společného, graf
 
 Aby těchto výhod NoSQL databáze dosáhly, využívají různé přístupy k reprezentaci dat a manipulaci s daty. Jejich hlavní rozdělení je následující: 
 
+% Typy NoSQL databází
 %TODO citace a příklady
 \begin{itemize}
 	% TODO cite redis
@@ -33,24 +34,23 @@ Aby těchto výhod NoSQL databáze dosáhly, využívají různé přístupy k r
   \item{\textit{Grafové databáze:}} Konečně posledním a pro nás nejzajímavějším typem NoSQL databází jsou grafové databáze. Tyto databáze jsou určené pro data, která je vhodné modelovat a dotazovat jako grafy (viz. kapitola \ref{sec:gdb-grafy}). Vnitřní reprezentace grafů může být různá podle toho, pro jaký typ grafových úlovh je daná databáze primárně určena.
 \end{itemize}
 
-% Typy NoSQL databází
 
 \subsection{Grafy}
 \label{sec:gdb-grafy}
 % Matematická definice
-Před popisem vlastních \nom{GDB}{grafových databází} blíže popíšeme grafy jako takové a jejich typy. Nejdříve uvedeme základní matematický rámec teorie grafů, se kterým budeme dále pracovat. 
+Ještě před popisem vlastních grafových databází blíže popíšeme grafy jako takové a jejich typy. Nejdříve uvedeme základní matematický rámec teorie grafů, se kterým budeme dále pracovat. 
 
-Graf G je trojice (V, E, $\epsilon$), kde V je množina vrcholů\footnote{nebo také uzlů} a E množina hran. $\epsilon$ je přiřazení, které každé hraně přiřazuje: 
+Graf \textit{G} je trojice \textit{G = (V, E, $\epsilon$)}, kde \textit{V} je množina vrcholů\footnote{nebo také uzlů} a \textit{E} množina hran. \textit{$\epsilon$} je přiřazení, které každé hraně přiřazuje: 
 \begin{itemize} 
-	\item{} množinu dvou vrcholů (koncové vrcholy) pro \textit{neorientovaný graf}
-	\item{} uspořádanou dvojici vrzcholů (počáteční a koncový vrchol) pro \textit{orientovaný graf}
+	\item{} množinu dvou vrcholů (koncové vrcholy) pro \textit{neorientovaný graf}.
+	\item{} uspořádanou dvojici vrzcholů (počáteční a koncový vrchol) pro \textit{orientovaný graf}.
 \end{itemize}
 
 % Multigrafy / prosté grafy
 Pokud graf neobsahuje paralelní hrany\footnote{nebo také multihrany}, tedy hrany, které mají stejné počáteční a koncové vrcholy (orientovaný graf), respektive stejné koncové vrcholy (neorientovaný graf), je označován jako \textit{prostý graf}. Naopak pokud graf paralelní hrany obsahuje, je označován jako \textit{multigraf}.\cite{Demlova17}
 
 % Labeled grafy
-Grafy z pohledu informačních technologií matematickou definici grafu dále rozšiřují. Umožňují definovat typy hran a uzlů, čímž vzniká \textit{ohodnocený graf}\footnote{Ohodnocený graf bývá také často označován jako labeled graf. Jeho opakem, tedy "neohodnoceným" grafem je jednovztahový nebo také homogenní graf.} Například ohodnocený graf na obrázku \ref{fig:labeled_graf} obsahuje dva typy uzlů (:OSOBA a :ČLÁNEK) a dva typy hran (:ZNÁ a :ČETL).
+Grafy z pohledu informačních technologií matematickou definici grafu dále rozšiřují. Umožňují definovat typy hran a uzlů, čímž vzniká \textit{ohodnocený graf}\footnote{Opakem ohodnoceného grafu je jednovztahový nebo také homogenní graf.} Například ohodnocený graf na obrázku \ref{fig:labeled_graf} obsahuje dva typy uzlů (:OSOBA a :ČLÁNEK) a dva typy hran (:ZNÁ a :ČETL).
 
 \begin{figure}
 \begin{center}
@@ -61,7 +61,7 @@ Grafy z pohledu informačních technologií matematickou definici grafu dále ro
 \end{figure}
 
 % Property grafy
-Ohodnocené grafy nám sice poskytují možnost rozlišit typy hran a uzlů, v mnoha situacích je ale žádoucí zachytit do grafu více informací. \textit{Atributové grafy} umožňují přiřadit hranám a uzlům libovolný počet atributů (dvojic klíč-hodnota), které obsahují informace o daném uzlu, respektive hraně. Příkladem může být věk osob, či datum vydání článku (viz obrázek \ref{fig:property_graf}). Většina grafových databází pracuje právě s atributovými grafy.\cite{Lal15}
+Ohodnocené grafy sice poskytují možnost rozlišit typy hran a uzlů, v mnoha situacích je ale žádoucí zachytit do grafu více informací. \textit{Atributové grafy} umožňují přiřadit hranám a uzlům libovolný počet atributů (dvojic klíč-hodnota), které obsahují informace o daném uzlu, respektive hraně. Příkladem může být věk osob, či datum vydání článku (viz obrázek \ref{fig:property_graf}). Většina grafových databází pracuje právě s atributovými grafy.\cite{Lal15}
 
 \begin{figure}
 \begin{center}
@@ -72,45 +72,37 @@ Ohodnocené grafy nám sice poskytují možnost rozlišit typy hran a uzlů, v m
 \end{figure}
 
 % Hypergrafy
-Generalizací grafu je tzv. \textit{hypergraf}. Ten se proti grafu liší tím, že zatímco hrana grafu je množinou právě dvou vrcholů (či uspořádanou dvojicí v případě orientovaného grafu), hyperhrana (tedy hrana v hypergrafu) je mnoužinou jednoho a více vrcholů.\cite{Diestel00} Hypergrafy jsou používány k reprezentaci dat v mnoha oborech a některé GDB je přímo podporují (například HypergraphDB\footnote{http://hypergraphdb.org/}).
+Generalizací grafu je tzv. \textit{hypergraf}. Ten se proti grafu liší tím, že zatímco hrana grafu vede mezi právě dvěma vrcholy, hyperhrana (tedy hrana v hypergrafu) je mnoužinou jednoho a více vrcholů.\cite{Diestel00} Hypergrafy jsou používány k reprezentaci dat v mnoha oborech a některé GDB je přímo podporují (například HypergraphDB\footnote{http://hypergraphdb.org/}).
 
 
-%TODO
 \subsection{Perzistence}
-Aby bylo možné v dalších kapitolách popsat pokročilé aspekty \nom{GDB}{grafových databází} (jako například indexování, či transakce), je nejdříve nutné popsat jejich základní principy. Nutnost ukládat data ve formě grafů je starší než pojem \nom{GDB}{grafové databáze} ve smyslu, v jakém je prezentován zde. Existuje tak mnoho způsobů uložení grafů z nichž ty nejběžnější zde popíšeme. Ještě předtím je nutno poznamenat, k jakým typům úkolů jsou \nom{GDB}{grafové databáze} zejména využívány. Častými grafovými úlohami jsou \nomExpl{BSF\footnote{Breadth-first search}}{průchod do hloubky} a \nomExpl{DFS\footnote{Depth-first search}}{průchod do šířky} a respektive jejich variace. Oba tyto algoritmy musí projít v nejhorším případě\footnote{Pro konkrétní problémy jsou často \nom{BFS} a \nom{DFS} algoritmy upravovány tak, aby bylo možné některé větve průchodu tzv. ořezávat - tedy procházet pouze jejich část, nebo je neprocházet vůbec.} všechny hrany grafu, je tedy vidět, že pro efektivitu \nom{GDB}{grafové databáze} je klíčová efektivity přechodu z jednodoho uzlu do (všech) jeho sousedů pomocí existujících hran.
+Aby bylo možné v dalších kapitolách popsat pokročilé aspekty \nom{GDB}{grafových databází} (jako například indexování, či transakce), je nejdříve nutné popsat jejich základní principy. Nutnost ukládat data ve formě grafů je starší než grafové databáze samotné, existuje tak mnoho způsobů uložení grafů z nichž ty nejběžnější zde popíšeme. Ještě předtím je nutno poznamenat, k jakým typům úloh jsou grafové databáze zejména využívány. Základními grafovými úlohami jsou \nomExpl{BSF\footnote{Breadth-first search}}{průchod do hloubky} a \nomExpl{DFS\footnote{Depth-first search}}{průchod do šířky}. Oba tyto algoritmy musí projít v nejhorším případě\footnote{Pro konkrétní problémy jsou často \nom{BFS} a \nom{DFS} algoritmy upravovány tak, aby bylo možné některé větve průchodu tzv. ořezávat - tedy procházet pouze jejich část, nebo je neprocházet vůbec.} všechny hrany a uzly grafu, je tedy vidět, že pro efektivitu grafových databází je klíčová rychlost přechodu z jednodoho uzlu do (všech) jeho sousedních uzlů pomocí existujících hran.
 
-% RDBMS (NEO Reasons to use graph databases)
-% TODO zjistit zda se reálně někdy někde používalo a ozdrojovat
-% TODO 166 holoubová
-% https://inviqa.com/blog/graphs-database-sql-meets-social-network
-Než se pustíme do popisu nativních grafových uložišť, krátce popíšeme možnost ukládání grafů pomocí \nom{RDBMS}{relačních databází}. Jedním z možných řešení může být dvojice tabulek \textit{UZLY} a \textit{HRANY}. Tabulka uzlů by obsahovala identifikátor uzlu a případné další parametry uzlu, tabulka hrany by obsahovala referenci na počáteční a koncový uzel hrany a případné další parametry hrany\footnote{V tomto případě předpokládáme orientovaný prostý atributový graf, pro jiné grafy by bylo nutné tuto strukturu upravit (což ale není těžké).}. Všechny hrany grafu je tedy možné získat pomocí spojení těchto tabulek pomocí cízího klíče, složitější průchody potom mohou být docíleny pomocí relace tabulky hran na sebe sama. Problém tohoto přístupu je právě zejména nutnost rekurzivních operací \textit{join} a jejich vysokých nákladů\footnote{Spojování tabulek pomocí cizích klíčů je jedna z nejdražších operací ve světě \nom{RDBMS}{relačních databází}}. Tyto problémy mohou být částečně eliminovány použitím sloupcových (TODO příklady) či dokumentových (todo příklady) NoSQL databází. Přestože v tomto případě nejsou používány rekurzivní join operace (ve světě NoSQL tato operace neexistuje), je k datům přistupováno pomocí prohledávání indexů a operace je tak stále výrazěn dražší, než při použití nativního grafového uložiště.\cite{Lal15} 
-%TODO zmínit objektové db a objektovou reprezentaci grafu
-
-%TODO všechna matematika jako italics
+% RDBMS reprezentace
+Než se pustíme do popisu nativních grafových uložišť, krátce popíšeme možnost ukládání grafů pomocí relačních databází. Jedním z možných řešení může být dvojice tabulek \textit{UZLY} a \textit{HRANY}. Tabulka uzlů by obsahovala identifikátor uzlu a případné další parametry uzlu, tabulka hrany by obsahovala referenci na počáteční a koncový uzel hrany a případné další parametry hrany\footnote{V tomto případě předpokládáme orientovaný prostý atributový graf, pro jiné grafy by bylo nutné tuto strukturu upravit (což ale není těžké). Například v případě ohodnoceného grafu je možné uvažovat separátní tabulku pro každý typ uzlů.}. Všechny hrany daného uzlu je tedy možné získat pomocí spojení těchto tabulek pomocí cízího klíče, složitější průchody potom mohou být docíleny pomocí relace tabulky hran na sebe sama. Problém tohoto přístupu je nutnost rekurzivních operací \textit{join} a jejich vysokých nákladů\footnote{Spojování tabulek pomocí cizích klíčů je jedna z nejdražších operací ve světě relačních databází.}. Tyto problémy mohou být částečně eliminovány použitím sloupcových či dokumentových NoSQL databází. Přestože v takovém případě nejsou používány rekurzivní operace spojování tabulek (ve světě NoSQL tato operace neexistuje), je k datům přistupováno pomocí prohledávání indexů a operace je tak stále výrazěn dražší, než při použití nativního grafového uložiště.\cite{Lal15} 
 
 % Matice sousednosti
 Nejzákladnější nativní reprezentací grafu je tzv. \textbf{matice sousednosti}. Ta využívá možnosti reprezentování hran grafu jako dvojice uzlů a reprezentuje graf jako matici \textit{M} o rozměrech \textit{|V|x|V|}, kde \textit{|V|} je počet uzlů grafu. Pokud existuje mezi uzly \textit{i} a \textit{j} hrana, pak bude \textit{M\textsubscript{i,j} != 0}. 
-Pokud nás zajímá pouze existence hrany, nabývá matice pouze hodnot \textit{\{0, 1\}}. Pokud jsou hrany ohodnocené, pak nenulová hodnota buňky na dané pozici ukazuje nejen existenci hrany mezi danými uzly, ale také její ohodnocení. Pokud je graf neorientovaný, je matice symetrická. Pokud je graf orientovaný, potom \textit{M\textsubscript{i,j}} určuje existenci hrany z uzlu \textit{i} do uzlu \textit{j} a \textit{M\textsubscript{j,i}} naopak existenci hrany z uzlu \textit{j} do uzlu \textit{i}. 
-Tato reprezentace grafu zajišťuje vysokou efektivitu přidávání, odstraňování a kontroly existence hran - tyto operace jsou okamžité, tedy $\Theta$(1).  Na druhou stranu přidání nového uzlu do grafu je nákladná operace, matice musí být přealokována a překopírována. Vzhledem k tomu, že paměťová náročnost matice sousednosti je kvadratická vzhledem k počtu uzlů a nezávisle na počtu hran (není tedy vhodná pro řídké matice\footnote{TODO poznámka o tom, že řídké matice jsou what u need}), je drahé i její překopírování - přidání nového uzlu má časovou složitost $\Theta$(|V|\textsuperscript{2}). 
-Pro nalezení všech sousedních uzlů je nutné všechny uzly projít a zkontrolovat, zda hrana existuje, či nikoliv - $\Theta$(|V|). Hledání sousedních uzlů je nejčastější operací při průchodu grafu, tato reprezentace tedy není vhodná ani na složitější průchody. (TODO zdroje)
+Pokud nás zajímá pouze existence hrany, nabývá matice pouze hodnot \textit{\{0, 1\}}. Pokud jsou hrany ohodnocené, pak nenulová hodnota buňky na dané pozici ukazuje nejen existenci hrany mezi danými uzly, ale také její ohodnocení. Pro neorientovaný graf je matice symetrická. Pokud je graf orientovaný, potom \textit{M\textsubscript{i,j}} určuje existenci hrany z uzlu \textit{i} do uzlu \textit{j} a \textit{M\textsubscript{j,i}} naopak existenci hrany z uzlu \textit{j} do uzlu \textit{i}. 
+Tato reprezentace grafu zajišťuje vysokou efektivitu přidávání, odstraňování a kontroly existence hran - tyto operace jsou okamžité.  Na druhou stranu přidání nového uzlu do grafu je nákladná operace, matice musí být přealokována a překopírována. Vzhledem k tomu, že paměťová náročnost matice sousednosti je kvadratická vzhledem k počtu uzlů a nezávisle na počtu hran (není tedy vhodná pro řídké matice\footnote{TODO poznámka o tom, že řídké matice jsou what u need}), je drahé i její překopírování. 
+Pro nalezení všech sousedních uzlů je nutné všechny uzly projít a zkontrolovat, zda hrana existuje, či nikoliv. Hledání sousedních uzlů je nejčastější operací při průchodu grafu, tato reprezentace tedy není vhodná ani na složitější průchody.
 
 % Laplaceovská matice
-Speciální variantou matice sousednosti je \textbf{Laplaceovská matice}. Ta má stejně jako matice sousednosti rozměry \textit{|V|x|V|}. Diagonála Laplaceovské matice ukazuje stupeň vrcholu a pokud existuje mezi dvěmi vrcholy hrana, je hodnota matice na dané pozici \textit{-1}. Pokud mezi vrcholy hrana naní, hodnota je \textit{0}. Hlavní výhodnou reprezentace grafu Laplaceovskou maticí je umožňění spektrální analýzy grafu\cite{Bernard93}, kdy jsou pomocí vlastních čísel matice analyzovány vlastnosti grafu.
+Speciální variantou matice sousednosti je \textbf{Laplaceovská matice}. Ta má stejně jako matice sousednosti rozměry \textit{|V|x|V|}. Diagonála Laplaceovské matice ukazuje stupeň vrcholu a pokud existuje mezi dvěmi vrcholy hrana, je hodnota matice na dané pozici \textit{-1}. Pokud mezi vrcholy hrana naní, hodnota je \textit{0}. Hlavní výhodnou reprezentace grafu Laplaceovskou maticí je umožňění spektrální analýzy grafu\cite{Barnard93}, kdy jsou pomocí vlastních čísel matice analyzovány vlastnosti grafu.
 
 % Matice incidence
-Další možnou maticovou reprezentací grafu je \textbf{matice incidence}. Jedná se o dvoudimenzionální matici o rozměrech \textit{|V|x|E|}, kde každý sloupec matice odpovídá jedné hraně a řádek jednomu uzlu. Pokud je uzel \textit{v} účastníkem hrany \textit{e}, potom \textit{M\textsubscript{v,e} != 0}. Pokud se jedná o neorientované grafy, nabývá matice pouze hodnot \textit{\{0, 1\}}. Pokud je graf orientovaný, potom je odchozí hrana kódována jako \textit{-1} a příchozí jako \textit{1}. V případě ohodnoceného grafu mohou být hodnoty obecně všechna celá čísla (podobně jako u matice sousednosti), přičemž opět platí, že záporné číslo značí odchozí hranu a kládné číslo příchozí. Vzhledem k tomu, že pro většinu grafů platí, že počet hran |E| je vyšší než počet uzlů |V| (často, například u sociálních sítí, je výrazně vyšší), je tato reprezentace pro svou vysokou paměťovou náročnost ve většině případů nevhodná. Narozdíl od ostatních reprezentací ale umožňuje ukládání hypergrafů (hrany hypergrafu mohou zahrnovat libovolný počet vrcholů). Zatímco u běžného grafu by každý sloupec matice incidence obsahoval právě dva nenulové prvky, u hypergrafu jich může být libovolný počet. (TODO zdroje)
+Další možnou maticovou reprezentací grafu je \textbf{matice incidence}. Jedná se o dvoudimenzionální matici o rozměrech \textit{|V|x|E|}, kde každý sloupec matice odpovídá jedné hraně a řádek jednomu uzlu. Pokud je uzel \textit{v} účastníkem hrany \textit{e}, potom \textit{M\textsubscript{v,e} != 0}. Pokud se jedná o neorientované grafy, nabývá matice pouze hodnot \textit{\{0, 1\}}. Pokud je graf orientovaný, potom je odchozí hrana kódována jako \textit{-1} a příchozí jako \textit{1}. V případě ohodnoceného grafu mohou být hodnoty obecně všechna celá čísla (podobně jako u matice sousednosti), přičemž opět platí, že záporné číslo značí odchozí hranu a kládné číslo příchozí. Vzhledem k tomu, že pro většinu grafů platí, že počet hran \textit{|E|} je vyšší než počet uzlů \textit{|V|} (často, například u sociálních sítí, je výrazně vyšší), je tato reprezentace pro svou vysokou paměťovou náročnost ve většině případů nevhodná. Narozdíl od ostatních reprezentací ale umožňuje ukládání hypergrafů (hrany hypergrafu mohou zahrnovat libovolný počet vrcholů). Zatímco u běžného grafu by každý sloupec matice incidence obsahoval právě dva nenulové prvky, u hypergrafu jich může být libovolný počet.
 
 % List sousednosti 
-Některé problémy matice sousednosti řeší \textbf{list sousednosti}. Ten je implementován jako množina listů, kde každému uzlu připadá jeden list sousedních uzlů (TODO viz obrázek). Paměťová náročnost této reprezentace je tedy $\Theta$(|V|+|E|), kde |V| je počet uzlů a tedy počet listů sousednosti a |E| je počet hran a tedy celkový počet prvků obsažených v listech sousednosti. List sousednosti je tedy výrazně úspornější reprezentace z paměťového hlediska, než je matice sousednosti a je tedy vhodný i pro řídké grafy. Zároveň umožňuje rychlé nalezení všech sousedních uzlů pro daný uzel, v listu jsou vypsány pouze ty uzly, se kterými je uzel propojen a procházení grafu je tak rychlé. Přidání hrany do grafu je přidáním jednoho prvku do listu (respektive dvou listů v případě neorientovaného grafu) a přidání uzlu je také relativně efektivní - znamená vytvoření nového listu a přidání ho do množiny ostatních listů. Drahé jsou naopak operace odebrání hrany (je nutné projít všechny sousedy obou koncových uzlů hrany) a odebrání uzlu (je nutné projít všechny hrany). Také ověření existence konkrétní hrany je relativně drahé (je potřeba opět projít všechny sousedy daného uzlu). Toto může být řešeno alternativní implementací, napříkald mohou být listy sousedů řazeny. Tím se sice sníží složitost ověření existence hrany, ale zvýší se složitost přidání nové hrany. (TODO zdroje)
-Při reprezentaci velkých grafů pomocí listů sousednosti se používají kompresní techniky, díky kterým je možné dále snižovat paměťovou náročnost.\cite{Boldi04} % TODO možná více ke komprimovanému listu sousednosti
+Některé problémy matice sousednosti řeší \textbf{list sousednosti}. Ten je implementován jako množina listů, kde každému uzlu připadá jeden list sousedních uzlů. Paměťová náročnost této reprezentace je tedy \textit{|V|+|E|}, kde \textit{|V|} je počet uzlů a tedy počet listů sousednosti a \textit{|E|} je počet hran a tedy celkový počet prvků obsažených v listech sousednosti. List sousednosti je výrazně úspornější reprezentací grafu z paměťového hlediska než je matice sousednosti a je tedy vhodný i pro řídké grafy. Zároveň umožňuje rychlé nalezení všech sousedních uzlů pro daný uzel, v listu jsou vypsány pouze ty uzly, se kterými je uzel propojen a procházení grafu je tak rychlé. Přidání hrany do grafu je přidáním jednoho prvku do listu (respektive dvou listů v případě neorientovaného grafu) a přidání uzlu je také relativně efektivní - znamená vytvoření nového listu a přidání ho do množiny ostatních listů. Drahé jsou naopak operace odebrání hrany (je nutné projít všechny sousedy obou koncových uzlů hrany) a odebrání uzlu (je nutné projít všechny hrany). Také ověření existence konkrétní hrany je relativně drahé (je potřeba opět projít všechny sousedy daného uzlu). Toto může být řešeno alternativní implementací, napříkald mohou být listy sousedů řazeny. Tím se sice sníží složitost ověření existence hrany, ale zvýší se složitost přidání nové hrany.
+Při reprezentaci velkých grafů pomocí listů sousednosti se používají kompresní techniky, díky kterým je možné dále snižovat paměťovou náročnost.\cite{Boldi04} 
 
-% TODO prostorová lokalita - 220 holub
+% TODO reprezentace grafu jako RDF (haxtree, bitmap). 
 
-% TODO RDF
-% - (haxtree)
-% - (bitmap)
+% TODO obrázky k reprezentaci grafů
 
-% TODO obrázky
+Důležitým kritériem pro výběr reprezentace grafu je \textit{lokalita dat}. Cílem je uložit graf tak, aby jejich fyzické umístění odpovídalo jejich logické vzdálenosti a při průchodu grafem tak byla data pro další krok načtena co nejrychleji. K dosažení optimality lokality dat reprezentovaných grafem existuje mnoho technik, vzhledem k tomu, že se ale jedná o \textit{NP-těžkou} úlohu, jedná se často o heuristiky a aproximační algoritmy. Některé z používaných metod jsou například metoda minimalizace šířky matice autorů \textit{Cuthill a McKee} \cite{Cuthill69}, \textit{rekurzivní spektrální bisekce} \cite{Barnard93}, nebo metoda založená na průchodedech grafu do šířky (BFSL\footnote{Breadth First Search Layout}) \cite{Furaih98}.
+
 
 \subsection{Typy dotazů}
 
