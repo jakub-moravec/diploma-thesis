@@ -112,27 +112,32 @@ Při reprezentaci velkých grafů pomocí listů sousednosti se používají kom
 
 % TODO obrázky
 
-%TODO
 \subsection{Typy dotazů}
-%todo možná samostatná sekce?
 
-\subsubsection{Traversal pattern}
+% Traversal pattern
+Na rozdíl od indexově náročných množinových operací relačních databází využívají grafové databáze bezindexové místní prohledávání (traverzování).\cite{Anglels08} Relační databáze obsahují data typicky v normalizované formě v několika separátních tabulkách tak, aby bylo zamezeno duplikaci dat. Řádky těchto tabulek mohou být chápány jako objekty popsané svými vlastnostmi. Vztahy mezi objekty jsou definovány primárními a cizími klíči a musí být při dotazování explicitně vytvořeny spojením tabulek pomocí \textit{join} operace. Jak vyhledávání záznamů v tabulkách, tak spojování tabulek je (v ideálním případě) realizováno pomocí vyhledávacích indexů, které časovou složitost těchto operací značně snižují, obecně ale ne dostatečně. Databázové vyhledávací indexy jsou typicky realizovány pomocí vyhledávacích stromů (konkrétně B-stromů \cite{Leach05}), vyhledání zánamu má tedy logaritmickou časovou složitost vzhledem k počtu uzlů\footnote{Konkrétně operaci vyhledání uzlu má složitost \textit{$\Theta$(b log$_b$(n))} a operace vyhledání rozsahu uzlů \textit{$\Theta$(b log$_b$(n) + k/b)}, kde \textit{n} je počet uzlů, \textit{b} je úroveň stromu a \textit{k} je velikost rozsahu.\cite{Cormen09}}. 
+Grafové databáze na druhé straně obsahují typicky pouze jednu strukturu - graf. Ten ve své fyzické reprezentaci obsahuje všechny své hrany, vztahy mezi objekty (vrcholy) v grafu jsou tedy implicitní, není potřeba je při každém dotazu vytvářet. Tato skutečnost s sebou nese výhody i nevýhody. Jednou z podstatných nevýhod je složitost rozdělení grafu na podgrafy a tedy obtížná distribuce grafu (popsáno v kapitole \ref{sec:gdb-distribution}). Naopak výhodou je instantní čas, ve kterém je možné se v grafu posouvat mezi sousedními uzly. To je natolik výraznou vlastnostní grafových databází, že výrazně ovlivňuje způsob, jakým je přistupováno k datům v grafových databázích. Tím nejčastějším je právě průchod grafem (traverzování, nebo také \textit{Traversal pattern}). 
 
-Na rozdíl od indexově náročných množinových operací relačních databází využívají grafové databáze bezindexové místní prohledávání, tzv. traverzování.\cite{Anglels08} Relační databáze obsahují data typicky v normalizované formě v několika separátních tabulkách tak, aby bylo zamezeno duplikaci dat. Řádky těchto tabulek mohou být chápány jako objekty popsané svými vlastnostmi. Vztahy mezi objekty jsou definovány primárními a cizími klíči a musí být při dotazování explicitně vytvořeny spojením tabulek pomocí \textit{join} operace. Jak vyhledávání záznamů v tabulkách, tak spojování tabulek je (v ideálním případě) realizováno pomocí vyhledávacích indexů, které časovou složitost těchto operací značně snižují, obecně ale ne dostatečně. Databázové vyhledávací indexy jsou realizovány pomocí binárních vyhledávacích stromů (TODO cite), vyhledání zánamu má tedy složitost \textit{$\O$(n)}. 
-Grafové databáze na druhé straně obsahují typicky pouze jednu strukturu - graf. Ten ve své fyzické reprezentaci obsahuje všechny hrany, které obsahuje, vztahy mezi objekty (vrcholy) v grafu jsou tedy implicitní, není potřeba je při každém dotazu vytvářet. Tato skutečnost s sebou nese výhody i nevýhody. 
+Na začátku průchodu grafu jsou pomocí indexu vyhledány výchozí uzly, ze kterých bude graf procházen. Z nich se dotaz pohybuje po grafu pomocí sousedních hran a uzlů dle zadaných kritérií. Těmi jsou typicky typy hran a uzlů, podmínky na jejich vlastnosti (uvažujeme atributový graf, viz kapitola \ref{sec:gdb-grafy}) a hloubka prohledávání. Součástí definice dotazu je také zvolení typu průchodu - průchod do hloubky (\textit{\nom{DFS}{Depth-first search}}, nebo průchod do šířky (\textit{\nom{BFS}{Breadth-first search}}. Když jsou projity všechny cesty odpovídající zadaným kritériím, jsou vráceny uzly, ve kterých průchod skončil. Typickými úlohami řešenými pomocí průchodů grafem je například zjištění existence cesty mezi dvěma uzly, nalezení nejktraší cesty, nalezení všech cest a uzlů odpovídajícíh zadaným kritériím apod.  
 
-%todo - nevýhoda - nedělitelnost grafu
+% TODO příklad traversalu
 
-%todo - výhoda - rychlost průchodů
+% Dotazy na podgraf, nadgraf, podobný graf
+Dalšími typy dotazou kromě obecného průchodu gravu jsou \textit{dotazy na podgrafy}, \textit{dotazy na nadgrafy} a \textit{dotazy na podobné grafy}. Zadáním těchto dotazů je také graf, označme \textit{$G_dotaz$}. Tento dotazový graf může obsahovat uzly a hrany, u kterých nejsou specifikovány bližší vlastnosti, v grafu může být určena množina přípustných typů uzlů a hran, nebo například maska jejich typů. Dotazy na podgrafy hledají specifický vzor grafů v grafové databázi - v databázi jsou vyhledávány všechny grafy, který \textit{$G_dotaz$} obsahují. V případě dotazu na nadgraf naopak hledáme v databázi všechny datové grafy, které jsou v \textit{$G_dotaz$} obsaženy. U dotazů na podobné grafy je výsledek dotazu vyhodnocován pomocí metriky podobnosti.\cite{Koutra11} Tyto typy dotazů jsou vyhodnocovány ve třech krocích: 
 
+\begin{enumerate}
+	\item{Extrakce:} Z grafu \textit{$G_dotaz$} jsou vyextrahovány indexované charekteristiky (stejným způsobem jako z datových grafů).
+	\item{Filtrace:} Porovnáním vyextrahovaných charakteristik jsou z datových grafů vybrány ty, které odpovídají charakteristikám \textit{$G_dotaz$}. Tím vznikne množina kandidátů na výsledek, přičemž cílem indexační techniky je, aby tato množina obsahovala co nejmenší počet falešně pozitivních kandidátů. Pokud by množina neobsahovala žádné falešně pozitivní kandidáty (indexační technika by měla dostatečnou filtrační schopnost), byla by tato množina rovna množině výsledných grafů (a nebylo by nutno provádět třetí fázi). 
+	\item{Verifikace:} Grafy z množiny kandidátních řešení jsou podrobně porovnány s \textit{$G_dotaz$}, čímž jsou vyloučeni případní zbylí falšeně pozivní kandidáti a dostáváme množinu skutečných výsledků. 
+\end{enumerate}
 
-%typy dotazů 
-% - podgraf
-% - nadgrafb
+Je zjevné, že tyto typy dotazů jsou velmi závislé na konkrétních indexačních technikách, ty jsou popsány v kapitole \ref{sec:gdb-indexy}.
 
+% TODO příklad dotazu na podgraf, nadgraf
 
 %TODO
 \subsection{Indexy}
+\label{sec:gdb-indexy}
 % - mining based 
 % - non-mining base 
 
