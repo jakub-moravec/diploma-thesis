@@ -145,7 +145,6 @@ Jak už bylo zmíněno, grafové databáze jsou typem NoSQL databází. Přesto 
 
 % TODO zámky
 
-%TODO
 \subsection{Distribuovatelnost}
 \label{sec:gdb-distribution}
 V kapitole \ref{sec:gdb-nosql} jsme zmínili, že distribuovanost dat je klíčovou vlastností NoSQL databází\footnote{Pokud je to možné, je vždy efektivnější když data distribuovaná nejsou. K jejich distribuování přikračujeme až ve chvíli, kdy nás k tomu nutí okolnosti - například velikost dat.}. Pro distribuci dat se využívá kombinování dvou technik - \textit{rozdělení (sharding)} a \textit{replikace} dat. 
@@ -157,25 +156,7 @@ Rozdělení dat je základním předpokladem pro jejich distribuci - musí dojí
 Aby byla při případném výpadku části uzlů stále přístapná všechna data (všechny \textit{shardy}) jsou po částech mezi uzly několikrát replikována. Tím je zajištěno, že při selhání (ať už dočasném, nebo trvalém) jednoho uzlu nedojde ke ztrátě dat samotných, ani ke ztrátě přístupu k nim (pokud neselžou všechny repliky obsahující danou část dat). Počet, kolikrát jsou data v databázi replikována (replikační faktor) určuje mimo jiné algoritmus, pomocí kterého jsou data na repliky ukládána a rychlost jejich čtení. 
 
 % Kontext grafů TODO
-U grafových databází je ale distribuce dat (a tedy horizontální škálování) výrazně komplikovanější, než u ostatních NoSQL databází. Ty se typická skládají z několika struktur (tabulek, dokumentů, dvojic klíč-hodnota), zatímco obsahem grafové databáze je typicky pouze jediná struktura - graf. Rozdělení grafu na podgrafy je obtížný (zvláště pokud se jedná například o úplný graf), proto obecně ne mnoho grafových databází tuto možnost vůbec umožňuje. Přesto existují metody, které se distribucí grafu zabývají. Výsledná distribuce je potom typicky optimální pouze pro podmnožinu grafových úloh (distribucí grafu na několik uzlů se mění čas, v jakém je možné získat seznam sousedních vrcholů grafu v případech, kdy hrana mezi vrcholem a jeho sousedem spojuje dva podgrafy na dvou různých uzlech). 
-
-%1D a 2D dělení matice sousednosti TODO
-
-% strana 221 holub
-
-%strana 9
-
-
-%Thus, it
-% becomes difficult to scale graph databases beyond
-% the confines of a single machine and at the same
-% time, maintain the speed of a traversal across
-% sharded borders. 
-
-% However, at the expense of this
-% drawback there is a significant advantage: there
-% is a constant time cost for retrieving an adjacent
-% vertex or edge. 
+U grafových databází je ale distribuce dat (a tedy horizontální škálování) výrazně komplikovanější, než u ostatních NoSQL databází. Data v nich jsou uložena do několika několika struktur (tabulek, dokumentů, dvojic klíč-hodnota), zatímco obsahem grafové databáze je typicky pouze jediná struktura - graf. Rozdělení grafu na podgrafy je obtížný problém (zvláště pokud se jedná například o úplný graf), proto obecně ne mnoho grafových databází tuto možnost vůbec umožňuje. Přesto existují metody, které se distribucí grafu zabývají. Výsledná distribuce je potom optimální pouze pro podmnožinu grafových úloh (například průchod do šířky, hledání nejmenší kostry atd.). Distribucí grafu na několik uzlů se mění čas, v jakém je možné získat seznam sousedních vrcholů grafu v případech, kdy hrana mezi vrcholem a jeho sousedem spojuje dva podgrafy na dvou různých uzlech, je tedy obtížné graf distribuovat při snaze zachovat co nejvyšší rychlost průchodu grafem. Příkladem algoritmů pro rozdělení grafu může být \textit{1D dělení} a \textit{2D dělení} matice sousednosti \cite{Yoo05}, nebo mnoho technik aproximujících \textit{optimální k-rozdělení grafu}\footnote{Optimální bisekce grafu je NP-obtížný problém \cite{Garey90}, tedy i optimální k-rozdělení grafu je nejméně NP-obtížný problém. Proto jsou používány aproximační algoritmy.}.\cite{George78} \cite{Fiduccia82} \cite{Battiti99}
 
 
 %TODO 
