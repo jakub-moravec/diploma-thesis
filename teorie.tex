@@ -188,40 +188,23 @@ U grafových databází je ale distribuce dat (a tedy horizontální škálován
 % API a REST API
 Do roku 2018 nebyly zatím definovány standardy pro dotazování dat v grafových databázích. Existuje mnoho způsobů a nástrojů, které dotazování dat umožňují, většina z nich je spjata s konkrétní databází. Některé dotazovací jazyky jsou sice již podporovány více databázemi, v podstatě žádný ale zatím nelze prohlásit za obecně používaný standard. Základním způsobem dotazování dat v kontextu grafových databází jsou \textit{programová rozhraní}, nebo případně \textit{REST API} nezávislá na konkrétním programovacím jazyku. Dotazy jsou v tomto případě přímo součástí kódu aplikace a přímo z aplikace jsou volány, bez prostředníka. Jednoznačnou výhodou tohoto přístupu je, že tato API, která má každá grafová databáze své, podporují všechny funkce dané databáze. To je zároveň i hlávní nevýhodou - grafové databáze fungují na různých, často protichůdných principech (např. tranasakční a netransakční databáze, distribuované a nedistribuované atd.), a jejich API se tedy liší. Není tedy možné předpokládat, že průchody grafem napsané pro jednu databázi budou fungovat na druhé\footnote{Toto zcela neplatí ani u SQL, které je jednoznačným standardem ve světě relačních databází. Rozdíl je ale v tom, že zatímco různé dialekty SQL se liší (pokud se liší) zpravidla pouze málo a pouze v syntaxi jazyka, u API různých grafových databází mohou být rozdíly mnohem zásadnější.}.   
 
-% TODO deklarativní versus imperativní pattern
-Tyto překážky v rozdílnosti grafových databází se snaží vyřešit hned několik dotazovacích jazyků, ty postupně vznikaly spolu s tím, jak se grafové databáze vyvíjely. Tyto jazyky lze dělit mnoha způsoby, jedním z nejdůležitějších je dělení na \textit{deklarativní} a \textit{imperativní} % TODO 
+% deklarativní versus imperativní pattern
+Tyto překážky v rozdílnosti grafových databází se snaží vyřešit hned několik dotazovacích jazyků, ty postupně vznikaly spolu s tím, jak se grafové databáze vyvíjely. Tyto jazyky lze dělit mnoha způsoby, jedním z nejdůležitějších je dělení na \textit{deklarativní} a \textit{imperativní}. Zatímco \textit{imperativní} jazyky formulují řešení problému pomocí pousloupnosti příkazů a určují tak přesný algoritmus řešení problémů, \textit{deklarativní} jazyky naopak způsob řešení problému nepopisují vůbec, ale soustředí se na popis výsledku - deklarují, jaký má být výsledek (použitý algoritmus tedy určuje interpret daného jazyka).\cite{Chao16}
 
 
 % Gremlin
-% FIXME DSL, ne programovací, zmínit groovy, scalu ... https://developer.ibm.com/dwblog/2017/overview-graph-database-query-languages/
-% FIXME
-%As of TinkerPop 3.x, Gremlin has both imperative and declarative characteristics. You can write your traversals to define an exact traversal pattern as stated in this answer or you can use match step to simply define the pattern you are looking for and Gremlin will solve for that.
-Jedním z nejpoužívanějších grafových dotazovacích jazyků je \textbf{Gremlin}. První verze \textit{Gremlina} vyšla 25. 12. 2009 \cite{Gremlin09} jako součást \textit{open-source} projektu \textit{TinkerPop}. \textit{Gremlin} byl uveden jako \textit{turingovky kompletní} programovací jazyk pro práci s atributovými grafovými databázemi. Umožňoval \textit{\nomExpl{CRUD}{Create Read Update Delete}} operace, různé způsoby průchodů grafem a operace s vyhledávacími indexy. V této verzi podporoval ze zavedených databází pouze databázi \textit{Neo4j}. 
-V roce 2010 bylo uvedeno \textit{Blueprints} \cite{Blueprints10}, rozhraní, jehož implementací grafová databáze získává podporu programovacího jazyka \textit{Gremlin}. 
-Ve verzi \textit{Gremlina 2.6.0} \cite{Gremlin14} už jsou \textit{Blueprints} poměrně široce podporovány\footnote{Ve verzi \textit{2.6.0} \textit{Gremlin} podporují databáze \textit{Neo4j, OrientDB, Sparksee, Titan, Faunus, InfiniteGraph, Rexster,} a další.}. To je ale také poslední verze vydaná pod samostatným projektem \textit{TinkerPop}, poté se celý projekt stává součástí \textit{Apache software foundation}\footnote{\url{http://www.apache.org/}}. To má na projekt poměrně velký dopad a ve verzi \textit{3.x} \cite{Gremlin17} byla pozměněna systaxe jazyka a také se změnilo \textit{API} pro podporu \textit{Gremlina} na \textit{Gremlin Structure API}. Mezi databáze podporující Gremlin \textit{3.x} patří \textit{Neo4j, OrientDB, DataStax, InfiniteGraph, JanusGraph, Cosmos DB} a další.
+Jedním z nejpoužívanějších grafových dotazovacích jazyků je \textbf{Gremlin}. První verze \textit{Gremlina} vyšla 25. 12. 2009 \cite{Gremlin09} jako součást \textit{open-source} projektu \textit{TinkerPop}. \textit{Gremlin} byl uveden jako \textit{turingovsky kompletní} programovací jazyk pro práci s atributovými grafovými databázemi. Umožňoval \textit{\nomExpl{CRUD}{Create Read Update Delete}} operace, různé způsoby průchodů grafem a operace s vyhledávacími indexy. V této verzi podporoval ze zavedených databází pouze databázi \textit{Neo4j}. 
+V roce 2010 bylo uvedeno rozhraní \textit{Blueprints} \cite{Blueprints10}, jehož implementací grafová databáze získává podporu jazyka \textit{Gremlin}. 
+Ve verzi \textit{Gremlina 2.6.0} \cite{Gremlin14} už jsou \textit{Blueprints} poměrně široce podporovány\footnote{Ve verzi \textit{2.6.0} \textit{Gremlin} podporují databáze \textit{Neo4j, OrientDB, Sparksee, Titan, Faunus, InfiniteGraph, Rexster,} a další.}. To je ale také poslední verze vydaná pod samostatným projektem \textit{TinkerPop}, poté se celý projekt stává součástí \textit{Apache software foundation}\footnote{\url{http://www.apache.org/}}. To znamená několik změn v projektu, ve verzi \textit{3.x} \cite{Gremlin17} byla pozměněna systaxe jazyka a také se změnilo \textit{API} pro podporu \textit{Gremlina} na \textit{Gremlin Structure API}. Od této verze podporuje \textit{Gremlin} také \textit{deklarativní} dotazování dat (do té doby byly všechny dotazy pouze \textit{imperativní}).  Mezi databáze podporující Gremlin \textit{3.x} patří \textit{Neo4j, OrientDB, DataStax, InfiniteGraph, JanusGraph, Cosmos DB} a další.
 % TODO ukázka gremlin traversalu
 
-% Cypher TODO
-Dalším velice oblíbeným dotazovacím jazykem je \textit{Cypher} \cite{Cypher}, a to především díky jeho podobnosti s \textit{SQL}. \textit{Cypher} je \textit{deklarativní DSL jazyk}, který vznikl jako součást Neo4j. Vzhledem k tomu, že se jedná o \textit{deklarativní} jazyk, snaží se co nejčitelněji popsat\footnote{Syntaxe \textit{Cypheru} je inspirována takzvaným \textit{ASCII artem} - \url{https://cs.wikipedia.org/wiki/ASCII_art}}, co má být výsledkem dotazu a naopak se zaměřuje na to, jakým způsobem bude dotaz proveden. Přesto je možné vykonávání dotazů ovlivnit pomocí tzv. \textit{hintů} (například lze ovlivnit použití indexů). \textit{Cypher} si získal mezi uživateli  značnou oblibu, vznikla proto iniciativa rozšířit ho i mezi další grafové databáze a pokusit se ustanovit \textit{Cypher} jako standardní dotazovací jazyk pro grafové databáze. Výsledkem této iniciativy byl vznik \textit{openCypher} \cite{openCypher} v roce 2015. Podpora tohoto jazyku ale zatím není příliš široká.\footnote{\textit{openCypher} v tuto chvíli podporují spíše méně známé grafové databáze: \url{http://www.opencypher.org/projects}.}
+% Cypher
+Dalším velice oblíbeným dotazovacím jazykem je \textbf{Cypher} \cite{Cypher}, a to především díky jeho podobnosti s \textit{SQL}. \textit{Cypher} je \textit{deklarativní DSL jazyk}, který vznikl jako součást Neo4j. Vzhledem k tomu, že se jedná o \textit{deklarativní} jazyk, snaží se co nejčitelněji popsat\footnote{Syntaxe \textit{Cypheru} je inspirována syntaxí jazyka \textit{SQL} a také takzvaným \textit{ASCII artem} - \url{https://cs.wikipedia.org/wiki/ASCII_art}}, co má být výsledkem dotazu a naopak se zaměřuje na to, jakým způsobem bude dotaz proveden. Přesto je možné vykonávání dotazů ovlivnit pomocí tzv. \textit{hintů} (například lze ovlivnit použití indexů). \textit{Cypher} si získal mezi uživateli  značnou oblibu, vznikla proto iniciativa rozšířit ho i mezi další grafové databáze a pokusit se ustanovit \textit{Cypher} jako standardní dotazovací jazyk pro grafové databáze. Výsledkem této iniciativy byl vznik \textit{OpenCypher} \cite{openCypher} v roce 2015. Podpora tohoto jazyku ale zatím není příliš široká.\footnote{\textit{OpenCypher} v tuto chvíli podporují spíše méně známé grafové databáze: \url{http://www.opencypher.org/projects}.}
 % TODO ukázka cypher a openCypher kódu
 
-% TODO GraphQL
-% http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.480.411&rep=rep1&type=pdf
-% https://github.com/neo4j-graphql/neo4j-graphql-js
+% CHECKME GraphQL http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.480.411&rep=rep1&type=pdf
 
-
-
-
-% TODO PQL
-
-% TODO BPMN-Q
-
-% TODO GOOD / GOQL
-
-% TODO SPARQL (pro úplnost)
- 
-
-
+Existují i další dotazovací jazyky pro grafové databáze než výše zmíněné, většina z nich je ale navržena pro specifické účely a pro obecné použití se nehodí. 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
