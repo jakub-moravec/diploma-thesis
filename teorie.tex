@@ -136,7 +136,7 @@ U strukturálních dotazů je situace komplikovanější. V případě \textit{d
 
 \subsection{Transakce}
 %ACID
-Pojďme nejprve připomenout standardní transakční model světa relačních databází - \textbf{ACID}. Tento model říká, že transakce v databázovém systému musí být atomické (\textit{\textbf{A}tomocity}, tedy nedělitelné. Pokud tedy selže některá z operací transakce, selže celá transakce a je proved její \textit{rollback}\footnote{Rollback transakce je událost, která nastává, pokud transakce selže, nebo pokud je uživatelem explicitně vyvolána. Všechny kroky, které byly v rámci transakce provedeny jsou vráceny, po rollbacku transakce je tedy databáze ve stejném stavu, jako před spuštěním transakce. Opakem rollbacku je operace \textit{commit}, která potvrzuje všechny změny provedené v transakci.}. Nemůže se tedy stát, že by byla provedena jen část operací transakce a databáze se ocitla v nekonzistentním stavu. Jinými slovy, po provedení jakékoliv transakce (úspěšném i neúspěšném) bude databáze vždy konzistentní (\textit{\textbf{C}onsistency}). Všechny transakce jsou také izolované (\textit{\textbf{I}solated}), tedy transakce jsou na sobě navzájem nezávislé a neovlivňují si navzájem data. V případě, že dojde ke konfliktu několika transakcí, databázový systém konflikt vyřeší tak, aby byla tato vlastnost zachována\footnote{Existuje několik stuňu izolace transakcí , výčtem \textit{read uncommitted}, \textit{read committed}, \textit{repeatable read} a \textit{serializable}. Právě na úrovni izolace konfliktujících transakcí záleží, jakým způsobem bude konflikt vyřešen. Poslední vlastností transakcí v transakčním modelu ACID je trvanlivost (\textit{\textbf{D}urability}). Tato vlastnost zajistí, že změny provedené transakcí jsou trvalé. 
+Pojďme nejprve připomenout standardní transakční model světa relačních databází - \textbf{ACID}. Tento model říká, že transakce v databázovém systému musí být atomické (\textit{\textbf{A}tomocity}, tedy nedělitelné. Pokud tedy selže některá z operací transakce, selže celá transakce a je proved její \textit{rollback}\footnote{Rollback transakce je událost, která nastává, pokud transakce selže, nebo pokud je uživatelem explicitně vyvolána. Všechny kroky, které byly v rámci transakce provedeny jsou vráceny, po rollbacku transakce je tedy databáze ve stejném stavu, jako před spuštěním transakce. Opakem rollbacku je operace \textit{commit}, která potvrzuje všechny změny provedené v transakci.}. Nemůže se tedy stát, že by byla provedena jen část operací transakce a databáze se ocitla v nekonzistentním stavu. Jinými slovy, po provedení jakékoliv transakce (úspěšném i neúspěšném) bude databáze vždy konzistentní (\textit{\textbf{C}onsistency}). Všechny transakce jsou také izolované (\textit{\textbf{I}solated}), tedy transakce jsou na sobě navzájem nezávislé a neovlivňují si navzájem data. V případě, že dojde ke konfliktu několika transakcí, databázový systém konflikt vyřeší tak, aby byla tato vlastnost zachována\footnote{Existuje několik stuňu izolace transakcí , výčtem \textit{read uncommitted}, \textit{read committed}, \textit{repeatable read} a \textit{serializable}}. Právě na úrovni izolace konfliktujících transakcí záleží, jakým způsobem bude konflikt vyřešen. Poslední vlastností transakcí v transakčním modelu ACID je trvanlivost (\textit{\textbf{D}urability}). Tato vlastnost zajistí, že změny provedené transakcí jsou trvalé. 
 
 %BASE
 Vlastnosti ACID transakčního modelu jsou klíčové pro relační databázové systémy, které mají širokou škálu využití. Pro svět NoSQL databází (do kterého bývají grafové databáze často řazeny) tento model ale není vhodný, a to především kvůli silnému důrazu na konzistenci dat a tedy jejich obtížné distribuovatelnosti\footnote{Distribuovanost dat je klíčová pro NoSQL databáze obecně, pro grafové databáze to ale ne vždy platí. Toto bude více rozebráno v kapitole \ref{sec:gdb-distribution}.}. Zaven je tedy alternativní transakční model - \textbf{BASE}. Ten říká, že systém numusí být nutně dostaupný vždy, stačí základní dostupnost (\textit{\textbf{B}asic \textbf{A}vailability}) - tedy dostupnost po většinu času. Mohou nastastat částečné výpadky, ale nikdy nedojde k výpadku celého systému\footnote{Tato vlastnost opět míří především na ty NoSQL databáze, které předpokládají vysokou distribuovanost dat a skládají se tedy z více uzlů. Od grafových databází, které distribuované nejsou očekáváme tedy dostupnost úplnou.}. Systém je v takzvaném volném stavu (\textit{\textbf{S}oft-state}), je dynamický, neustále docházi ke změnám. V případě distribuování a replikaci dat je důsledkem této vlastnosti mimo jiné to, že ne všechny repliky musí být nutně vzájemně konzistentní. A konečně, máme jistotu, že systém bude vždy "nakonec" uveden do konzistentního stavu (\textit{\textbf{E}ventual consistency}), ale nemusí být konzistentní v každém okamžiku. Například k vynucení konzistence může dojít až při čtení daty, při jejich zápisu nutná není\footnote{Jedná se o takzvanou \textit{lazy} konzistenci.}. Tento model tedy také umožňuje zachování jistoty konzistence dat, není ale automatická, jako tomu je u předchozího modelu. \cite{Sadalage13}
@@ -186,12 +186,13 @@ U grafových databází je ale distribuce dat (a tedy horizontální škálován
 \subsection{Dotazovací jazyky}
 
 % API a REST API
-Do roku 2018 nebyly zatím definovány standardy pro dotazování dat v grafových databázích. Existuje mnoho způsobů a nástrojů, které dotazování dat umožňují, většina z nich je spjata s konkrétní databází. Některé dotazovací jazyky jsou sice již podporovány více databázemi, v podstatě žádný ale zatím nelze prohlásit za obecně používaný standard. Základním způsobem dotazování dat v kontextu grafových databází jsou programová rozhraní (API TODO odkaz na kapitolu), nebo případně REST API (todo odkaz) nezávislá na konkrétním programovacím jazyku. Dotazy jsou v tomto případě přímo součástí kódu aplikace a přímo z aplikace jsou volány, bez prostředníka. Jednoznačnou výhodou tohoto přístupu je, že tato API, která má každá grafová databáze své, podporují všechny funkce dané databáze. To je zároveň i hlávní nevýhodou - grafové databáze fungují na různých, často protichůdných principech (např. tranasakční a netransakční databáze, distribuované a nedistribuované atd.), a jejich API se tedy liší. Není tedy možné předpokládat, že průchody grafem napsané pro jednu databázi budou fungovat na druhé\footnote{Toto zcela neplatí ani u SQL, které je jednoznačným standardem ve světě relačních databází. Rozdíl je ale v tom, že zatímco různé dialekty SQL se liší (pokud se liší) zpravidla pouze málo a pouze v syntaxi jazyka, u API různých grafových databází mohou být rozdíly mnohem zásadnější.}.   
+Do roku 2018 nebyly zatím definovány standardy pro dotazování dat v grafových databázích. Existuje mnoho způsobů a nástrojů, které dotazování dat umožňují, většina z nich je spjata s konkrétní databází. Některé dotazovací jazyky jsou sice již podporovány více databázemi, v podstatě žádný ale zatím nelze prohlásit za obecně používaný standard. Základním způsobem dotazování dat v kontextu grafových databází jsou \textit{programová rozhraní}, nebo případně \textit{REST API} nezávislá na konkrétním programovacím jazyku. Dotazy jsou v tomto případě přímo součástí kódu aplikace a přímo z aplikace jsou volány, bez prostředníka. Jednoznačnou výhodou tohoto přístupu je, že tato API, která má každá grafová databáze své, podporují všechny funkce dané databáze. To je zároveň i hlávní nevýhodou - grafové databáze fungují na různých, často protichůdných principech (např. tranasakční a netransakční databáze, distribuované a nedistribuované atd.), a jejich API se tedy liší. Není tedy možné předpokládat, že průchody grafem napsané pro jednu databázi budou fungovat na druhé\footnote{Toto zcela neplatí ani u SQL, které je jednoznačným standardem ve světě relačních databází. Rozdíl je ale v tom, že zatímco různé dialekty SQL se liší (pokud se liší) zpravidla pouze málo a pouze v syntaxi jazyka, u API různých grafových databází mohou být rozdíly mnohem zásadnější.}.   
 
 % Gremlin
 Tyto překážky v rozdílnosti grafových databází se snaží vyřešit hned několik dotazovacích jazyků. Ty postupně vznikaly spolu s tím, jak se grafové databáze vyvíjely. Jedním z nejpoužívanějších je \textbf{Gremlin}. První verze \textit{Gremlina} vyšla 25. 12. 2009 \cite{Gremlin09} jako součást \textit{open-source} projektu \textit{TinkerPop}. \textit{Gremlin} byl uveden jako \textit{turingovky kompletní} programovací jazyk pro práci s atributovými grafovými databázemi. Umožňoval \textit{\nomExpl{CRUD}{Create Read Update Delete}} operace, různé způsoby průchodů grafem a operace s vyhledávacími indexy. V této verzi podporoval ze zavedených databází pouze databázi \textit{Neo4j}. 
 V roce 2010 bylo uvedeno \textit{Blueprints} \cite{Blueprints10}, rozhraní, jehož implementací grafová databáze získává podporu programovacího jazyka \textit{Gremlin}. 
 Ve verzi \textit{Gremlina 2.6.0} \cite{Gremlin14} už jsou \textit{Blueprints} poměrně široce podporovány\footnote{Ve verzi \textit{2.6.0} \textit{Gremlin} podporují databáze \textit{Neo4j, OrientDB, Sparksee, Titan, Faunus, InfiniteGraph, Rexster,} a další.}. To je ale také poslední verze vydaná pod samostatným projektem \textit{TinkerPop}, poté se celý projekt stává součástí \textit{Apache software foundation}\footnote{\url{http://www.apache.org/}}. To má na projekt poměrně velký dopad a ve verzi \textit{3.x} \cite{Gremlin17} byla pozměněna systaxe jazyka a také se změnilo \textit{API} pro podporu \textit{Gremlina} na \textit{Gremlin Structure API}. Mezi databáze podporující Gremlin \textit{3.x} patří \textit{Neo4j, OrientDB, DataStax, InfiniteGraph, JanusGraph, Cosmos DB} a další.
+% TODO ukázka gremlin traversalu
 
 % TODO GraphQL
 % http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.480.411&rep=rep1&type=pdf
@@ -209,7 +210,7 @@ Ve verzi \textit{Gremlina 2.6.0} \cite{Gremlin14} už jsou \textit{Blueprints} p
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Architektury a API} %todo maybe better heading
+%\section{Architektury a API} %todo maybe better heading
 % https://cw.fel.cvut.cz/wiki/courses/a4m36aos/useful_materials
 
 %todo RPC
@@ -223,8 +224,11 @@ Ve verzi \textit{Gremlina 2.6.0} \cite{Gremlin14} už jsou \textit{Blueprints} p
 %todo mention XML specification 1996
 
 %todo XML-RPC 
-\subsection{XML-RPC}
-V roce 1998 se objevil soubor pravidel, který popisuje jak využívat technilogie RPC, XML a HTTP k vzdálenému volání procedur přes internet - \nom{XML-RPC}{Remote Procedure Calling protokol používající XML pro komuniakci přes internet}.\cite{Winner99} XML poskytuje slovník pro popis RPC volání přenášená mezi počítači pomocí HTTP protokolu (ačkoliv je popsán také obecný přístup nezávislý na konkrétním protokolu). Uživatel pošle požadavek na server implementující protokol. Uživatelem je typicky software volající konkrétní proceduru vzdáleného systému. Volání může obasahovat více vstupních parametrů a očekává jedny výstupní hodnotu. Vstupní parametry mohou být vnořené do kolekcí jako jsou mapy a listy, mohou být tedy posílány rozsáhlé struktury. Proto je možné používat XML-RPC pro posílání objektů a struktur (jako vstupních i výsupních parametrů). Díky možnosti popsání předávaných informací pomocí XML umožňuje XML-RPC prakticky vytváření \nomExpl{API}{aplikačních rozhraní} a tím komunikaci dvou a více nehomogeních prostředí.\cite{Laurent01}  
+%% TODO UNCOMENT
+% \subsection{XML-RPC}
+% V roce 1998 se objevil soubor pravidel, který popisuje jak využívat technilogie RPC, XML a HTTP k vzdálenému volání procedur přes internet - \nom{XML-RPC}{Remote Procedure Calling protokol používající XML pro komuniakci přes internet}.\cite{Winner99} XML poskytuje slovník pro popis RPC volání přenášená mezi počítači pomocí HTTP protokolu (ačkoliv je popsán také obecný přístup nezávislý na konkrétním protokolu). Uživatel pošle požadavek na server implementující protokol. Uživatelem je typicky software volající konkrétní proceduru vzdáleného systému. Volání může obasahovat více vstupních parametrů a očekává jedny výstupní hodnotu. Vstupní parametry mohou být vnořené do kolekcí jako jsou mapy a listy, mohou být tedy posílány rozsáhlé struktury. Proto je možné používat XML-RPC pro posílání objektů a struktur (jako vstupních i výsupních parametrů). Díky možnosti popsání předávaných informací pomocí XML umožňuje XML-RPC prakticky vytváření \nomExpl{API}{aplikačních rozhraní} a tím komunikaci dvou a více nehomogeních prostředí.\cite{Laurent01}  
+
+%% FIXME
 % Because XML-RPC is layered on top of HTTP, it inherits the inefficiencies of HTTP. This
 % does place some limitations on its use in large-scale, high-speed applications, but inefficiency
 % isn't important in many places. Although there are definitely high-profile projects for which
@@ -234,15 +238,16 @@ V roce 1998 se objevil soubor pravidel, který popisuje jak využívat technilog
 % time isn't absolutely critical. For these cases, XML-RPC can simplify developers' lives
 % tremendously. 
 
+%% TODO UNCOMENT
 %todo SOAP, maybe UDDI and WSDL, maybe JAX-RPC
-\subsection{SOAP}
-Nástupcem XML-RPC se stal \nomExpl{SOAP}{Simple Object Access Protocol}. SOAP je postavený na podobných principech jako XML-RPC - používá XML jako formát zpráv a pro jejich přenos využívá protokolů aplikační vrstvy HTTP (standard), nebo SMTP. Cílem SOAPu je zajistit rozšířitelnost, neutralitu a nezávislost komunikace. Umožňuje komukaci procesů běžících na různých operačních systémech (pomocí XML) a volání webových služeb pomocí HTTP nezávisle na platformě a programovacím jazyku. 
-Přestože specifikace SOAPu byla vytvořena už v roce 1998, byla zveřejněna až v roce 1999. Draft se nicméně nestal standardem \nomExpl{IETF}{Internet Engineering Task Force}\footnote{https://www.ietf.org/}.\cite{Box01} Až verze 1.2 se stala v roce 2007 doporučením \nomExpl{W3C}{World Wide Web Consortium}\footnote{https://www.w3.org/}.\cite{W3C07}
-% https://en.wikipedia.org/wiki/SOAP
-% https://www.w3.org/TR/2000/NOTE-SOAP-20000508/
-% https://www.w3.org/TR/soap/
+% \subsection{SOAP}
+% Nástupcem XML-RPC se stal \nomExpl{SOAP}{Simple Object Access Protocol}. SOAP je postavený na podobných principech jako XML-RPC - používá XML jako formát zpráv a pro jejich přenos využívá protokolů aplikační vrstvy HTTP (standard), nebo SMTP. Cílem SOAPu je zajistit rozšířitelnost, neutralitu a nezávislost komunikace. Umožňuje komukaci procesů běžících na různých operačních systémech (pomocí XML) a volání webových služeb pomocí HTTP nezávisle na platformě a programovacím jazyku. 
+% Přestože specifikace SOAPu byla vytvořena už v roce 1998, byla zveřejněna až v roce 1999. Draft se nicméně nestal standardem \nomExpl{IETF}{Internet Engineering Task Force}\footnote{https://www.ietf.org/}.\cite{Box01} Až verze 1.2 se stala v roce 2007 doporučením \nomExpl{W3C}{World Wide Web Consortium}\footnote{https://www.w3.org/}.\cite{W3C07}
+% % https://en.wikipedia.org/wiki/SOAP
+% % https://www.w3.org/TR/2000/NOTE-SOAP-20000508/
+% % https://www.w3.org/TR/soap/
 
-\nomExpl{WSDL}{Web Service Description Language} je formální strojově čitelný popis webové služby. Služba je popsána pomocí portů a koncových bodů
+% \nomExpl{WSDL}{Web Service Description Language} je formální strojově čitelný popis webové služby. Služba je popsána pomocí portů a koncových bodů
 
 
 % The WSDL describes services as collections of network endpoints, or ports. The WSDL specification provides an XML format for documents for this purpose. The abstract definitions of ports and messages are separated from their concrete use or instance, allowing the reuse of these definitions. A port is defined by associating a network address with a reusable binding, and a collection of ports defines a service. Messages are abstract descriptions of the data being exchanged, and port types are abstract collections of supported operations. The concrete protocol and data format specifications for a particular port type constitutes a reusable binding, where the operations and messages are then bound to a concrete network protocol and message format. In this way, WSDL describes the public interface to the Web service.
@@ -257,15 +262,16 @@ Přestože specifikace SOAPu byla vytvořena už v roce 1998, byla zveřejněna 
 %todo HATEOS
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Data Layer}
+%% TODO UNCOMENT
+% \section{Data Layer}
 
-\section{Data(base) Layer Abstraction}
-Abstrakce datové vrstvy (a databází) je historicky hojně diskutovaným tématem, %TODO zdroj
-střetává se zde několik zájmů. Nejčastější argumenty proti tomuto principu míří na 
-ztrátu výkonost při zařazování abstraktních vrstev. Tato ztráta výkonu je potom často způsobena 
-právě úrovní abstrakce, konkrétně neschopností vývojáře použít konstrukty specifické pro dané databázové systémy. 
-Je ale důležité si uvědomit, že odstranění vendor lockingu není jediným a ani primárním cílem \nom{DLA}{Database Layer Abstraction}.
-Důležitějším cílem je zjednodušení aplikační logiky a její očištění o konstrukty z databázového světa. 
+% \section{Data(base) Layer Abstraction}
+% Abstrakce datové vrstvy (a databází) je historicky hojně diskutovaným tématem, %TODO zdroj
+% střetává se zde několik zájmů. Nejčastější argumenty proti tomuto principu míří na 
+% ztrátu výkonost při zařazování abstraktních vrstev. Tato ztráta výkonu je potom často způsobena 
+% právě úrovní abstrakce, konkrétně neschopností vývojáře použít konstrukty specifické pro dané databázové systémy. 
+% Je ale důležité si uvědomit, že odstranění vendor lockingu není jediným a ani primárním cílem \nom{DLA}{Database Layer Abstraction}.
+% Důležitějším cílem je zjednodušení aplikační logiky a její očištění o konstrukty z databázového světa. 
 
 %TODO úrovně abstrakce viz http://blog.gauffin.org/2013/01/data-layer-the-right-way/ + dohledat lepší zdroj
 
