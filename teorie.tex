@@ -108,9 +108,15 @@ Důležitým kritériem pro výběr reprezentace grafu je \textit{lokalita dat}.
 Na rozdíl od indexově náročných množinových operací relačních databází využívají grafové databáze bezindexové místní prohledávání (traverzování).\cite{Anglels08} Relační databáze obsahují data typicky v normalizované formě v několika separátních tabulkách tak, aby bylo zamezeno duplikaci dat. Řádky těchto tabulek mohou být chápány jako objekty popsané svými vlastnostmi. Vztahy mezi objekty jsou definovány primárními a cizími klíči a musí být při dotazování explicitně vytvořeny spojením tabulek pomocí \textit{join} operace. Jak vyhledávání záznamů v tabulkách, tak spojování tabulek je (v ideálním případě) realizováno pomocí vyhledávacích indexů, které časovou složitost těchto operací značně snižují, obecně ale ne dostatečně. Databázové vyhledávací indexy jsou typicky realizovány pomocí vyhledávacích stromů (konkrétně B-stromů \cite{Leach05}), vyhledání zánamu má tedy logaritmickou časovou složitost vzhledem k počtu uzlů\footnote{Konkrétně operaci vyhledání uzlu má složitost \textit{$\Theta$(b log$_b$(n))} a operace vyhledání rozsahu uzlů \textit{$\Theta$(b log$_b$(n) + k/b)}, kde \textit{n} je počet uzlů, \textit{b} je úroveň stromu a \textit{k} je velikost rozsahu.\cite{Cormen09}}. 
 Grafové databáze na druhé straně obsahují typicky pouze jednu strukturu - graf\footnote{Grafové databáže mohou obsahovat jeden velký graf, nesouvislý graf, nebo množinu grafů. Z hlediska této práce je toto ale technický detail a pokud nebude explicitně řečeno jinak, budeme předpokládat, že grafová databáze obsahuje jeden velký graf.}. Ten ve své fyzické reprezentaci obsahuje všechny své hrany, vztahy mezi objekty (vrcholy) v grafu jsou tedy implicitní, není potřeba je při každém dotazu vytvářet. Tato skutečnost s sebou nese výhody i nevýhody. Jednou z podstatných nevýhod je složitost rozdělení grafu na podgrafy a tedy obtížná distribuce grafu (popsáno v kapitole \ref{sec:gdb-distribution}). Naopak výhodou je instantní čas, ve kterém je možné se v grafu posouvat mezi sousedními uzly. To je natolik výraznou vlastnostní grafových databází, že výrazně ovlivňuje způsob, jakým je přistupováno k datům v grafových databázích. Tím nejčastějším je právě průchod grafem (traverzování, nebo také \textit{Traversal pattern}). 
 
-Na začátku průchodu grafu jsou pomocí indexu vyhledány výchozí uzly, ze kterých bude graf procházen. Z nich se dotaz pohybuje po grafu pomocí sousedních hran a uzlů dle zadaných kritérií. Těmi jsou typicky typy hran a uzlů, podmínky na jejich vlastnosti (uvažujeme atributový graf, viz kapitola \ref{sec:gdb-grafy}) a hloubka prohledávání. Součástí definice dotazu je také zvolení typu průchodu - průchod do hloubky (\textit{\nom{DFS}{Depth-first search}}, nebo průchod do šířky (\textit{\nom{BFS}{Breadth-first search}}. Když jsou projity všechny cesty odpovídající zadaným kritériím, jsou vráceny uzly, ve kterých průchod skončil. Typickými úlohami řešenými pomocí průchodů grafem je například zjištění existence cesty mezi dvěma uzly, nalezení nejktraší cesty, nalezení všech cest a uzlů odpovídajícíh zadaným kritériím apod.  
+Na začátku průchodu grafu jsou pomocí indexu vyhledány výchozí uzly, ze kterých bude graf procházen. Z nich se dotaz pohybuje po grafu pomocí sousedních hran a uzlů dle zadaných kritérií. Těmi jsou typicky typy hran a uzlů, podmínky na jejich vlastnosti (uvažujeme atributový graf, viz kapitola \ref{sec:gdb-grafy}) a hloubka prohledávání. Součástí definice dotazu je také zvolení typu průchodu - průchod do hloubky (\textit{\nom{DFS}{Depth-first search}}, nebo průchod do šířky (\textit{\nom{BFS}{Breadth-first search}}. Když jsou projity všechny cesty odpovídající zadaným kritériím, jsou vráceny uzly, ve kterých průchod skončil. Typickými úlohami řešenými pomocí průchodů grafem je například zjištění existence cesty mezi dvěma uzly, nalezení nejktraší cesty, nalezení všech cest a uzlů odpovídajícíh zadaným kritériím apod. Na obrázku \ref{fig:traversal} je ukázán průchod, který by odpovídal na otázku "Co čtou přátelé lidí, kteří čtou stejný článek jako Pavel". 
 
-% TODO příklad traversalu
+\begin{figure}
+\begin{center}
+\includegraphics[width=14cm]{figures/traversal}
+\caption{Příklad průchodu (\textit{traverzování} grafem)}
+\label{fig:traversal}
+\end{center}
+\end{figure}
 
 % Dotazy na podgraf, nadgraf, podobný graf
 Dalšími typy dotazou kromě obecného průchodu gravu jsou \textit{dotazy na podgrafy}, \textit{dotazy na nadgrafy} a \textit{dotazy na podobné grafy}. Zadáním těchto dotazů je také graf, označme \textit{$G_\mathrm{dotaz}$}. Tento dotazový graf může obsahovat uzly a hrany, u kterých nejsou specifikovány bližší vlastnosti, v grafu může být určena množina přípustných typů uzlů a hran, nebo například maska jejich typů. Dotazy na podgrafy hledají specifický vzor grafů v grafové databázi - v databázi jsou vyhledávány všechny grafy, který \textit{$G_\mathrm{dotaz}$} obsahují. V případě dotazu na nadgraf naopak hledáme v databázi všechny datové grafy, které jsou v \textit{$G_\mathrm{dotaz}$} obsaženy. U dotazů na podobné grafy je výsledek dotazu vyhodnocován pomocí metriky podobnosti.\cite{Koutra11} Tyto typy dotazů jsou vyhodnocovány ve třech krocích: 
@@ -121,9 +127,15 @@ Dalšími typy dotazou kromě obecného průchodu gravu jsou \textit{dotazy na p
 	\item{Verifikace:} Grafy z množiny kandidátních řešení jsou podrobně porovnány s \textit{$G_\mathrm{dotaz}$}, čímž jsou vyloučeni případní zbylí falšeně pozivní kandidáti a dostáváme množinu skutečných výsledků. 
 \end{enumerate}
 
-Je zjevné, že tyto typy dotazů jsou velmi závislé na konkrétních indexačních technikách, ty jsou popsány v kapitole \ref{sec:gdb-indexy}.
+Je zjevné, že tyto typy dotazů jsou velmi závislé na konkrétních indexačních technikách, ty jsou popsány v kapitole \ref{sec:gdb-indexy}. Grafické znázornění dotazů na nadgraf a podgraf je na obrázku \ref{fig:supergraph_subgraph_query}.
 
-% TODO příklad dotazu na podgraf, nadgraf
+\begin{figure}
+\begin{center}
+\includegraphics[width=14cm]{figures/supergraph_subgraph_query}
+\caption{Znázornění dotazů na nadgraf a podgraf}
+\label{fig:supergraph_subgraph_query}
+\end{center}
+\end{figure}
 
 \subsection{Indexy}
 \label{sec:gdb-indexy}
@@ -163,7 +175,6 @@ Aby byla při případném výpadku části uzlů stále přístapná všechna d
 % Kontext grafů
 U grafových databází je ale distribuce dat (a tedy horizontální škálování) výrazně komplikovanější, než u ostatních NoSQL databází. Data v nich jsou uložena do několika několika struktur (tabulek, dokumentů, dvojic klíč-hodnota), zatímco obsahem grafové databáze je typicky pouze jediná struktura - graf. Rozdělení grafu na podgrafy je obtížný problém (zvláště pokud se jedná například o úplný graf), proto obecně ne mnoho grafových databází tuto možnost vůbec umožňuje. Přesto existují metody, které se distribucí grafu zabývají. Výsledná distribuce je potom optimální pouze pro podmnožinu grafových úloh (například průchod do šířky, hledání nejmenší kostry atd.). Distribucí grafu na několik uzlů se mění čas, v jakém je možné získat seznam sousedních vrcholů grafu v případech, kdy hrana mezi vrcholem a jeho sousedem spojuje dva podgrafy na dvou různých uzlech, je tedy obtížné graf distribuovat při snaze zachovat co nejvyšší rychlost průchodu grafem. Příkladem algoritmů pro rozdělení grafu může být \textit{1D dělení} a \textit{2D dělení} matice sousednosti \cite{Yoo05}, nebo mnoho technik aproximujících \textit{optimální k-rozdělení grafu}\footnote{Optimální bisekce grafu je NP-obtížný problém \cite{Garey90}, tedy i optimální k-rozdělení grafu je nejméně NP-obtížný problém. Proto jsou používány aproximační algoritmy.}.\cite{George78} \cite{Fiduccia82} \cite{Battiti99}
 
-%TODO 
 \subsection{Databáze - příklady}
 \label{sec:gdb-databaze}
 
@@ -179,7 +190,6 @@ Stejně jako \textit{Neo4j} je i \textit{OrientDB} implementovaná v programovac
 \textit{Titan} je zaměřen (jak už napovídají nabízené \textit{back-end} databáze) na masivní škálovatelnost grafových databází, zároveň ale nabízí oba transakční modely - \textit{ACID} i \textit{BASE}. Dotazování dat v Titanu je možné pomocí \textit{Java API}, nebo jazyka \textit{Gremlin}. V roce 2015 proběhla akvizice \textit{Titanu} (respektive společnosti \textit{Aurelius}, která ho vyvíjela) společností \textit{DataStax}, čímž prakticky skončil vývoj této databáze. \textit{Open-source forkem} a pokračovatelem\cite{Datami17} \textbf{Titanu} je databáze \textit{JanusGraph}\footnote{\url{http://janusgraph.org/}}. Obě databáze jsou implementovány v programovacím jazyce \textit{Java} a licencovány pod \textit{Apache 2.0} licencí. 
 
 
-%TODO 
 \subsection{Dotazovací jazyky}
 \label{sec:gdb-jazyky}
 
