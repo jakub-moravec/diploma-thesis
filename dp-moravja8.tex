@@ -40,6 +40,7 @@ unicode=true,
 \usepackage{algorithmicx} 		%slouží pro zápis algoritmů
 \usepackage{algpseudocode} 		%slouží pro výpis pseudokódu
 \usepackage{amsmath}            %vzorce
+\usepackage[dvipsnames]{xcolor} % barvy
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % příkazy šablony
@@ -53,6 +54,22 @@ unicode=true,
 \newcommand*{\nomExpl}[2]{#2 (#1)\nomenclature{#1}{#2}} 	% usnadňuje zápis zkratek : Slova ke Zkrácení (SZ)
 \newcommand*{\nom}[2]{#1\nomenclature{#1}{#2}} 			% usnadňuje zápis zkratek : SZ
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% listings syntax highlighting
+
+\renewcommand{\lstlistingname}{Příklad}% Listing -> Příklad
+\renewcommand{\lstlistlistingname}{Seznam příkladů}% List of Listings -> List of Algorithms
+
+\lstset{ %
+  backgroundcolor=\color{white},   % choose the background color
+  basicstyle=\footnotesize,        % size of fonts used for the code
+  breaklines=true,                 % automatic line breaking only at whitespace
+  captionpos=b,                    % sets the caption-position to bottom
+  commentstyle=\color{OliveGreen},    % comment style
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  keywordstyle=\color{blue},       % keyword style
+  stringstyle=\color{red},     % string literal style
+}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -127,6 +144,7 @@ unicode=true,
 	% pokud v práci nejsou obrázky nebo tabulky - odstraňte jejich seznam
 	\listoffigures			% Obsah / Table of Contents 
 	\listoftables			% Seznam tabulek / List of Tables
+	\lstlistoflistings         % Seznam kódů
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%% 
 	% začátek textu  
