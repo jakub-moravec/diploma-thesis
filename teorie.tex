@@ -72,6 +72,7 @@ Generalizací grafu je tzv. \textit{hypergraf}. Ten se proti grafu liší tím, 
 
 
 \subsection{Perzistence}
+\label{sec:persistence}
 Aby bylo možné v dalších kapitolách popsat pokročilé aspekty grafových databází (jako jsou dotazování, indexování, či transakce v grafových databázích), je nejdříve nutné popsat jejich základní principy. Nutnost ukládat data ve formě grafů je starší než grafové databáze samotné, existuje tak mnoho způsobů uložení grafů z nichž ty nejběžnější zde popíšeme. Ještě předtím je nutno poznamenat, k jakým typům úloh jsou grafové databáze zejména využívány. Základními grafovými úlohami jsou \nomExpl{BSF}{průchod grafu do hloubky (Breadth-first search)} a \nomExpl{DFS}{průchod grafu do šířky (Depth-first search)}. Oba tyto algoritmy musí projít v nejhorším případě\footnote{Pro konkrétní problémy jsou často BFS a DFS algoritmy upravovány tak, aby bylo možné některé větve průchodu tzv. ořezávat - tedy procházet pouze jejich část, nebo je neprocházet vůbec.} všechny hrany a uzly grafu, je tedy vidět, že pro efektivitu grafových databází je klíčová rychlost přechodu z jednodoho uzlu do (všech) jeho sousedních uzlů pomocí existujících hran.
 
 % RDBMS reprezentace
@@ -147,6 +148,7 @@ Jak už bylo zmíněno, grafové databáze jsou typem NoSQL databází. Přesto 
 % https://link.springer.com/chapter/10.1007/978-3-319-29919-8_8
 
 % TODO zámky
+% https://docs.arangodb.com/3.2/Manual/Transactions/LockingAndIsolation.html
 
 \subsection{Distribuovatelnost}
 \label{sec:gdb-distribution}
@@ -161,29 +163,24 @@ Aby byla při případném výpadku části uzlů stále přístapná všechna d
 % Kontext grafů
 U grafových databází je ale distribuce dat (a tedy horizontální škálování) výrazně komplikovanější, než u ostatních NoSQL databází. Data v nich jsou uložena do několika několika struktur (tabulek, dokumentů, dvojic klíč-hodnota), zatímco obsahem grafové databáze je typicky pouze jediná struktura - graf. Rozdělení grafu na podgrafy je obtížný problém (zvláště pokud se jedná například o úplný graf), proto obecně ne mnoho grafových databází tuto možnost vůbec umožňuje. Přesto existují metody, které se distribucí grafu zabývají. Výsledná distribuce je potom optimální pouze pro podmnožinu grafových úloh (například průchod do šířky, hledání nejmenší kostry atd.). Distribucí grafu na několik uzlů se mění čas, v jakém je možné získat seznam sousedních vrcholů grafu v případech, kdy hrana mezi vrcholem a jeho sousedem spojuje dva podgrafy na dvou různých uzlech, je tedy obtížné graf distribuovat při snaze zachovat co nejvyšší rychlost průchodu grafem. Příkladem algoritmů pro rozdělení grafu může být \textit{1D dělení} a \textit{2D dělení} matice sousednosti \cite{Yoo05}, nebo mnoho technik aproximujících \textit{optimální k-rozdělení grafu}\footnote{Optimální bisekce grafu je NP-obtížný problém \cite{Garey90}, tedy i optimální k-rozdělení grafu je nejméně NP-obtížný problém. Proto jsou používány aproximační algoritmy.}.\cite{George78} \cite{Fiduccia82} \cite{Battiti99}
 
-
 %TODO 
 \subsection{Databáze - příklady}
 \label{sec:gdb-databaze}
 
-% TODO Neo4J
+% Neo4J
+V této sekci popíšeme vlastnosti několika nejpoužívanějších grafových databází (relevantních pro projekt \textit{Manta Tools} a tedy i tuto diplomovou práci). Dlouhodobě nejoblíbenější grafovou databázi na trhu \cite{Ranking17} je \textbf{Neo4j}\footnote{\url{https://neo4j.com/}} Databáze je implementovaná v programovacím jazyku \textit{Java}, má \textit{nativní grafové uložiště}, nabízí \textit{horizontální škálovatelnost} a také plnohodnotný \textit{ACID transakční model}. Dotazování dat můžebýt prováděno pomocí objektového \textit{Java API}, nebo dotazovacího jazyka \textit{Cypher} (viz \ref{sec:gdb-jazyky}). Databáze \textit{Neo4j} je licencována pod \textit{GPLv3}\footnote{\url{https://www.gnu.org/licenses/gpl-3.0.en.html}} licencí.
 
-% TODO Sparksee
+% OrientDB (a ArangoDB)
+\textbf{OrientDB}\footnote{\url{http://orientdb.com/}} podporuje hned několik způsobů práce s daty, může být používána jako databáze grafová, dokumentová, objektová, nebo databáze typu klič-hodnota (označuje se jako \textit{multi-modelová}) \cite{OrientMultiModel}. Uzly grafů jsou reprezentovány jako (\textit{JSON}) dokumenty, hrany mohou být buďto také dokumenty(\textit{regular}), nebo mohou být pouze parametrem uzlů (\textit{lightweight}). Nejedná se tedy o \textit{nativní reprezentaci grafu} ve smyslu kapitoly \ref{sec:persistence}. %TODO zvážit přidání objektové reprezentace jako naativní reprezentaci grafu
+Stejně jako \textit{Neo4j} je i \textit{OrientDB} implementovaná v programovacím jazyku \textit{Java} a umožňuje \textit{horizontální škálování}. Výchozím transakčním modelem je \textit{ACID}, od verze \textit{2.1.7} je ale možná konfigurace transakčního modelu \textit{BASE} ve dvou režimech řešení kolizí \cite{OrientConsistency}, což má pozitivní dopady na rychlost databáze. S databází je možné komunikovat pomocí \textit{HTTP REST/JSON API}, \textit{Java API} a jazyka \textit{Gremlin} (viz \ref{sec:gdb-jazyky}). Krom těchto možností nabízí \textit{OrientDB} ještě vlastní dialekt jazyk \textit{SQL}. Licenční politika je více přívětivá komerčnímu použití než je tomu u \textit{Neo4j}, \textit{OrientDB} je licencováno pod \textit{Apache 2.0}\footnote{\url{https://www.apache.org/licenses/LICENSE-2.0}} licencí. Databází s velice pdobonými charakteristikami jako má \textit{OrientDB} je \textbf{ArangoDB}\footnote{\url{https://www.arangodb.com/}}, hlavním rozdílem je, že jádro \textit{ArangoDB} je implementováno v \textit{C++} a dle vlastních testů je (zvláště pro některé typy úloh) výrazně efektivnější \cite{ArangoBenchmark}. 
+ 
+% Titan (a JanusGraph)
+\textbf{Titan} se oproti předchozím databázím výrazni liší, nejedná se plnohodnotnou databázi s vlastním uložištěm, ale "pouze" a softwarovou vrstvu který poskytuje funkcionalitu grafových databází jako nadstavbu nad jinými \textit{NoSQL} databázemi. Těmi jsou \textit{Apache Cassandra}\footnote{\url{http://cassandra.apache.org/}}, \textit{Apache HBase}\footnote{\url{http://hbase.apache.org/}} a \textit{Oracle BerkeleyDB}\footnote{\url{http://www.oracle.com/technetwork/database/berkeleydb/overview/index-093405.html}}. \texit{Titan} je zaměřen (jak už napovídají nabízené \textit{back-end} databáze) na masivní škálovatelnost grafových databází, zároveň ale nabízí oba transakční modely - \textit{ACID} i \textit{BASE}. Dotazování dat v Titanu je možné pomocí \textit{Java API}, nebo jazyka \textit{Gremlin}. V roce 2015 proběhla akvizice \textit{Titanu} (respektive společnosti \textit{Aurelius}, která ho vyvíjela) společností \textit{DataStax}, čímž prakticky skončil vývoj této databáze. \textit{Open-source forkem} a pokračovatelem\cite{Datami17} \textbf{Titanu} je databáze \textit{JanusGraph}\footnote{\url{http://janusgraph.org/}}. Obě databáze jsou implementovány v programovacím jazyce \textit{Java} a licencovány pod \textit{Apache 2.0} licencí. 
 
-% TODO InfiniteGraph
-
-% OrientDB
-
-% Titan
-
-% JanusGraph
-
-% HyperGraph DB
-
-% Jena
 
 %TODO 
 \subsection{Dotazovací jazyky}
+\label{sec:gdb-jazyky}
 
 % API a REST API
 Do roku 2018 nebyly zatím definovány standardy pro dotazování dat v grafových databázích. Existuje mnoho způsobů a nástrojů, které dotazování dat umožňují, většina z nich je spjata s konkrétní databází. Některé dotazovací jazyky jsou sice již podporovány více databázemi, v podstatě žádný ale zatím nelze prohlásit za obecně používaný standard. Základním způsobem dotazování dat v kontextu grafových databází jsou \textit{programová rozhraní}, nebo případně \textit{REST API} nezávislá na konkrétním programovacím jazyku. Dotazy jsou v tomto případě přímo součástí kódu aplikace a přímo z aplikace jsou volány, bez prostředníka. Jednoznačnou výhodou tohoto přístupu je, že tato API, která má každá grafová databáze své, podporují všechny funkce dané databáze. To je zároveň i hlávní nevýhodou - grafové databáze fungují na různých, často protichůdných principech (např. tranasakční a netransakční databáze, distribuované a nedistribuované atd.), a jejich API se tedy liší. Není tedy možné předpokládat, že průchody grafem napsané pro jednu databázi budou fungovat na druhé\footnote{Toto zcela neplatí ani u SQL, které je jednoznačným standardem ve světě relačních databází. Rozdíl je ale v tom, že zatímco různé dialekty SQL se liší (pokud se liší) zpravidla pouze málo a pouze v syntaxi jazyka, u API různých grafových databází mohou být rozdíly mnohem zásadnější.}.   
@@ -191,20 +188,17 @@ Do roku 2018 nebyly zatím definovány standardy pro dotazování dat v grafový
 % deklarativní versus imperativní pattern
 Tyto překážky v rozdílnosti grafových databází se snaží vyřešit hned několik dotazovacích jazyků, ty postupně vznikaly spolu s tím, jak se grafové databáze vyvíjely. Tyto jazyky lze dělit mnoha způsoby, jedním z nejdůležitějších je dělení na \textit{deklarativní} a \textit{imperativní}. Zatímco \textit{imperativní} jazyky formulují řešení problému pomocí pousloupnosti příkazů a určují tak přesný algoritmus řešení problémů, \textit{deklarativní} jazyky naopak způsob řešení problému nepopisují vůbec, ale soustředí se na popis výsledku - deklarují, jaký má být výsledek (použitý algoritmus tedy určuje interpret daného jazyka).\cite{Chao16}
 
-
 % Gremlin
 Jedním z nejpoužívanějších grafových dotazovacích jazyků je \textbf{Gremlin}. První verze \textit{Gremlina} vyšla 25. 12. 2009 \cite{Gremlin09} jako součást \textit{open-source} projektu \textit{TinkerPop}. \textit{Gremlin} byl uveden jako \textit{turingovsky kompletní} programovací jazyk pro práci s atributovými grafovými databázemi. Umožňoval \textit{\nomExpl{CRUD}{Create Read Update Delete}} operace, různé způsoby průchodů grafem a operace s vyhledávacími indexy. V této verzi podporoval ze zavedených databází pouze databázi \textit{Neo4j}. 
 V roce 2010 bylo uvedeno rozhraní \textit{Blueprints} \cite{Blueprints10}, jehož implementací grafová databáze získává podporu jazyka \textit{Gremlin}. 
 Ve verzi \textit{Gremlina 2.6.0} \cite{Gremlin14} už jsou \textit{Blueprints} poměrně široce podporovány\footnote{Ve verzi \textit{2.6.0} \textit{Gremlin} podporují databáze \textit{Neo4j, OrientDB, Sparksee, Titan, Faunus, InfiniteGraph, Rexster,} a další.}. To je ale také poslední verze vydaná pod samostatným projektem \textit{TinkerPop}, poté se celý projekt stává součástí \textit{Apache software foundation}\footnote{\url{http://www.apache.org/}}. To znamená několik změn v projektu, ve verzi \textit{3.x} \cite{Gremlin17} byla pozměněna systaxe jazyka a také se změnilo \textit{API} pro podporu \textit{Gremlina} na \textit{Gremlin Structure API}. Od této verze podporuje \textit{Gremlin} také \textit{deklarativní} dotazování dat (do té doby byly všechny dotazy pouze \textit{imperativní}).  Mezi databáze podporující Gremlin \textit{3.x} patří \textit{Neo4j, OrientDB, DataStax, InfiniteGraph, JanusGraph, Cosmos DB} a další.
-% TODO ukázka gremlin traversalu
+% TODO ukázka gremlin traversalu https://developer.ibm.com/dwblog/2017/overview-graph-database-query-languages/
 
 % Cypher
 Dalším velice oblíbeným dotazovacím jazykem je \textbf{Cypher} \cite{Cypher}, a to především díky jeho podobnosti s \textit{SQL}. \textit{Cypher} je \textit{deklarativní DSL jazyk}, který vznikl jako součást Neo4j. Vzhledem k tomu, že se jedná o \textit{deklarativní} jazyk, snaží se co nejčitelněji popsat\footnote{Syntaxe \textit{Cypheru} je inspirována syntaxí jazyka \textit{SQL} a také takzvaným \textit{ASCII artem} - \url{https://cs.wikipedia.org/wiki/ASCII_art}}, co má být výsledkem dotazu a naopak se zaměřuje na to, jakým způsobem bude dotaz proveden. Přesto je možné vykonávání dotazů ovlivnit pomocí tzv. \textit{hintů} (například lze ovlivnit použití indexů). \textit{Cypher} si získal mezi uživateli  značnou oblibu, vznikla proto iniciativa rozšířit ho i mezi další grafové databáze a pokusit se ustanovit \textit{Cypher} jako standardní dotazovací jazyk pro grafové databáze. Výsledkem této iniciativy byl vznik \textit{OpenCypher} \cite{openCypher} v roce 2015. Podpora tohoto jazyku ale zatím není příliš široká.\footnote{\textit{OpenCypher} v tuto chvíli podporují spíše méně známé grafové databáze: \url{http://www.opencypher.org/projects}.}
 % TODO ukázka cypher a openCypher kódu
 
-% CHECKME GraphQL http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.480.411&rep=rep1&type=pdf
-
-Existují i další dotazovací jazyky pro grafové databáze než výše zmíněné, většina z nich je ale navržena pro specifické účely a pro obecné použití se nehodí. 
+Existují i další dotazovací jazyky pro grafové databáze než výše zmíněné, většina z nich je ale navržena pro specifické účely a pro obecné použití se nehodí, a nebo nejsou příliš rozšířené. 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
