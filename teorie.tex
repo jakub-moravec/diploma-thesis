@@ -9,7 +9,7 @@ Grafové databáze umožňují data reprezentovaná grafem ukládat a procházet
 
 Tato kapitola má za cíl představit základní principy grafových databází. Popisuje reprezentaci grafů v databázi, možnosti analýzy dat a rozhraní, kterých je k tomu možné použít.
 
-\subsection{NoSQL}
+\subsection{NoSQL databáze}
 \label{sec:gdb-nosql}
 NoSQL databázové sice nejsou předmětem této práce, grafové databáze nicméně bývají zařazovány jako podkategorie NoSQL a proto zde základní principy této skupiny technologií popíšeme. Samotná zkratka NoSQL je vykládaná různě, většinou jako \textit{"Not only SQL"} \cite{Evans09} a vykládá se jako označení pro databáze nerelačního typu určené pro zpracování \textit{Big Data}\footnote{Big Data jsou soubory dat velkého objemu, velké rychlosti a/nebo velké různorodosti, která vyžadují nové formy zpracování pro umožnění lepšího rozhodování, většího porozumění domény a optimalizace procesů.\cite{Laney01}}. Mezi hlavní uváděné výhody NoSQL databází patří: 
 
@@ -50,7 +50,7 @@ Grafy z pohledu informačních technologií matematickou definici grafu dále ro
 
 \begin{figure}
 \begin{center}
-\includegraphics[width=14cm]{figures/labeled_graph}
+\includegraphics[width=12cm]{figures/labeled_graph}
 \caption{Ohodnocený graf}
 \label{fig:labeled_graf}
 \end{center}
@@ -61,7 +61,7 @@ Ohodnocené grafy sice poskytují možnost rozlišit typy hran a uzlů, v mnoha 
 
 \begin{figure}
 \begin{center}
-\includegraphics[width=14cm]{figures/property_graph}
+\includegraphics[width=12cm]{figures/property_graph}
 \caption{Atributový graf}
 \label{fig:property_graf}
 \end{center}
@@ -71,8 +71,8 @@ Ohodnocené grafy sice poskytují možnost rozlišit typy hran a uzlů, v mnoha 
 Generalizací grafu je tzv. \textit{hypergraf}. Ten se proti grafu liší tím, že zatímco hrana grafu vede mezi právě dvěma vrcholy, hyperhrana (tedy hrana v hypergrafu) je mnoužinou jednoho a více vrcholů.\cite{Diestel00} Hypergrafy jsou používány k reprezentaci dat v mnoha oborech a některé grafové databáze je přímo podporují (například HypergraphDB\footnote{\url{http://hypergraphdb.org/}}).
 
 
-\subsection{Perzistence}
-\label{sec:persistence}
+\subsection{Reprezentace grafu}
+\label{sec:gdb-reprezentace}
 Aby bylo možné v dalších kapitolách popsat pokročilé aspekty grafových databází (jako jsou dotazování, indexování, či transakce v grafových databázích), je nejdříve nutné popsat jejich základní principy. Nutnost ukládat data ve formě grafů je starší než grafové databáze samotné, existuje tak mnoho způsobů uložení grafů z nichž ty nejběžnější zde popíšeme. Ještě předtím je nutno poznamenat, k jakým typům úloh jsou grafové databáze zejména využívány. Základními grafovými úlohami jsou \nomExpl{BSF}{průchod grafu do hloubky (Breadth-first search)} a \nomExpl{DFS}{průchod grafu do šířky (Depth-first search)}. Oba tyto algoritmy musí projít v nejhorším případě\footnote{Pro konkrétní problémy jsou často BFS a DFS algoritmy upravovány tak, aby bylo možné některé větve průchodu tzv. ořezávat - tedy procházet pouze jejich část, nebo je neprocházet vůbec.} všechny hrany a uzly grafu, je tedy vidět, že pro efektivitu grafových databází je klíčová rychlost přechodu z jednodoho uzlu do (všech) jeho sousedních uzlů pomocí existujících hran.
 
 % RDBMS reprezentace
@@ -92,11 +92,17 @@ Další možnou maticovou reprezentací grafu je \textbf{matice incidence}. Jedn
 
 % List sousednosti 
 Některé problémy matice sousednosti řeší \textbf{list sousednosti}. Ten je implementován jako množina listů, kde každému uzlu připadá jeden list sousedních uzlů. Paměťová náročnost této reprezentace je tedy \textit{|V|+|E|}, kde \textit{|V|} je počet uzlů a tedy počet listů sousednosti a \textit{|E|} je počet hran a tedy celkový počet prvků obsažených v listech sousednosti. List sousednosti je výrazně úspornější reprezentací grafu z paměťového hlediska než je matice sousednosti a je tedy vhodný i pro řídké grafy. Zároveň umožňuje rychlé nalezení všech sousedních uzlů pro daný uzel, v listu jsou vypsány pouze ty uzly, se kterými je uzel propojen a procházení grafu je tak rychlé. Přidání hrany do grafu je přidáním jednoho prvku do listu (respektive dvou listů v případě neorientovaného grafu) a přidání uzlu je také relativně efektivní - znamená vytvoření nového listu a přidání ho do množiny ostatních listů. Drahé jsou naopak operace odebrání hrany (je nutné projít všechny sousedy obou koncových uzlů hrany) a odebrání uzlu (je nutné projít všechny hrany). Také ověření existence konkrétní hrany je relativně drahé (je potřeba opět projít všechny sousedy daného uzlu). Toto může být řešeno alternativní implementací, napříkald mohou být listy sousedů řazeny. Tím se sice sníží složitost ověření existence hrany, ale zvýší se složitost přidání nové hrany.
-Při reprezentaci velkých grafů pomocí listů sousednosti se používají kompresní techniky, díky kterým je možné dále snižovat paměťovou náročnost.\cite{Boldi04} 
+Při reprezentaci velkých grafů pomocí listů sousednosti se používají kompresní techniky, díky kterým je možné dále snižovat paměťovou náročnost.\cite{Boldi04} Jednotlivé reprezentace jsou ukázány na obrázku \ref{fig:reprezentace}.
 
 % TODO reprezentace grafu jako RDF (haxtree, bitmap). 
 
-% TODO obrázky k reprezentaci grafů
+\begin{figure}
+\begin{center}
+\includegraphics[width=8cm]{figures/graph_reprezentation}
+\caption{Reprezentace (orientovaného) grafu}
+\label{fig:reprezentace}
+\end{center}
+\end{figure}
 
 Důležitým kritériem pro výběr reprezentace grafu je \textit{lokalita dat}. Cílem je uložit graf tak, aby jejich fyzické umístění odpovídalo jejich logické vzdálenosti a při průchodu grafem tak byla data pro další krok načtena co nejrychleji. K dosažení optimality lokality dat reprezentovaných grafem existuje mnoho technik, vzhledem k tomu, že se ale jedná o \textit{NP-těžkou} úlohu, jedná se často o heuristiky a aproximační algoritmy. Některé z používaných metod jsou například metoda minimalizace šířky matice autorů \textit{Cuthill a McKee} \cite{Cuthill69}, \textit{rekurzivní spektrální bisekce} \cite{Barnard93}, nebo metoda založená na průchodedech grafu do šířky (\textit{Breadth First Search Layout}) \cite{Furaih98}.
 
@@ -131,7 +137,7 @@ Je zjevné, že tyto typy dotazů jsou velmi závislé na konkrétních indexač
 
 \begin{figure}
 \begin{center}
-\includegraphics[width=14cm]{figures/supergraph_subgraph_query}
+\includegraphics[width=10cm]{figures/supergraph_subgraph_query}
 \caption{Znázornění dotazů na nadgraf a podgraf}
 \label{fig:supergraph_subgraph_query}
 \end{center}
@@ -182,7 +188,7 @@ U grafových databází je ale distribuce dat (a tedy horizontální škálován
 V této sekci popíšeme vlastnosti několika nejpoužívanějších grafových databází (relevantních pro projekt \textit{Manta Tools} a tedy i tuto diplomovou práci). Dlouhodobě nejoblíbenější grafovou databázi na trhu \cite{Ranking17} je \textbf{Neo4j}\footnote{\url{https://neo4j.com/}} Databáze je implementovaná v programovacím jazyku \textit{Java}, má \textit{nativní grafové uložiště}, nabízí \textit{horizontální škálovatelnost} a také plnohodnotný \textit{ACID transakční model}. Dotazování dat můžebýt prováděno pomocí objektového \textit{Java API}, nebo dotazovacího jazyka \textit{Cypher} (viz \ref{sec:gdb-jazyky}). Databáze \textit{Neo4j} je licencována pod \textit{GPLv3}\footnote{\url{https://www.gnu.org/licenses/gpl-3.0.en.html}} licencí.
 
 % OrientDB (a ArangoDB)
-\textbf{OrientDB}\footnote{\url{http://orientdb.com/}} podporuje hned několik způsobů práce s daty, může být používána jako databáze grafová, dokumentová, objektová, nebo databáze typu klič-hodnota (označuje se jako \textit{multi-modelová}) \cite{OrientMultiModel}. Uzly grafů jsou reprezentovány jako (\textit{JSON}) dokumenty, hrany mohou být buďto také dokumenty(\textit{regular}), nebo mohou být pouze parametrem uzlů (\textit{lightweight}). Nejedná se tedy o \textit{nativní reprezentaci grafu} ve smyslu kapitoly \ref{sec:persistence}. %TODO zvážit přidání objektové reprezentace jako naativní reprezentaci grafu
+\textbf{OrientDB}\footnote{\url{http://orientdb.com/}} podporuje hned několik způsobů práce s daty, může být používána jako databáze grafová, dokumentová, objektová, nebo databáze typu klič-hodnota (označuje se jako \textit{multi-modelová}) \cite{OrientMultiModel}. Uzly grafů jsou reprezentovány jako (\textit{JSON}) dokumenty, hrany mohou být buďto také dokumenty(\textit{regular}), nebo mohou být pouze parametrem uzlů (\textit{lightweight}). Nejedná se tedy o \textit{nativní reprezentaci grafu} ve smyslu kapitoly \ref{sec:gdb-reprezentace}. %TODO zvážit přidání objektové reprezentace jako naativní reprezentaci grafu
 Stejně jako \textit{Neo4j} je i \textit{OrientDB} implementovaná v programovacím jazyku \textit{Java} a umožňuje \textit{horizontální škálování}. Výchozím transakčním modelem je \textit{ACID}, od verze \textit{2.1.7} je ale možná konfigurace transakčního modelu \textit{BASE} ve dvou režimech řešení kolizí \cite{OrientConsistency}, což má pozitivní dopady na rychlost databáze. S databází je možné komunikovat pomocí \textit{HTTP REST/JSON API}, \textit{Java API} a jazyka \textit{Gremlin} (viz \ref{sec:gdb-jazyky}). Krom těchto možností nabízí \textit{OrientDB} ještě vlastní dialekt jazyk \textit{SQL}. Licenční politika je více přívětivá komerčnímu použití než je tomu u \textit{Neo4j}, \textit{OrientDB} je licencováno pod \textit{Apache 2.0}\footnote{\url{https://www.apache.org/licenses/LICENSE-2.0}} licencí. Databází s velice pdobonými charakteristikami jako má \textit{OrientDB} je \textbf{ArangoDB}\footnote{\url{https://www.arangodb.com/}}, hlavním rozdílem je, že jádro \textit{ArangoDB} je implementováno v \textit{C++} a dle vlastních testů je (zvláště pro některé typy úloh) výrazně efektivnější \cite{ArangoBenchmark}. 
  
 % Titan (a JanusGraph)
