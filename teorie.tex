@@ -222,33 +222,32 @@ Existují i další dotazovací jazyky pro grafové databáze než výše zmín�
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\section{Architektury a API} %todo maybe better heading
+\section{Softwarové abstrakce}
 
+``Software je postaven na abstrakcích. Když vyberete ty správné, programování bude přirozeně vyplývat z návrhu, moduly budou mít minimalistická a jednoduchá rozhraní a nová funkcionalita bude nejspíše zapadat bez zásadních změn. Pokud vyberete špatné, programování bude řada ošklivých překvapení, rozhraní budou nucena vyhovět neočekávaným požadavkům a stanou se nabubřelá a nemotorná a i nejjednodušší změna bude obtížně dosažitelná. Systém postavený na chybných konceptech nemůže zachránit žádné množství úprav, pouze jeho nové vytvoření od začátku.'' \cite{Jackson06}  
 
+%TODO proč abstrakce, zapouzdření, loose coupling, high cohesion
 
+%TODO API
 
+%TODO vlastnosti dobrého API
 
+\subsection{Vícevrstvá architektura}
+Vícevrstvá architektura (alias \textit{layered architecture}, nebo \textit{n-tier architecture}) je jedním z nejpoužívanějších architektonickýc stylů z toho důvodu, že v jejím centru čato stojí databáze, což je přirozenou vlastností mnoha aplikací \cite{Richards15}. Aplikace je rozdělena do několika vrstev, přičemž každá z nich má vlastní specifický účel, který neplní žádná z ostatních vrstev a naopak, tato vrstva neplní žádné jiné úkoly. Jednotlivé vrstvy jsou izolovány a komunikují mezi sebou pomocí definovaných rozhraní \textit{API}. Při změně implementace některé z vrstev tak nejsou ostatní vrstvy ovlivněny vůbec, nebo v případě změny \textit{API} jsou ovlivněny pouze dvě okolní vrsty. To výrazně zjednodušuje vývoj, údržbu a testovaní aplikace. 
+Architektura nespecifikuje, kolik a jaké vrstvy má obsahovat, často se ale jedná o následující: 
 
-To quote Daniel Jackson1
-:
-Software is built on abstractions. Pick the right ones, and programming
-will flow naturally from design; modules will have
-small and simple interfaces; and new functionality will more
-likely fit in without extensive reorganization. Pick the wrong
-ones, and programming will be a series of nasty surprises.
+\begin{itemize}
+  \item{\textit{Prezentační vrstva (presentation layer)}}: vrstva aplikace sloužící k interakci uživatele s aplikací - uživatelské rozhraní aplikace 
+  \item{\textit{Vrstva byznys logiky (bussiness layer)}}: část aplikace obsahující vlastní logiku aplikace (podmínky, za kterých mohou být data vytvářena, ukládána atd.)
+  \item{\textit{Perzistentní vrstva (persistence layer)}}: poskytuje přístup k datům uloženým v perzistentním uložišti (databázi) a umožňuje manipulaci s nimi. 
+  \item{\textit{Databázová vrstva (database layer)}}: server realizující uložiště dat (relační databáze, grafová databáze, atd.) 
+\end{itemize}
 
+Vrstvy jsou typicky \textit{zamčené}, je tedy nutné, aby vrstva při zpracování požadavku pracovala pouze se sousedními vrstvami, není možné žádné vrstvy přeskakovat. Jsou ale případy, kdy je vhodné nechat některé vrstvy \textit{odemčené} a mít tedy možnost je přeskakovat. Například pokud chceme umožnit aplikacím třetích stran používat aplikaci jako \textit{webovou službu}, necháme \textit{prezentační vrstvu} odemčenou a umožníme tak přístup na \textit{servisní vrstvu (service layer)}, která potom komunikuje s \textit{vrstvou byznys logiky} (pokud tyto dvě vrstvy nejsou spojeny v jednu).  
 
+% TODO obrázek n-tieru 
 
-
-
-
-
-
-
-
-
-
-
+%TODO návrhové vzory (asi)
 
 
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -257,33 +256,10 @@ ones, and programming will be a series of nasty surprises.
 %\section{Architektury a API} %todo maybe better heading
 % https://cw.fel.cvut.cz/wiki/courses/a4m36aos/useful_materials
 
-%todo RPC
-
-%todo CORBA
-
-%todo Java RMI
-
-%todo mention HTTP 1.0 specification 1996
-
-%todo mention XML specification 1996
-
-%todo XML-RPC 
-%% TODO UNCOMENT
 % \subsection{XML-RPC}
 % V roce 1998 se objevil soubor pravidel, který popisuje jak využívat technilogie RPC, XML a HTTP k vzdálenému volání procedur přes internet - \nom{XML-RPC}{Remote Procedure Calling protokol používající XML pro komuniakci přes internet}.\cite{Winner99} XML poskytuje slovník pro popis RPC volání přenášená mezi počítači pomocí HTTP protokolu (ačkoliv je popsán také obecný přístup nezávislý na konkrétním protokolu). Uživatel pošle požadavek na server implementující protokol. Uživatelem je typicky software volající konkrétní proceduru vzdáleného systému. Volání může obasahovat více vstupních parametrů a očekává jedny výstupní hodnotu. Vstupní parametry mohou být vnořené do kolekcí jako jsou mapy a listy, mohou být tedy posílány rozsáhlé struktury. Proto je možné používat XML-RPC pro posílání objektů a struktur (jako vstupních i výsupních parametrů). Díky možnosti popsání předávaných informací pomocí XML umožňuje XML-RPC prakticky vytváření \nomExpl{API}{aplikačních rozhraní} a tím komunikaci dvou a více nehomogeních prostředí.\cite{Laurent01}  
 
-%% FIXME
-% Because XML-RPC is layered on top of HTTP, it inherits the inefficiencies of HTTP. This
-% does place some limitations on its use in large-scale, high-speed applications, but inefficiency
-% isn't important in many places. Although there are definitely high-profile projects for which
-% systems must scale to millions of transactions at a time, keeping response time to a minimum,
-% there are also many projects to which systems need to send information or request
-% processing far less often -- from once a second to once a week -- and for which response
-% time isn't absolutely critical. For these cases, XML-RPC can simplify developers' lives
-% tremendously. 
 
-%% TODO UNCOMENT
-%todo SOAP, maybe UDDI and WSDL, maybe JAX-RPC
 % \subsection{SOAP}
 % Nástupcem XML-RPC se stal \nomExpl{SOAP}{Simple Object Access Protocol}. SOAP je postavený na podobných principech jako XML-RPC - používá XML jako formát zpráv a pro jejich přenos využívá protokolů aplikační vrstvy HTTP (standard), nebo SMTP. Cílem SOAPu je zajistit rozšířitelnost, neutralitu a nezávislost komunikace. Umožňuje komukaci procesů běžících na různých operačních systémech (pomocí XML) a volání webových služeb pomocí HTTP nezávisle na platformě a programovacím jazyku. 
 % Přestože specifikace SOAPu byla vytvořena už v roce 1998, byla zveřejněna až v roce 1999. Draft se nicméně nestal standardem \nomExpl{IETF}{Internet Engineering Task Force}\footnote{https://www.ietf.org/}.\cite{Box01} Až verze 1.2 se stala v roce 2007 doporučením \nomExpl{W3C}{World Wide Web Consortium}\footnote{https://www.w3.org/}.\cite{W3C07}
@@ -293,17 +269,11 @@ ones, and programming will be a series of nasty surprises.
 
 % \nomExpl{WSDL}{Web Service Description Language} je formální strojově čitelný popis webové služby. Služba je popsána pomocí portů a koncových bodů
 
-
-% The WSDL describes services as collections of network endpoints, or ports. The WSDL specification provides an XML format for documents for this purpose. The abstract definitions of ports and messages are separated from their concrete use or instance, allowing the reuse of these definitions. A port is defined by associating a network address with a reusable binding, and a collection of ports defines a service. Messages are abstract descriptions of the data being exchanged, and port types are abstract collections of supported operations. The concrete protocol and data format specifications for a particular port type constitutes a reusable binding, where the operations and messages are then bound to a concrete network protocol and message format. In this way, WSDL describes the public interface to the Web service.
-% WSDL is often used in combination with SOAP and an XML Schema to provide Web services over the Internet. A client program connecting to a Web service can read the WSDL file to determine what operations are available on the server. Any special datatypes used are embedded in the WSDL file in the form of XML Schema. The client can then use SOAP to actually call one of the operations listed in the WSDL file using for example XML over HTTP.
-% The current version of the specification is 2.0; version 1.1 has not been endorsed by the W3C but version 2.0 is a W3C recommendation.[1] WSDL 1.2 was renamed WSDL 2.0 because of its substantial differences from WSDL 1.1. By accepting binding to all the HTTP request methods (not only GET and POST as in version 1.1), the WSDL 2.0 specification offers better support for RESTful web services, and is much simpler to implement.[2][3] However support for this specification is still poor in software development kits for Web Services which often offer tools only for WSDL 1.1.[needs update][citation needed] For example, the version 2.0 of the Business Process Execution Language (BPEL) only supports WSDL 1.1.
-
-
 %todo REST
 % http://roy.gbiv.com/talks/200709_fielding_rest.pdf
 % fielding disertation
 
-%todo HATEOS
+% HATEOS
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% TODO UNCOMENT
