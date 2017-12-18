@@ -221,20 +221,89 @@ Dalším velice oblíbeným dotazovacím jazykem je \textbf{Cypher} \cite{Cypher
 Existují i další dotazovací jazyky pro grafové databáze než výše zmíněné, většina z nich je ale navržena pro specifické účely a pro obecné použití se nehodí, a nebo nejsou příliš rozšířené. 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Softwarové abstrakce}
 
 ``Software je postaven na abstrakcích. Když vyberete ty správné, programování bude přirozeně vyplývat z návrhu, moduly budou mít minimalistická a jednoduchá rozhraní a nová funkcionalita bude nejspíše zapadat bez zásadních změn. Pokud vyberete špatné, programování bude řada ošklivých překvapení, rozhraní budou nucena vyhovět neočekávaným požadavkům a stanou se nabubřelá a nemotorná a i nejjednodušší změna bude obtížně dosažitelná. Systém postavený na chybných konceptech nemůže zachránit žádné množství úprav, pouze jeho nové vytvoření od začátku.'' \cite{Jackson06}  
 
-%TODO proč abstrakce, zapouzdření, loose coupling, high cohesion
+% Důvody pro abstrakci abstrakce
+Vývoj softwaru je dnes jistě v mnoha ohledech jednodušší, než v padesátých letech dvacátého století, kdy programátor musel znát strojový kód, počty a velikosti registrů a v nejhorších případech musel fyzicky propojit vodiče mezi výpočetními jednotkami. Postupem času s příchodem nových programovacích jazyků byl programátor stále více abstrahován od hardwaru a i některých softwarových vrstev nad ním. Vývojáři webových stránek stačí vhodný operační systém, aplikační a databázový server k tomu, aby mohl rychle vytvořit webové stránky, nepotřebuje k tomu přitom podrobnou znalost všech používaných technologií. Stejně tak Java vývojář dnes již nebude psát celou aplikaci s pomocí Javy samotné, ale využije mnoho existujících open-sourcových knihoven, které mu práci výrazně usnadní. Není tedy nutné, aby uměl vývojář vyřešit každý problém, pro řešení některých stačí přepoužití vhodných nástrojů. To má za následek nejen usnadnění práce při implementaci, ale také celkově čistší a přehlednější kód aplikace - kód obsahuje pouze aplikační logiku a nezbytné množství obslužných rutin. Přehledný kód potom vede k jednoduššímu vývoji, testování a údržbě aplikace. 
 
-%TODO API
+\subsection{API}
+% Od zapouzdření k API
+Základním principem zajišťující abstrakci na úrovni zdrojového kódu aplikací je \textit{zapouzdření} - tedy princip, který říká, že stav objektů by neměl být přímo přístupný, ale mělo by k němu být přistupováno pomocí metod k tomu určených. Tím je zaručeno, že stav objektu bude upravovány pouze v rámci daných omezení (například viditelnost polí, číselný rozsah atd). Stejně tak je žádoucí, aby nebyla veřejně vystavována vnitřní implementace tříd. Tento princip se uplatňuje i na větší části zdrojového kódu (knihovny, moduly, atd.). V tom případě se snažíme abstrahovat uživatele od toho, jak je knihovna vnitřně implementována a nabízímu mu pouze rozhraní pro práci s ní - API (\textit{Appplication Programming Interface}). 
+
+API je tedy jasně definovaným rozhraním, které poskytuje uživateli přístup k funkcím softwarové jednotky, kterou obaluje (např. knihovna, modul, webová služba). 
+
+%TODO
 
 %TODO vlastnosti dobrého API
+% loose coupling, high cohesion
+
+% TODO SPI
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%TODO návrhové vzory (možná - DAO, repository pattern)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TODO úvod k architekturám
+%As predicted by Perry and Wolf [105], software architecture has been a focal point for
+%software engineering research in the 1990s. The complexity of modern software systems
+%have necessitated a greater emphasis on componentized systems, where the
+%implementation is partitioned into independent components that communicate to perform
+%a desired task. Software architecture research investigates methods for determining how
+%best to partition a system, how components identify and communicate with each other,
+%how information is communicated, how elements of a system can evolve independently,
+%and how all of the above can be described using formal and informal notations.
+
+%TODO SOAP, SOA? 
+
+\subsection{REST}
+
+\textit{\nomExpl{REST}{Representational State Transfer}} je architektonický styl, který ve své dizertační práci v roce 2000 popsal Thomas Fielding \cite{Fielding00}. Jeho cílem je definovat standard pro škálovatelné webové aplikace. Styl je definovaný několika architektonickými omezeními: 
+
+\begin{itemize}
+  \item{\textit{Architektura klient-server:}} \textit{REST} je určen pro webové aplikace a základní architektonická omezení tak přebírá od architektonického stylu \textit{klient-server}, jehož hlavním principem je rozdělení zodpovědností na část uživatelského rozhraní (\textit{klient}) a část aplikační logiky a persistence dat (\textit{server}). Systém je tak lépe škálovatelný díky zjednodušení separátně modifikovatelných komponent \cite{Pautasso08} a uživatelské rozhraní jednoduše přenositelné napříč různými platformami.
+  \item{\textit{Bezstavovost:}} Komunikace mezi \textit{klientem} a \textit{serverem} je bezstavová, \textit{server} tedy nemůže mezi dvěmi různými požadavky přechovávat žádný kontext \textit{klienta}. Je tak zaručeno, že požadavky jakéhokoliv \textit{klienta} budou vždy obsahovat všechny informace nutné k obsluze požadavku a kontext těchto požadavků bude udržovat pouze \textit{klient}. 
+  Komunikaci je díky bezestavovosti čitelnější, splehlivější a škálovatelnější.
+  \item{\textit{Schopnost používat cache:}} Pro zlepšení efektivity síťě je přidán také požadavek na používání \textit{cache}. Tento požadavek vyžaduje, aby všechna data odesíláná odpovědí na požadavky byla explicitně označena jako \textit{cacheable} a \textit{non-cacheable}. Pokud je odpověď požadavku \textit{cacheable}, potom může být \textit{klientem} uložena do \textit{cache} a přepoužita v případě volání identického požadavku. 
+  \item{\textit{Vícevrstvá architektura:}} Dalším architektonickým omezením je použití vícevrstvé architektury (popsána v kapile \ref{sec:n-tier}). Ta zaručuje omezení složitosti systému (na složitost jedné softwarové vrsty) a umožňuje zapouzdření \textit{legacy} služeb.
+  \item{\textit{Jednotné rozhraní:}} Důležitým architektonickým omezením \textit{REST}u je jednotné rozhraní mezi komponentami. To vyžaduje posílání dat v serializované formě, čímž je zaručeno zjednodušení architektury a snížení implementační závislosti. To je vyváženo snížením efektivity způsobeným režií serializace a deserializace dat.  
+  \item{\textit{Code on demand architektura:}} Posledním skupina omezení je přebrána z architektonického stylu \textit{Code on demand} \cite{Fuggetta98}, kde \textit{klient} sice má přístup ke zdrojům, ale neví, jak mají být zpracovány. \textit{REST} tak umožňuje aby funkcionalita \textit{klienta} byla rozšířena stažením a spuštěním kódu ve formě \textit{appletů} nebo \textit{skriptů} ze \textit{serveru}. Tento přístup ale snižuje čitelnost aplikace a je tak pouze volitelným omezením \textit{RESTu}.
+\end{itemize}  
+
+% TODO RESTFULL API 
+
+% TODO HATE OS 
 
 \subsection{Vícevrstvá architektura}
-Vícevrstvá architektura (alias \textit{layered architecture}, nebo \textit{n-tier architecture}) je jedním z nejpoužívanějších architektonickýc stylů z toho důvodu, že v jejím centru čato stojí databáze, což je přirozenou vlastností mnoha aplikací \cite{Richards15}. Aplikace je rozdělena do několika vrstev, přičemž každá z nich má vlastní specifický účel, který neplní žádná z ostatních vrstev a naopak, tato vrstva neplní žádné jiné úkoly. Jednotlivé vrstvy jsou izolovány a komunikují mezi sebou pomocí definovaných rozhraní \textit{API}. Při změně implementace některé z vrstev tak nejsou ostatní vrstvy ovlivněny vůbec, nebo v případě změny \textit{API} jsou ovlivněny pouze dvě okolní vrsty. To výrazně zjednodušuje vývoj, údržbu a testovaní aplikace. 
-Architektura nespecifikuje, kolik a jaké vrstvy má obsahovat, často se ale jedná o následující: 
+\label{sec:n-tier}
+Vícevrstvá architektura (alias \textit{layered architecture}) je jedním z nejpoužívanějších architektonickýc stylů z toho důvodu, že v jejím centru čato stojí databáze, což je přirozenou vlastností mnoha aplikací \cite{Richards15}. Aplikace je rozdělena do několika vrstev, každá vrstva má vlastní specifický účel, který neplní žádná z ostatních vrstev a naopak, tato vrstva neplní žádné jiné úkoly. Každá vrstva poskytuje služby vrstvě nad sebou a využívá služeb vrstvy pod sebou \cite{Garlan94}. Jednotlivé vrstvy jsou izolovány a komunikují mezi sebou pomocí dobře definovaných \textit{API}. Jejich implementace je skryta a při změně některé z vrstev tak nejsou ostatní vrstvy ovlivněny vůbec, nebo nejhůře v případě změny \textit{API} vrstvy je ovlivněna pouze nejbližší vyšší vrstva. To výrazně snižuje \textit{coupling} a zjednodušuje vývoj, údržbu a testovaní aplikace. Příkladem mohou být komunikační modely ISO/OSI a TCP/IP \cite{Zimmerman80}. 
+
+V kontextu webových aplikací je tento architektonický styl spojován se stylem \textit{klient-server} a vzniká \textbf{vícevrstvý klient-server} architektura. Architektury postavené na tomto stylu jsou nazývány jako \textit{2-tiered, 3-tiered}, nebo \textit{n-tiered} architektury \cite{Umar97}. Architektonický styl obecně nespecifikuje, kolik a jaké vrstvy má obsahovat, často se ale jedná o následující: 
 
 \begin{itemize}
   \item{\textit{Prezentační vrstva (presentation layer)}}: vrstva aplikace sloužící k interakci uživatele s aplikací - uživatelské rozhraní aplikace 
@@ -243,11 +312,11 @@ Architektura nespecifikuje, kolik a jaké vrstvy má obsahovat, často se ale je
   \item{\textit{Databázová vrstva (database layer)}}: server realizující uložiště dat (relační databáze, grafová databáze, atd.) 
 \end{itemize}
 
-Vrstvy jsou typicky \textit{zamčené}, je tedy nutné, aby vrstva při zpracování požadavku pracovala pouze se sousedními vrstvami, není možné žádné vrstvy přeskakovat. Jsou ale případy, kdy je vhodné nechat některé vrstvy \textit{odemčené} a mít tedy možnost je přeskakovat. Například pokud chceme umožnit aplikacím třetích stran používat aplikaci jako \textit{webovou službu}, necháme \textit{prezentační vrstvu} odemčenou a umožníme tak přístup na \textit{servisní vrstvu (service layer)}, která potom komunikuje s \textit{vrstvou byznys logiky} (pokud tyto dvě vrstvy nejsou spojeny v jednu).  
+Vrstvy jsou typicky \textit{zamčené}, je tedy nutné, aby vrstva při zpracování požadavku pracovala pouze se sousedními vrstvami, není možné žádné vrstvy přeskakovat. Jsou ale případy, kdy je vhodné nechat některé vrstvy \textit{odemčené} a mít tedy možnost je přeskakovat. Například pokud chceme umožnit aplikacím třetích stran používat aplikaci jako \textit{webovou službu}, necháme \textit{prezentační vrstvu} odemčenou a umožníme tak přístup na \textit{servisní vrstvu (service layer)}, která potom komunikuje s \textit{vrstvou byznys logiky} (pokud tyto dvě vrstvy nejsou spojeny v jednu). Dalším uplatněním odemčených vrstev může být zvýšení efektivity, režie při zpracování dat způsobená  jejich předáváním přes několik vrstev je primární nevýhodou vícevrstvé architektury \cite{Clark90}. 
+
 
 % TODO obrázek n-tieru 
-
-%TODO návrhové vzory (asi)
+% http://www.oreilly.com/programming/free/files/software-architecture-patterns.pdf
 
 
 %%%%%%%%%%%%%%%%%%%%%%%
@@ -266,36 +335,4 @@ Vrstvy jsou typicky \textit{zamčené}, je tedy nutné, aby vrstva při zpracov�
 % % https://en.wikipedia.org/wiki/SOAP
 % % https://www.w3.org/TR/2000/NOTE-SOAP-20000508/
 % % https://www.w3.org/TR/soap/
-
 % \nomExpl{WSDL}{Web Service Description Language} je formální strojově čitelný popis webové služby. Služba je popsána pomocí portů a koncových bodů
-
-%todo REST
-% http://roy.gbiv.com/talks/200709_fielding_rest.pdf
-% fielding disertation
-
-% HATEOS
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% TODO UNCOMENT
-% \section{Data Layer}
-
-% \section{Data(base) Layer Abstraction}
-% Abstrakce datové vrstvy (a databází) je historicky hojně diskutovaným tématem, %TODO zdroj
-% střetává se zde několik zájmů. Nejčastější argumenty proti tomuto principu míří na 
-% ztrátu výkonost při zařazování abstraktních vrstev. Tato ztráta výkonu je potom často způsobena 
-% právě úrovní abstrakce, konkrétně neschopností vývojáře použít konstrukty specifické pro dané databázové systémy. 
-% Je ale důležité si uvědomit, že odstranění vendor lockingu není jediným a ani primárním cílem \nom{DLA}{Database Layer Abstraction}.
-% Důležitějším cílem je zjednodušení aplikační logiky a její očištění o konstrukty z databázového světa. 
-
-%TODO úrovně abstrakce viz http://blog.gauffin.org/2013/01/data-layer-the-right-way/ + dohledat lepší zdroj
-
-%TODO data access alternatives - pokud to není to samé, ten samý zdroj
-
-%TODO Data layer patterns -ten samý zdroj + https://thinkinginobjects.com/2012/08/26/dont-use-dao-use-repository/ or https://medium.com/@krzychukosobudzki/repository-design-pattern-bc490b256006 
-% and https://martinfowler.com/eaaCatalog/repository.html (!)
-
-%==================================%
-%              NOTES               %
-%==================================%
-
-% - domain and data mapping layer
