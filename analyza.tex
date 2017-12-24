@@ -33,7 +33,9 @@ Interakce mezi \textit{klientskou} a \textit{serverovou} částí aplikace je po
 
 \subsection{Metadatové uložiště}
 Jak již bylo zmíněno v úvodu práce (kapitola \ref{sec:uvod}) metadatové uložiště produktu \textit{Manta Flow} je aktuálně implementováno grafovou databází \textit{Titan} (ve verzi 0.4) a je snaha o výměnu této databáze %\cite{TODO Kovar}. 
-Než přistoupíme k bližšímu popisu jednotlivých komponent aplikace a jejich interakcí s metadatovým uložištěm (kapitola \ref{sec:ana_interactions}, je třeba nejdříve popsat její model zobrazený na obrázku \ref{fig:ana-model}.  
+Než přistoupíme k bližšímu popisu jednotlivých komponent aplikace a jejich interakcí s metadatovým uložištěm (kapitola \ref{sec:ana_interactions}, je třeba nejdříve popsat jeho datový model zobrazený na obrázku \ref{fig:ana-model}. 
+
+% TODO popsat reálné entity 
 
 \begin{figure}
 \begin{center}
@@ -66,13 +68,13 @@ Model se skládá z devíti typů uzlů:
 	\item{\textit{filterFlow}}: Hrana mezi dvěmi uzly typu \textit{NODE} říkající, že mezi těmito uzly existuje nepřímý datový tok (ve směru hrany).
 	\item{\textit{hasAttribute}}: Hrana přiřazující uzlům typu \textit{NODE} jejich atributy (uzly typu \textit{ATTRIBUTE}).
 	\item{\textit{inLayer}}: Hrana typu \textit{inLayer} spojeju zdroje (uzly typu \textit{RESOURCE}) a vrstvy a říká, že zdroj patří do dané vrstvy modelu metadat. 
-	\item{\textit{hasSource}}: Hrana je použita k propojení uzlů reprezentujících zdrojové kódy (uzly typu \textit{SOURCE_NODE}) s uzlem \textit{SOURCE\_ROOT}.
-	\item{\textit{hasRevision}}: Hrana je použita k propojení uzlů reprezentujících revize modelu metadat (uzly typu \textit{REVISION_NODE}) s uzlem \textit{REVISION\_ROOT}.
+	\item{\textit{hasSource}}: Hrana je použita k propojení uzlů reprezentujících zdrojové kódy (uzly typu \textit{SOURCE\_NODE}) s uzlem \textit{SOURCE\_ROOT}.
+	\item{\textit{hasRevision}}: Hrana je použita k propojení uzlů reprezentujících revize modelu metadat (uzly typu \textit{REVISION\_NODE}) s uzlem \textit{REVISION\_ROOT}.
 \end{itemize}
 
 \begin{figure}
 \begin{center}
-\includegraphics[width=6cm]{figures/model_revize}
+\includegraphics[width=6cm]{figures/model_revisions}
 \caption{Způsob verzování modelu metadat}
 \label{fig:ana-model-rev}
 \end{center}
@@ -84,7 +86,33 @@ Model se skládá z devíti typů uzlů:
 \label{sec:ana_interactions}
 %TODO bližší popis jednotlivých feature souvisejících s GDB
 % TODO
+
 % Merger
+% Otázky
+%  - co vše obsahuje jeden mergovaný graf? 
+%  - co je scriptmetadata? 
+
+% Vstup - serializovaný graf - byte[]
+% Merge se provádí buď do nové verze, nebo pokud je verzování vypnuto do HEAD_REVISION
+
+% merge s VCS on 
+% - check
+%  - transakce - WRITE_SHARE (paralel) / WRITE_EXCLUSIVE (serial) -- u serialu je to ale zbytečné, ne? :) 
+%  - checkMergeConditions (pouze najde revision node a zjistí, jestli revize existuje (jak byla vytvořena?) a není commitnutá)
+% - processor.process 
+%  - transakce - WRITE_SHARE (paralel) / WRITE_EXCLUSIVE (serial) -- u serialu je to ale zbytečné, ne? :) 
+%  - vloží SOURCE uzly do db a pokud je vypnuto verzování, zkontroluje počet proti licenci
+%   - transakce
+%   - kazdy skript - scriptMetadataDao.create/update  --- @Insert("INSERT INTO script_metadata (script_hash, last_processin...    ---- takže co je skript metadata?
+%   - podmínečný commit (počet skriptů vs licence)
+%  - mergne objekty (každý má vlastní merge metodu) a občas udělá commit (podle počtu nových objektůs)
+%					TitanVertexQuery query = ((TitanVertex) parentVertex).query()
+%                    .has(EdgeProperty.CHILD_NAME.t(), GraphOperation.processValueForChildName(name))
+%                    .has(EdgeProperty.TRAN_END.t(), Cmp.GREATER_THAN_EQUAL, lastCommitedRevision)
+%                    .direction(Direction.IN).labels(parentEdgeType.t());
+%   - pokud uzel není ve výsledku dotazu, je vytvořen (jinak nic)  ---- public static Vertex createNode(TitanTransaction transaction, Vertex parent, String name, String type,
+%            Integer revision)
+% merge bez VCS je stejný, akorát processor.process neběží v transakci
 
 % TODO 
 % Query
@@ -97,6 +125,9 @@ Model se skládá z devíti typů uzlů:
 
 % TODO 
 % Export to CSV
+
+% TODO POPIS API jednotlivých databází
+\subsection{GDB API} %TODO CHANGE
 
 %TODO
 \subsection{Požadavky}
