@@ -88,7 +88,7 @@ Model se skládá z devíti typů uzlů:
 \label{sec:ana_interactions}
 
 \subsubsection{Connector}
-\lable{sec:ana_connector}
+\label{sec:ana_connector}
 Modul, který je nejblíže metadatovému uložišti, tzv. \textbf{connector} má dvě hlavní zodpovědnosti - zajištění připojení k uložišti a provádění dotazů nad ním. 
 
 %Operations
@@ -100,14 +100,14 @@ Modul obsahuje sadu základních dotazů, tzv. \textit{operatinos}, mezi které 
 	\item{získání cesty ke kořeni}
 	\item{získání podstromu}
 \end{itemize} 
-Tyto operace přímo přistupují do databáze a pomocí programovacího jazyka \textit{Gremlin}\footnote{Používá se \textit{TinkerPop} ve verzi \textit{2.6.x}.} a jsou na nich postaveny složitější operace nad grafouvou databází. U základních operací nejsou transakce řízeny explicitně, ale implicitně grafovou databází. 
+Tyto operace přímo přistupují do databáze a pomocí programovacího jazyka \textit{Gremlin}\footnote{Používá se \textit{TinkerPop} ve verzi \textit{2.6.x}.} a jsou na nich postaveny složitější operace nad grafouvou databází. U základních operací nejsou transakce řízeny explicitně, ale implicitně grafovou databází.
 
 % Algorithm
+Další částí modulu \textit{connector} jsou tzv. algoritmy, tedy komponenta, pomocí které jsou v metadatovém uložišti hledány samotné datové toky. Tato komponenta řetězí několik grafových algoritmů, přičemž první z nich získá z metadatového uložiště podmnožinu datových toků, která je dalšími algoritmy filtrována a omezována. Tímto způsobem vzniká tzv. \textit{referenční view} - objekt obsahující kompletní graf datových toků pro zadané výchozí uzly a směr datových toků. To je pak využíváno dalšími moduly aplikace, například \textit{viewerem} (viz \ref{sec:ana_viewer}), který dle parametrů zadaných ve webové aplikaci graf datových toků vizualizuje.   
+Jednotlivé algoritmy používají výše popsané základní operace a v některých případech také sami dotazují metadatové uložiště přímo pomocí jazyka \textit{Gremlin}. 
 
 % Traversal
-
-% DataFlowEdgesFinder - hledání data flow hran pomocí upraveného algoritmu průchodu do šířky. 
-
+Posledním způsobem manipulace s metadatovým uložištěm, který modul umožňuje je přístup pomocí \textit{traverserů}. Ty pracují na obecném principu \textit{traversování} grafů popsaném v kapitole \ref{sec:gdb-dotazy}. V tomto případě ale celý průchod grafem není realizován samotnou grafovou databází, ale \textit{Java} kódem, přičemž grafová databáze je dotazována pouze na dílčí informace - například na okolní uzly. \textit{Traversery} jsou používány v případech, kdy je manipulováno s větší částí grafové databáze, například při jejím exportu. Tyto operace jsou realizovány \textit{vizitory} - každý uzel, který je procházen \textit{traverserem} je následně obsloužen \textit{vizitorem}, který provede požadovanou operaci (jedná se o návrhový vzor \textit{Visitor} - viz \cite{Gamma94}). Obě tyto části, tedy procházení grafu \textit{traverserem} i obsloužení všech objektů \textit{visitorem} je prováděno za pomocí základních grafových operací definovaných výše. Zároveň je ale také z tohoto kontextu grafová databáze dotazována přímo pomocí jazyka \textit{Gremlin}. Jedná se ale spíše o jednoduché dotazy na dohledání uzlů, jejich atributů apod. 
 
 \subsubsection{Merger}
 \textit{Merger} je modul, který je používán při analýze zdrojových systémů. Slouží k zanesení výsledků dílčích analýz jednotlivých částí (např. skriptů) zdrojových systémů do metadatového uložiště. 
@@ -121,7 +121,7 @@ Vlastní operace \textit{merge}\footnote{Operace \textit{merge} má v kontextu a
 
 Operace se také chová různě v případě, kdy je umožňěno verzovaní metadatového uložiště (a to tak obsahuje více revízí) a kdy je vypnuto. V případě zapnutého verzování je \textit{merge} prováděn vždy do nové revize, pokud je verzování vypnuté, je prováděn do hlavní (jediné) revize. 
 
-Samotné \textit{merge} operace nad objekty (uzly, hranami, atributy, ...) jsou prováděny přímo do grafové databáze pomocí jazyka \textit{Gremlin}. K přístupu do metadadtového uložiště se tedy nevyužívá modul k tomu předurčený - \textit{Connector} (\ref{sec:ana_connector}).
+Samotné \textit{merge} operace nad objekty (uzly, hranami, atributy, ...) jsou prováděny přímo do grafové databáze pomocí jazyka \textit{Gremlin}. K přístupu do metadadtového uložiště se tedy nevyužívá modul k tomu předurčený - \textit{Connector} (viz \ref{sec:ana_connector}).
 
 \begin{algorithm} 
 \caption{Merger pseudocode}
@@ -204,6 +204,7 @@ Modulem zajišťujícím dotazy do metadatového uložiště je \textbf{Query}. 
 %  - while všechny uzly nezpracovány
 
 \subsubsection{Viewer}
+\label{sec:ana_viewer}
 \textit{Viewer}, modul sloužící k poskytování dat uživatelskému rozhraní aplikace, také částečně přímo interaguje s metadatovým uložištěm. 
 
 %FIXME
