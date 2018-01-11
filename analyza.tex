@@ -1,4 +1,4 @@
-\chapter{Experimentální část}
+\chapter{Praktická část}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Analýza}
@@ -36,6 +36,8 @@ Jak již bylo zmíněno v úvodu práce (kapitola \ref{sec:uvod}) metadatové ul
 Než přistoupíme k bližšímu popisu jednotlivých komponent aplikace a jejich interakcí s metadatovým uložištěm (kapitola \ref{sec:ana_interactions}, je třeba nejdříve popsat jeho datový model zobrazený na obrázku \ref{fig:ana-model}. 
 
 % TODO popsat reálné entity 
+% TODO je to strom?
+% TODO zmínit horizontální filtry?
 
 \begin{figure}
 \begin{center}
@@ -84,16 +86,69 @@ Model se skládá z devíti typů uzlů:
 
 \subsection{Interakce s metadatovým uložištěm}
 \label{sec:ana_interactions}
-%TODO bližší popis jednotlivých feature souvisejících s GDB
-% TODO
 
-% Merger
-% Otázky
-%  - co vše obsahuje jeden mergovaný graf? 
+\subsubsection{Connector}
+\lable{sec:ana_connector}
+Modul, který je nejblíže metadatovému uložišti, tzv. \textbf{connector} má dvě hlavní zodpovědnosti - zajištění připojení k uložišti a provádění dotazů nad ním. 
+
+%Operations
+Modul obsahuje sadu základních dotazů, tzv. \textit{operatinos}, mezi které patří například: 
+\begin{itemize}
+	\item{získání předka uzlu}
+	\item{získání atributů uzlu}
+	\item{získání sousedních uzlů a hran}
+	\item{získání cesty ke kořeni}
+	\item{získání podstromu}
+\end{itemize} 
+Tyto operace přímo přistupují do databáze a pomocí programovacího jazyka \textit{Gremlin}\footnote{Používá se \textit{TinkerPop} ve verzi \textit{2.6.x}.} a jsou na nich postaveny složitější operace nad grafouvou databází. U základních operací nejsou transakce řízeny explicitně, ale implicitně grafovou databází. 
+
+% Algorithm
+
+% Traversal
+
+% DataFlowEdgesFinder - hledání data flow hran pomocí upraveného algoritmu průchodu do šířky. 
+
+
+\subsubsection{Merger}
+\textit{Merger} je modul, který je používán při analýze zdrojových systémů. Slouží k zanesení výsledků dílčích analýz jednotlivých částí (např. skriptů) zdrojových systémů do metadatového uložiště. 
+
+% TODO
+%  Vstupy - co vše obsahuje jeden mergovaný graf? 
+% Vstup - serializovaný graf - byte[]
 %  - co je scriptmetadata? 
 
-% Vstup - serializovaný graf - byte[]
-% Merge se provádí buď do nové verze, nebo pokud je verzování vypnuto do HEAD_REVISION
+Vlastní operace \textit{merge}\footnote{Operace \textit{merge} má v kontextu aplikace \textit{Manta Flow} obdobný význam, jako například v \textit{SQL}: pokud objekt není uložen v persistentní vrstvě, je do ní uložen (\textit{insert}), jinak je aktualizován (\textit{update}).} lze zjednodušeně popsat pseudokódem \ref{alg_merger}. Ten je uveden především kvůli složitému mode zanořování transakcí, jehož účelem je vyvážení efektivity operace \textit{merge} a zároveň umožňení provádění dotazů do metadatového uložiště jinými částmi aplikace. % TODO blíže popsat použitý transakční model
+
+Operace se také chová různě v případě, kdy je umožňěno verzovaní metadatového uložiště (a to tak obsahuje více revízí) a kdy je vypnuto. V případě zapnutého verzování je \textit{merge} prováděn vždy do nové revize, pokud je verzování vypnuté, je prováděn do hlavní (jediné) revize. 
+
+Samotné \textit{merge} operace nad objekty (uzly, hranami, atributy, ...) jsou prováděny přímo do grafové databáze pomocí jazyka \textit{Gremlin}. K přístupu do metadadtového uložiště se tedy nevyužívá modul k tomu předurčený - \textit{Connector} (\ref{sec:ana_connector}).
+
+\begin{algorithm} 
+\caption{Merger pseudocode}
+\label{alg_merger}
+\begin{algorithmic}
+	\State $beginWriteTransaction()$
+	\State $revision\gets getNewestRevision()$
+	\If {$revision.isOpen()$}
+		\State $beginWriteTransaction()$
+		\ForAll{$script in scripts$} 
+			\State $beginWriteTransaction()$
+			\State $merge(script)$	
+			\State $conditionalCommit()$
+		\EndFor
+		\State $beginWriteTransaction()$
+		\ForAll{$object in objects$} 
+			\State $beginWriteTransaction()$
+			\State $merge(object)$	
+			\State $occasionalCommit()$
+		\EndFor
+		\State $commit()$	
+	\EndIf
+	\State $commit()$
+\end{algorithmic}
+\end{algorithm}
+
+
 
 % merge s VCS on 
 % - check
@@ -114,22 +169,85 @@ Model se skládá z devíti typů uzlů:
 %            Integer revision)
 % merge bez VCS je stejný, akorát processor.process neběží v transakci
 
-% TODO 
-% Query
+\subsubsection{Query}
 
 % TODO 
-% Viewer
+% Dotazy 
+% - proč se flow hledá pro interval revízí a ne jen jednu revizi?
+
+% Query
+Modulem zajišťujícím dotazy do metadatového uložiště je \textbf{Query}. Ten umožňuje několik jednoduchých dotazů do metadatového uložiště a komplexní dotaz pro nalezení datových toků, který blíže popíšeme.  
+
+
+ % /**
+ %     * Vrací graf datových toků ze startovních uzlů zadaných seznamem plně kvalifikovaných
+ %     *   jmen uvedených parametrů v poslední commitnuté revizi.
+ %     * @param nodeNames seznamem plně kvalifikovaných jmen startovních uzlů
+ %     * @param queryParameters parametry dotazu na datové toky
+ %     * @param revision číslo revize, nebo -1 pro poslední commitnutou revizi,
+ %     *   nebo -2 pro poslední i necommitnutou revizi
+ %     * @return graf datových toků
+ %     * @throws QueryServiceException pokud se něco nezdaří
+ %     */
+
+% get flow
+% - transakce READ
+% - superRoot =  getSuperRoot 
+% - per quilifiedName 
+%  - findStartVertexPath TODO co to je - costa od kořene k danému uzlu // asi se dělá jen proto, aby se našel uzel definovaný qn
+%  - přidá všechny potomky-listy (rekurzivně) ve smyslu hrany HAS_PARENT
+% - (nastaví se aktivní filtry)
+% - najít flow a naplnit reference view -> algorithm findAccessibleVertexIds TODO (popsat samostatně v algoritmu?)
+% - build graf
+%  - pro každý počáteční uzel najde adjacentUnfilteredVertices (operations) --- divné, v téhle fázi by se teoreticky nic z operations tahat nemělo
+%  - ty přidá do grafu
+%  - while všechny uzly nezpracovány
+
+\subsubsection{Viewer}
+\textit{Viewer}, modul sloužící k poskytování dat uživatelskému rozhraní aplikace, také částečně přímo interaguje s metadatovým uložištěm. 
+
+%FIXME
+GraphService dotazuje metadatové uložiště o informace o jeho revizích. 
+IndexService - Sluzba zajistuje vyhledavani uzlu v databazi (Lucene) (používá se např pro autocomplete).
+FlowController.createView
+ - fillStartNodesTypes: 
+
+
+% TODO 
+% FlowController
+% HorizontalFilterHelper
+% FollowEdgesFinder
+
+
+\subsubsection{Public API}
+% TODO
+% Public API 
+
+
+
+
+\subsubsection{Exporter}
+% TODO 
+% Export to CSV (exporter)
 
 % TODO
-% Public API
+% dump
 
-% TODO 
-% Export to CSV
 
 % TODO POPIS API jednotlivých databází
 \subsection{GDB API} %TODO CHANGE
 
 %TODO
 \subsection{Požadavky}
+%security 
+% - podle rolí
+% - nevidím flow v cizích systémech, ale vidím, že z vlastního tam flow vede
+
+% - Není nutné upravovat algoritmus pro hledání flow  				--- stačí najít kompletní flow se všmi objekty a odfiltrovat zakázané.
+% - Úprava algoritmu pro hledání flow by alg. nezrychlila 			--- stejně by bylo nutné hledat přes zakázané objekty (pro případ, že za nimi jsou ještě viditelné objekty, které jsou součástí flow)
+% ==> Neupravovat algoritmy, natož DB dotazy
+% ==> Nalezená flow by měla být filtrována -> sw. vrstva - na jaké úrovni? 
+% - Filtrovat by se mělo až ve chvíli, kdy je flow kompletní 
+% - - 
 
 

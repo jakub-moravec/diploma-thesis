@@ -1,0 +1,13 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Návrh}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Vrstvy: 
+% FilterLayer      - vrstva uplatňující filtry dle oprávnění (asi vhodné přejmenovat)
+% Algorithm/Traversal layer - vrstva algoritmů a traversalů, resp. "business" v kontextu DAL, neměla by sahat přímo do DB. Tatvo vrstva by možná měla obsahovat ještě sourozence Index (lucene) a DAO (most na operations).
+% "PredicateLayer" - vrstva provádějící drobný filtering výsledků z OperationsLayer (vypreparovat z operations). Je otázka, jestli je vrstva potřeba, některé filtry se totiž můžu naopak přesunout dolů, do Gremlin dotazů.
+% OperationsLayer  - základní operace nad grafovou databází, jediná vrstva, která by měla přímo šahat do db (s výjimkou zanořování transakcí)
+% ConnectionLayer  - konektor, pouze kód nutný k připojení do db a spouštění dotazů
+% DB
+% 
+% Model -stranou
