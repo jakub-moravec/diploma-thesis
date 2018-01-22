@@ -222,52 +222,35 @@ Dalším velice oblíbeným dotazovacím jazykem je \textbf{Cypher} \cite{Cypher
 Existují i další dotazovací jazyky pro grafové databáze než výše zmíněné, většina z nich je ale navržena pro specifické účely a pro obecné použití se nehodí, a nebo nejsou příliš rozšířené. 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Softwarové abstrakce}
 
-``Software je postaven na abstrakcích. Když vyberete ty správné, programování bude přirozeně vyplývat z návrhu, moduly budou mít minimalistická a jednoduchá rozhraní a nová funkcionalita bude nejspíše zapadat bez zásadních změn. Pokud vyberete špatné, programování bude řada ošklivých překvapení, rozhraní budou nucena vyhovět neočekávaným požadavkům a stanou se nabubřelá a nemotorná a i nejjednodušší změna bude obtížně dosažitelná. Systém postavený na chybných konceptech nemůže zachránit žádné množství úprav, pouze jeho nové vytvoření od začátku.'' \cite{Jackson06}  
-
 % Důvody pro abstrakci abstrakce
-Vývoj softwaru je dnes jistě v mnoha ohledech jednodušší, než v padesátých letech dvacátého století, kdy programátor musel znát strojový kód, počty a velikosti registrů a v nejhorších případech musel fyzicky propojit vodiče mezi výpočetními jednotkami. Postupem času s příchodem nových programovacích jazyků byl programátor stále více abstrahován od hardwaru a i některých softwarových vrstev nad ním. Vývojáři webových stránek stačí vhodný operační systém, aplikační a databázový server k tomu, aby mohl rychle vytvořit webové stránky, nepotřebuje k tomu přitom podrobnou znalost všech používaných technologií. Stejně tak Java vývojář dnes již nebude psát celou aplikaci s pomocí Javy samotné, ale využije mnoho existujících open-sourcových knihoven, které mu práci výrazně usnadní. Není tedy nutné, aby uměl vývojář vyřešit každý problém, pro řešení některých stačí přepoužití vhodných nástrojů. To má za následek nejen usnadnění práce při implementaci, ale také celkově čistší a přehlednější kód aplikace - kód obsahuje pouze aplikační logiku a nezbytné množství obslužných rutin. Přehledný kód potom vede k jednoduššímu vývoji, testování a údržbě aplikace. 
+Vývoj softwaru je dnes jistě v mnoha ohledech jednodušší, než v padesátých letech dvacátého století, kdy programátor musel znát strojový kód, počty a velikosti registrů a v nejhorších případech musel fyzicky propojit vodiče mezi výpočetními jednotkami. Postupem času s příchodem nových programovacích jazyků byl programátor stále více abstrahován od hardwaru a i některých softwarových vrstev nad ním. Vývojáři webových stránek stačí vhodný operační systém, aplikační a databázový server k tomu, aby mohl rychle vytvořit webové stránky, nepotřebuje k tomu přitom podrobnou znalost všech používaných technologií. Stejně tak Java vývojář dnes již nebude psát celou aplikaci s pomocí Javy samotné, ale využije mnoho existujících open-sourcových knihoven, které mu práci výrazně usnadní. Není tedy nutné, aby uměl vývojář vyřešit každý problém, pro řešení některých stačí přepoužití vhodných nástrojů. To má za následek nejen usnadnění práce při implementaci, ale také celkově čistší a přehlednější kód aplikace - kód obsahuje pouze aplikační logiku a nezbytné množství obslužných rutin. Přehledný kód potom vede k jednoduššímu vývoji, testování a údržbě aplikace. Lze tedy říci, že vhodně zvolené abstrakce na různých úrovních - ať už se jedná o architekturu celé aplikace, či návrh několika spolupracujících tříd, jsou pro softwarové systémy klíčové. 
+
+ ``Software je postaven na abstrakcích. Když vyberete ty správné, programování bude přirozeně vyplývat z návrhu, moduly budou mít minimalistická a jednoduchá rozhraní a nová funkcionalita bude dobře zapadat bez zásadních změn. Pokud vyberete špatné, programování bude řada ošklivých překvapení, rozhraní budou nucena vyhovět neočekávaným požadavkům, stanou se nemotorná a i nejjednodušší změna bude obtížně dosažitelná. Systém postavený na chybných konceptech nemůže zachránit žádné množství úprav, pouze jeho nové vytvoření od začátku.'' \cite{Jackson06}  
+
+% Od zapouzdření k API
+Základním principem zajišťující abstrakci na úrovni zdrojového kódu aplikací je \textit{zapouzdření} - tedy princip, který říká, že stav objektů by neměl být přímo přístupný, ale mělo by k němu být přistupováno pomocí metod k tomu určených. Tím je zaručeno, že stav objektu bude upravovány pouze v rámci daných omezení (například viditelnost polí, číselný rozsah atd). Stejně tak je žádoucí, aby nebyla veřejně vystavována vnitřní implementace tříd. Tento princip se uplatňuje i na větší softwarové celky - knihovny, moduly, atd. V tom případě se snažíme abstrahovat uživatele od toho, jak je takový celek vnitřně implementován a nabízíme mu pouze rozhraní pro práci s ní - API (\textit{Appplication Programming Interface}). 
+
+Cílem této kapitoly je popsat pro práci relevantní principy sloužící k zavedení vhodných úrovní softwarové abstrakce. Konkrétně popisuje API jako obecný nástroj k oddělení různých částí aplikace, architektonický styl \textit{REST} (a z něj odvozená \textit{RESTfull APIs}) a vícevrstvou architekturu, jejíž návrh pro definovaný problém je jedním z cílů této diplomocé práce.     
 
 \subsection{API}
-% Od zapouzdření k API
-Základním principem zajišťující abstrakci na úrovni zdrojového kódu aplikací je \textit{zapouzdření} - tedy princip, který říká, že stav objektů by neměl být přímo přístupný, ale mělo by k němu být přistupováno pomocí metod k tomu určených. Tím je zaručeno, že stav objektu bude upravovány pouze v rámci daných omezení (například viditelnost polí, číselný rozsah atd). Stejně tak je žádoucí, aby nebyla veřejně vystavována vnitřní implementace tříd. Tento princip se uplatňuje i na větší části zdrojového kódu (knihovny, moduly, atd.). V tom případě se snažíme abstrahovat uživatele od toho, jak je knihovna vnitřně implementována a nabízímu mu pouze rozhraní pro práci s ní - API (\textit{Appplication Programming Interface}). 
+API je jasně definovaným rozhraním, které poskytuje uživateli přístup k funkcím softwarové jednotky, kterou obaluje (např. knihovna, modul, webová služba). 
 
-API je tedy jasně definovaným rozhraním, které poskytuje uživateli přístup k funkcím softwarové jednotky, kterou obaluje (např. knihovna, modul, webová služba). 
+%TODO typy API - Local, Web Api, Program Api
+% http://searchmicroservices.techtarget.com/definition/application-program-interface-API
 
-%TODO
+%TODO Open/public API
 
 %TODO vlastnosti dobrého API
 % loose coupling, high cohesion
 
 % TODO SPI
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%TODO návrhové vzory (možná - DAO, repository pattern)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 % TODO úvod k architekturám
@@ -279,6 +262,13 @@ API je tedy jasně definovaným rozhraním, které poskytuje uživateli přístu
 %best to partition a system, how components identify and communicate with each other,
 %how information is communicated, how elements of a system can evolve independently,
 %and how all of the above can be described using formal and informal notations.
+
+%“The software architecture of a program or computing system is the
+%structure or structures of the system, which comprise software elements, the
+%externally visible properties of those elements, and the relationships among
+%them”
+% -Bass, Clements, and Kazman
+
 
 %TODO SOAP, SOA? 
 
