@@ -202,7 +202,7 @@ Tyto překážky v rozdílnosti grafových databází se snaží vyřešit hned 
 % Gremlin
 Jedním z nejpoužívanějších grafových dotazovacích jazyků je \textbf{Gremlin}. První verze \textit{Gremlina} vyšla 25. 12. 2009 \cite{Gremlin09} jako součást \textit{open-source} projektu \textit{TinkerPop}. \textit{Gremlin} byl uveden jako \textit{turingovsky kompletní} programovací jazyk pro práci s atributovými grafovými databázemi. Umožňoval \textit{\nomExpl{CRUD}{Create Read Update Delete}} operace, různé způsoby průchodů grafem a operace s vyhledávacími indexy. V této verzi podporoval ze zavedených databází pouze databázi \textit{Neo4j}. 
 V roce 2010 bylo uvedeno rozhraní \textit{Blueprints} \cite{Blueprints10}, jehož implementací grafová databáze získává podporu jazyka \textit{Gremlin}. 
-Ve verzi \textit{Gremlina 2.6.0} \cite{Gremlin14} už jsou \textit{Blueprints} poměrně široce podporovány\footnote{Ve verzi \textit{2.6.0} \textit{Gremlin} podporují databáze \textit{Neo4j, OrientDB, Sparksee, Titan, Faunus, InfiniteGraph, Rexster,} a další.}. To je ale také poslední verze vydaná pod samostatným projektem \textit{TinkerPop}, poté se celý projekt stává součástí \textit{Apache software foundation}\footnote{\url{http://www.apache.org/}}. To znamená několik změn v projektu, ve verzích \textit{3.x} \cite{Gremlin17} je pozměněna systaxe jazyka a také se mění \textit{API} pro podporu \textit{Gremlina} na \textit{Gremlin Structure API}. Od této verze podporuje \textit{Gremlin} také \textit{deklarativní} dotazování dat (do té doby byly všechny dotazy pouze \textit{imperativní}).  Mezi databáze podporující Gremlin \textit{3.x} patří \textit{Neo4j, OrientDB, DataStax, InfiniteGraph, JanusGraph, Cosmos DB} a další. V příkladu \ref{exa:gremlin} je ukázán průchod grafem v \textit{Java} notaci jazyka \textit{Gremlin}.
+Ve verzi \textit{Gremlina 2.6.0} \cite{Gremlin14} už jsou \textit{Blueprints} poměrně široce podporovány\footnote{Ve verzi \textit{2.6.0} \textit{Gremlin} podporují databáze \textit{Neo4j, OrientDB, Sparksee, Titan, Faunus, InfiniteGraph, Rexster,} a další.}. To je ale také poslední verze vydaná pod samostatným projektem \textit{TinkerPop}, poté se celý projekt stává součástí \textit{Apache software foundation}\footnote{\url{http://www.apache.org/}}. To znamená několik změn v projektu, ve verzích \textit{3.x} \cite{Gremlin17} je pozměněna systaxe jazyka a také se mění \textit{API} pro podporu \textit{Gremlina} na \textit{Gremlin Structure API}. Od této verze podporuje \textit{Gremlin} také \textit{deklarativní} dotazování dat (do té doby byly všechny dotazy pouze \textit{imperativní}).  Mezi databáze podporující Gremlin \textit{3.x} patří \textit{Neo4j, DataStax, InfiniteGraph, JanusGraph, Cosmos DB} a další. V příkladu \ref{exa:gremlin} je ukázán průchod grafem v \textit{Java} notaci jazyka \textit{Gremlin}.
 
 \lstinputlisting[language=Java, caption=Gremlin (Java) - průchod grafem, label=exa:gremlin]{code/GremlinTraversalExample.java}
 
@@ -227,11 +227,12 @@ Vývoj softwaru je dnes jistě v mnoha ohledech jednodušší, než v padesátý
  ``Software je postaven na abstrakcích. Když vyberete ty správné, programování bude přirozeně vyplývat z návrhu, moduly budou mít minimalistická a jednoduchá rozhraní a nová funkcionalita bude dobře zapadat bez zásadních změn. Pokud vyberete špatné, programování bude řada ošklivých překvapení, rozhraní budou nucena vyhovět neočekávaným požadavkům, stanou se nemotorná a i nejjednodušší změna bude obtížně dosažitelná. Systém postavený na chybných konceptech nemůže zachránit žádné množství úprav, pouze jeho nové vytvoření od začátku.'' \cite{Jackson06}  
 
 % Od zapouzdření k API
-Základním principem zajišťující abstrakci na úrovni zdrojového kódu aplikací je \textit{zapouzdření} - tedy princip, který říká, že stav objektů by neměl být přímo přístupný, ale mělo by k němu být přistupováno pomocí metod k tomu určených. Tím je zaručeno, že stav objektu bude upravovány pouze v rámci daných omezení (například viditelnost polí, číselný rozsah atd). Stejně tak je žádoucí, aby nebyla veřejně vystavována vnitřní implementace tříd. Tento princip se uplatňuje i na větší softwarové celky - knihovny, moduly, atd. V tom případě se snažíme abstrahovat uživatele od toho, jak je takový celek vnitřně implementován a nabízíme mu pouze rozhraní pro práci s ní - API (\textit{Appplication Programming Interface}). 
+Základním principem zajišťující abstrakci na úrovni zdrojového kódu aplikací je \textit{zapouzdření} - tedy princip, který říká, že stav objektů by neměl být přímo přístupný, ale mělo by k němu být přistupováno pomocí operací k tomu určených. Tím je zaručeno, že stav objektu bude upravovány pouze v rámci daných omezení (například viditelnost polí, číselný rozsah atd). Stejně tak je žádoucí, aby nebyla veřejně vystavována vnitřní implementace softwarových celků - tříd, knihoven, modulů, atd. Snažíme se tedy abstrahovat uživatele od toho, jak je takový celek vnitřně implementován a nabízíme mu pouze rozhraní pro práci s ním - API (\textit{Appplication Programming Interface}). 
 
-Cílem této kapitoly je popsat pro práci relevantní principy sloužící k zavedení vhodných úrovní softwarové abstrakce. Konkrétně popisuje API jako obecný nástroj k oddělení různých částí aplikace, architektonický styl \textit{REST} (a z něj odvozená \textit{RESTfull APIs}) a vícevrstvou architekturu, jejíž návrh pro definovaný problém je jedním z cílů této diplomocé práce.     
+Cílem této kapitoly je popsat pro práci relevantní principy sloužící k zavedení vhodných úrovní softwarové abstrakce. Konkrétně popisuje API jako obecný nástroj k oddělení různých částí aplikace (kapitola \ref{sec:api}, architektonický styl \textit{REST} (kapitola \ref{sec:rest}) a vícevrstvou architekturu \ref{sec:n-tier}, jejíž návrh pro definovaný problém je jedním z cílů této diplomocé práce.     
 
 \subsection{API}
+\label{sec:api}
 API je jasně definovaným rozhraním, které poskytuje uživateli přístup k funkcím softwarové jednotky, kterou obaluje (např. knihovna, modul, webová služba). 
 
 %TODO typy API - Local, Web Api, Program Api
@@ -244,27 +245,58 @@ API je jasně definovaným rozhraním, které poskytuje uživateli přístup k f
 
 % TODO SPI
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% TODO úvod k architekturám
-%As predicted by Perry and Wolf [105], software architecture has been a focal point for
-%software engineering research in the 1990s. The complexity of modern software systems
-%have necessitated a greater emphasis on componentized systems, where the
-%implementation is partitioned into independent components that communicate to perform
-%a desired task. Software architecture research investigates methods for determining how
-%best to partition a system, how components identify and communicate with each other,
-%how information is communicated, how elements of a system can evolve independently,
-%and how all of the above can be described using formal and informal notations.
+\subsection{Softwarové architektury}
+\label{sec:architectures}
+Softwarová architektura je úroveň návrhu softwaru, která sahá za hranice konkrétních algoritmů a datových struktur výpočtu. Navrhuje a specifikuje obecnou strukturu systému včetně komunikace, 
+synchronizace a přístupu k datům. Architektura přiřazuje funkcionalitu jednotlivým návrhovým elementům, předurčuje jejich fyzickou distribuci, kompozici, škálovatelnost, výkon a také jejich možné alternativy \cite{Garlan94}. Jádrem softwarové architektury je princip abstrakce - skrývání některých detailů pomocí zapouzdření za účelem lepší identifikace vlastností návrhových elementů \cite{Shaw90}. Komplexní systém může mít mnoho úrovní abstrakce a mnoho operačních fází, přičemž každá z nich může mít vlastní architekturu \cite{Bass98}. 
 
-%“The software architecture of a program or computing system is the
-%structure or structures of the system, which comprise software elements, the
-%externally visible properties of those elements, and the relationships among
-%them”
-% -Bass, Clements, and Kazman
+Formálně jsou softwarové architektury popisovány pomocí konfigurací tzv. \textit{architektonických elementů} (\textit{komponent}, \textit{konektorů} a \textit{dat}) a omezování jejich vzájemných vztahů za účelem dosažení požadovaných vlastností softwarové architektury. \textit{Komponenty} jsou abstraktní softwarové jednotky skládající se z instrukcí a vnitřního stavu, které poskytují transformace dat pomocí svých rozhraní. \textit{Konektroy} jsou abstraktní mechanismy, které zajišťují komunikaci, koordinaci a spolupráci mezi komponentami a data jsou jednotky informace posílané mezi komponentami. \cite{Shaw97} 
+
+% architektonický styl
+Vzhledem k tomu, že softwarové architektury ztělesňují funkční i nefunkční požadavky, může být složité porovnat přímo architektury určené pro různé typy systémů. Proto jsou definovány \textit{architektonické styly}, podle kterých je možné konkrétní softwarové architektury kategorizovat \cite{Nitto99}. Architektonický styl tedy určuje, jaké komponenty a konektory mohou být použity architekturami, které jsou instancemi daného stylu, a omezují způsoby jejich kompozice \cite{Garlan95}.  
+
+% klíčové vlastnosti implikované architekturou
+Architektura softwaru (resp. architektonický styl) implikuje řadu klíčových vlastností softwaru \cite{Ghezzi03}, mezi nejdůležitější patří: 
+\begin{itemize}
+  \item{\textit{Výkon}}: Výkon je jedním ze zásadních důvodů, proč je třeba se soustředit na architekturu softwaru. Použití vhodné architektury často znamená dopad na výkon softwaru. Na výsledný výkon má vliv mnoho faktorů, mezi nimiž je například \textit{rychlost a efektivita komunikace} (často, ale ne vždy, se jedná o síťovou komunikaci), vlastní algoritmická složitost problému a další. Z uživatelského pohledu lze výkon měřit veličinami jakou jsou \textit{latence} (čas mezi vyvoláním akce a prvním signálem značícím, že akce je vykánána, nebo se vykonává) a \textit{completion time} (čas potřebný na vykonání akce).
+  \item{\textit{Škálovatelnost}}: Škálovatelnost je vlastnost, která úzce souvisesí s výkonem a je silně ovlivněná architekturou systému. Je-li systémškálovatelný, musí být schopen zvládnout velké množství komponent a interakcí mezi nimi bez zásadního dopadu na výkon. Toho může být dosaženo decentralizací interakcí distribucí služeb a omezení závislostí mezi komponentami. %TODO kloudy
+  \item{\textit{Jednoduchost}}: Primárním způsobem zajištění jednoduchosti softwaru je princip oddělení zájmů komponent. Pokud může být funkcionalita přidělena komponentám takovým způsobem, že jsou jednotlivě podstatně méně složité než jejich kompozice, budou komponenty jednoduše pochopitelné a implementovatelné.  
+  \item{\textit{Modifikovatelnost}}: Modifikovatelnost říká, jak jednoduché, či složité je stávající architekturu upravit. Modifikovatelnost je dána několika faktory: \textit{vyvíjitelnost} určuje, zda je možné vyvíjet jednotlivé komponenty nezávisle na ostatních; \textit{rozšířitelnost} určuje, zda je možné do systému přidávat novou funkcionalitu bez dopadu na zbytek systému; \textit{přizpůsobitelnost} určuje, zda může být chování komponenty dočasně upraveno, nebo změněno pro jednoho klienta bez dopadu na ostatní klienty; \textit{konfigurovatelnost a přepooužitelnost} určuje, zda může být komponenta upravena po její implementaci (konfigurovatelnost) a v různých konfiguracích přepoužívána v různých aplikacích bez vzájemného ovlivnění aplikací (přepoužitelnost).
+  \item{\textit{Spolehlivost}}: Z pohledu architektury softwaru spolehlivost vyjadřuje schopnost systému zvládnout chyby jeho dílčích částí - komponent, konektrorů, nebo dat. 
+  \item{\textit{Viditelnost}}: Viditelnost se vztahuje k schopnosti komponenty monitorovat či usměrňovat interakce mezi dvěmi různými jinými komponentami systému a umožnit tak zlepšení výkonu pomocí zavedení \textit{cache}, škálování pomocí přidání víceúrovňových služeb, nebo zvýšení zabezpečení systému například přidáním \textit{firewallu}.
+  \item{\textit{Přenositelnost}}: Pokud je systém přenositelnýný, může být spuštěný na různých prostředích. 
+\end{itemize}
+
+%TODO škálovatelnost - cloud
+% https://www.amazon.com/Patterns-Enterprise-Application-Architecture-Martin/dp/0321127420
+% https://martinfowler.com/articles/microservices.html
+% https://martinfowler.com/tags/application%20architecture.html
+% https://www.youtube.com/watch?v=LAWjdZYrUgI
+
+
+\subsubsection{Vícevrstvá architektura}
+\label{sec:n-tier}
+Vícevrstvá architektura (alias \textit{layered architecture}) je jedním z nejpoužívanějších architektonickýc stylů z toho důvodu, že v jejím centru čato stojí databáze, což je přirozenou vlastností mnoha aplikací \cite{Richards15}. Aplikace je rozdělena do několika vrstev, každá vrstva má vlastní specifický účel, který neplní žádná z ostatních vrstev a naopak, tato vrstva neplní žádné jiné úkoly. Každá vrstva poskytuje služby vrstvě nad sebou a využívá služeb vrstvy pod sebou \cite{Garlan94}. Jednotlivé vrstvy jsou izolovány a komunikují mezi sebou pomocí dobře definovaných \textit{API}. Jejich implementace je skryta a při změně některé z vrstev tak nejsou ostatní vrstvy ovlivněny vůbec, nebo nejhůře v případě změny \textit{API} vrstvy je ovlivněna pouze nejbližší vyšší vrstva. To výrazně snižuje \textit{coupling} a zjednodušuje vývoj, údržbu a testovaní aplikace. Příkladem mohou být komunikační modely ISO/OSI a TCP/IP \cite{Zimmerman80}. 
+
+V kontextu webových aplikací je tento architektonický styl spojován se stylem \textit{klient-server} a vzniká \textit{vícevrstvý klient-server} architektura. Architektury postavené na tomto stylu jsou nazývány jako \textit{2-tiered, 3-tiered}, nebo \textit{n-tiered} architektury \cite{Umar97}. Architektonický styl obecně nespecifikuje, kolik a jaké vrstvy má obsahovat, často se ale jedná o následující: 
+
+\begin{itemize}
+  \item{\textit{Prezentační vrstva (presentation layer)}}: vrstva aplikace sloužící k interakci uživatele s aplikací - uživatelské rozhraní aplikace 
+  \item{\textit{Vrstva byznys logiky (bussiness layer)}}: část aplikace obsahující vlastní logiku aplikace (podmínky, za kterých mohou být data vytvářena, ukládána atd.)
+  \item{\textit{Perzistentní vrstva (persistence layer)}}: poskytuje přístup k datům uloženým v perzistentním uložišti (databázi) a umožňuje manipulaci s nimi. 
+  \item{\textit{Databázová vrstva (database layer)}}: server realizující uložiště dat (relační databáze, grafová databáze, atd.) 
+\end{itemize}
+
+Vrstvy jsou typicky \textit{zamčené}, je tedy nutné, aby vrstva při zpracování požadavku pracovala pouze se sousedními vrstvami, není možné žádné vrstvy přeskakovat. Jsou ale případy, kdy je vhodné nechat některé vrstvy \textit{odemčené} a mít tedy možnost je přeskakovat. Například pokud chceme umožnit aplikacím třetích stran používat aplikaci jako \textit{webovou službu}, necháme \textit{prezentační vrstvu} odemčenou a umožníme tak přístup na \textit{servisní vrstvu (service layer)}, která potom komunikuje s \textit{vrstvou byznys logiky} (pokud tyto dvě vrstvy nejsou spojeny v jednu). Dalším uplatněním odemčených vrstev může být zvýšení efektivity, režie při zpracování dat způsobená  jejich předáváním přes několik vrstev je primární nevýhodou vícevrstvé architektury \cite{Clark90}. 
+
+% TODO obrázek n-tieru 
+% http://www.oreilly.com/programming/free/files/software-architecture-patterns.pdf
 
 
 %TODO SOAP, SOA? 
 
-\subsection{REST}
+
+\subsubsection{REST}
 \label{sec:rest}
 \textit{\nomExpl{REST}{Representational State Transfer}} je architektonický styl, který ve své dizertační práci v roce 2000 popsal Thomas Fielding \cite{Fielding00}. Jeho cílem je definovat standard pro škálovatelné webové aplikace. Styl je definovaný několika architektonickými omezeními: 
 
@@ -281,26 +313,6 @@ API je jasně definovaným rozhraním, které poskytuje uživateli přístup k f
 % TODO RESTFULL API 
 
 % TODO HATE OS 
-
-\subsection{Vícevrstvá architektura}
-\label{sec:n-tier}
-Vícevrstvá architektura (alias \textit{layered architecture}) je jedním z nejpoužívanějších architektonickýc stylů z toho důvodu, že v jejím centru čato stojí databáze, což je přirozenou vlastností mnoha aplikací \cite{Richards15}. Aplikace je rozdělena do několika vrstev, každá vrstva má vlastní specifický účel, který neplní žádná z ostatních vrstev a naopak, tato vrstva neplní žádné jiné úkoly. Každá vrstva poskytuje služby vrstvě nad sebou a využívá služeb vrstvy pod sebou \cite{Garlan94}. Jednotlivé vrstvy jsou izolovány a komunikují mezi sebou pomocí dobře definovaných \textit{API}. Jejich implementace je skryta a při změně některé z vrstev tak nejsou ostatní vrstvy ovlivněny vůbec, nebo nejhůře v případě změny \textit{API} vrstvy je ovlivněna pouze nejbližší vyšší vrstva. To výrazně snižuje \textit{coupling} a zjednodušuje vývoj, údržbu a testovaní aplikace. Příkladem mohou být komunikační modely ISO/OSI a TCP/IP \cite{Zimmerman80}. 
-
-V kontextu webových aplikací je tento architektonický styl spojován se stylem \textit{klient-server} a vzniká \textbf{vícevrstvý klient-server} architektura. Architektury postavené na tomto stylu jsou nazývány jako \textit{2-tiered, 3-tiered}, nebo \textit{n-tiered} architektury \cite{Umar97}. Architektonický styl obecně nespecifikuje, kolik a jaké vrstvy má obsahovat, často se ale jedná o následující: 
-
-\begin{itemize}
-  \item{\textit{Prezentační vrstva (presentation layer)}}: vrstva aplikace sloužící k interakci uživatele s aplikací - uživatelské rozhraní aplikace 
-  \item{\textit{Vrstva byznys logiky (bussiness layer)}}: část aplikace obsahující vlastní logiku aplikace (podmínky, za kterých mohou být data vytvářena, ukládána atd.)
-  \item{\textit{Perzistentní vrstva (persistence layer)}}: poskytuje přístup k datům uloženým v perzistentním uložišti (databázi) a umožňuje manipulaci s nimi. 
-  \item{\textit{Databázová vrstva (database layer)}}: server realizující uložiště dat (relační databáze, grafová databáze, atd.) 
-\end{itemize}
-
-Vrstvy jsou typicky \textit{zamčené}, je tedy nutné, aby vrstva při zpracování požadavku pracovala pouze se sousedními vrstvami, není možné žádné vrstvy přeskakovat. Jsou ale případy, kdy je vhodné nechat některé vrstvy \textit{odemčené} a mít tedy možnost je přeskakovat. Například pokud chceme umožnit aplikacím třetích stran používat aplikaci jako \textit{webovou službu}, necháme \textit{prezentační vrstvu} odemčenou a umožníme tak přístup na \textit{servisní vrstvu (service layer)}, která potom komunikuje s \textit{vrstvou byznys logiky} (pokud tyto dvě vrstvy nejsou spojeny v jednu). Dalším uplatněním odemčených vrstev může být zvýšení efektivity, režie při zpracování dat způsobená  jejich předáváním přes několik vrstev je primární nevýhodou vícevrstvé architektury \cite{Clark90}. 
-
-
-% TODO obrázek n-tieru 
-% http://www.oreilly.com/programming/free/files/software-architecture-patterns.pdf
-
 
 %%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%TOO BAD%%%%%%%%%
