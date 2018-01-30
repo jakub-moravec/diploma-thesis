@@ -224,7 +224,7 @@ Existují i další dotazovací jazyky pro grafové databáze než výše zmín�
 % Důvody pro abstrakci abstrakce
 Vývoj softwaru je dnes jistě v mnoha ohledech jednodušší, než v padesátých letech dvacátého století, kdy programátor musel znát strojový kód, počty a velikosti registrů a v nejhorších případech musel fyzicky propojit vodiče mezi výpočetními jednotkami. Postupem času s příchodem nových programovacích jazyků byl programátor stále více abstrahován od hardwaru a i některých softwarových vrstev nad ním. Vývojáři webových stránek stačí vhodný operační systém, aplikační a databázový server k tomu, aby mohl rychle vytvořit webové stránky, nepotřebuje k tomu přitom podrobnou znalost všech používaných technologií. Stejně tak Java vývojář dnes již nebude psát celou aplikaci s pomocí Javy samotné, ale využije mnoho existujících open-sourcových knihoven, které mu práci výrazně usnadní. Není tedy nutné, aby uměl vývojář vyřešit každý problém, pro řešení některých stačí přepoužití vhodných nástrojů. To má za následek nejen usnadnění práce při implementaci, ale také celkově čistší a přehlednější kód aplikace - kód obsahuje pouze aplikační logiku a nezbytné množství obslužných rutin. Přehledný kód potom vede k jednoduššímu vývoji, testování a údržbě aplikace. Lze tedy říci, že vhodně zvolené abstrakce na různých úrovních - ať už se jedná o architekturu celé aplikace, či návrh několika spolupracujících tříd, jsou pro softwarové systémy klíčové. 
 
- ``Software je postaven na abstrakcích. Když vyberete ty správné, programování bude přirozeně vyplývat z návrhu, moduly budou mít minimalistická a jednoduchá rozhraní a nová funkcionalita bude dobře zapadat bez zásadních změn. Pokud vyberete špatné, programování bude řada ošklivých překvapení, rozhraní budou nucena vyhovět neočekávaným požadavkům, stanou se nemotorná a i nejjednodušší změna bude obtížně dosažitelná. Systém postavený na chybných konceptech nemůže zachránit žádné množství úprav, pouze jeho nové vytvoření od začátku.'' \cite{Jackson06}  
+``Software je postaven na abstrakcích. Když vyberete ty správné, programování bude přirozeně vyplývat z návrhu, moduly budou mít minimalistická a jednoduchá rozhraní a nová funkcionalita bude dobře zapadat bez zásadních změn. Pokud vyberete špatné, programování bude řada ošklivých překvapení, rozhraní budou nucena vyhovět neočekávaným požadavkům, stanou se nemotorná a i nejjednodušší změna bude obtížně dosažitelná. Systém postavený na chybných konceptech nemůže zachránit žádné množství úprav, pouze jeho nové vytvoření od začátku.'' \cite{Jackson06}  
 
 % Od zapouzdření k API
 Základním principem zajišťující abstrakci na úrovni zdrojového kódu aplikací je \textit{zapouzdření} - tedy princip, který říká, že stav objektů by neměl být přímo přístupný, ale mělo by k němu být přistupováno pomocí operací k tomu určených. Tím je zaručeno, že stav objektu bude upravovány pouze v rámci daných omezení (například viditelnost polí, číselný rozsah atd). Stejně tak je žádoucí, aby nebyla veřejně vystavována vnitřní implementace softwarových celků - tříd, knihoven, modulů, atd. Snažíme se tedy abstrahovat uživatele od toho, jak je takový celek vnitřně implementován a nabízíme mu pouze rozhraní pro práci s ním - API (\textit{Appplication Programming Interface}). 
@@ -233,17 +233,27 @@ Cílem této kapitoly je popsat pro práci relevantní principy sloužící k za
 
 \subsection{API}
 \label{sec:api}
-API je jasně definovaným rozhraním, které poskytuje uživateli přístup k funkcím softwarové jednotky, kterou obaluje (např. knihovna, modul, webová služba). 
+API je jasně definovaným rozhraním, které poskytuje uživateli přístup k funkcím softwarové jednotky, kterou obaluje. Vzhledem k tomu, že API je obecný pojem a má v softwarovém inženýrství široké uplatnění (které je v této kapitole alespoň částečně popsáno), neexistuje obecně uznávaná definice, která by vymezovala, z čeho se API skládá. Obecně je API souborem specifikací programových rutin, datových struktur a tříd (v případě objektově orientovaných programovacích jazyků). 
 
-%TODO typy API - Local, Web Api, Program Api
-% http://searchmicroservices.techtarget.com/definition/application-program-interface-API
+% private/open API
+Důležitou charakteristikou API je, zda se jedná o privátní, nebo veřejné API. \textit{Privátní API} je pouze technickým nástrojem pro modularizaci aplikace a přistupují k němu pouze jiné části aplikace. Takové API může být postupným vývojem aplikace upravováno bez dopadů na další (okolní) systémy. \textit{Veřejné API} naopak může být používáno mnoha různými spotřebiteli (v okamžik uveřejnění API poskytovatel často ztrácí kontrolu nad tím, kdo API používá), což má pro charakteristiku takového API několik dopadů. Tím nejdůležitějším je, že je velmi obtížné měnit jednotlivé části API - vždy existuje někdo, kdo je používá. Musí být tedy kladen ještě větší důraz na návrh a testování takového API. Speciálním případem veřejných API je \textit{SPI (Service Provider Interface)}, což je API poskytované bez implementace, ta je zajištěna třetími stranami. 
 
-%TODO Open/public API
+% API types
+API jsou používána na různých úrovních softwarové abstrakce. Nejblíže hardwaru jsou \textbf{lokální API} sloužící pro komunikaci mezi aplikacemi a různými vrstvami operačních systémů. Příkladem takového API je například \textit{POSIX} \cite{Posix} - rodina standardů, jejímž cílem je zajištění kompatibility mezi operačními systémy. 
+
+Na úrovni konkrétních programovacích jazyků jsou používána API sloužící jako rozhraní poskytující funkcionalitu softwarové knihovny (například \textit{Log4j}\footnote{\url{https://logging.apache.org/log4j/2.x/manual/api.html}}), frameworku (například \textit{Java Collections}\footnote{\url{https://docs.oracle.com/javase/tutorial/collections/}}), konrétní vrstvy či modulu aplikace. Zde není neexistuje souhrné poujmenování, respektive, jako kategorie zde slouží programovací jazyky, pro které je API určeno - \textbf{Java API}, \textbf{Scala API}, atd. Tato API bývají často používána pro svou přímost, omezují ale své použití na prostředí homogenní z pohledu programovacího jazyka.  
+
+Spolu s rozvojem počítačových sítí a později také internetu vznikla poptávka po možnosti vzdáleného volání aplikací (nebo částí aplikací). Jedním z průkopníků v této obasti je \textit{RPC (Remote Procedure Call)}, technologie umožňující vykonání kódu, který je fyzicky na jiném zařízení, než volající program. Teoretické návrhy \textit{RPC} pochází ze sedmdesátých a první implementace z osmdesátých let dvacátého století. V roce 1998 se objevil soubor pravidel, který popisuje jak využívat technilogie RPC a XML k vzdálenému volání procedur přes internet - \textit{XML-RPC} \cite{Winner99}. XML poskytuje slovník pro popis RPC volání přenášená mezi počítači, technologie tak prakticky umožňuje vytváření API pro komunikaci dvou a více nehomogeních prostředí \cite{Laurent01}. Nástupcem \textit{XML-RPC} se stal \textit{SOAP}, který je postavený na podobných principech jako XML-RPC. Cílem \textit{SOAP}u je zajistit rozšířitelnost, neutralitu a nezávislost komunikace. Specifikace SOAPu byla zveřejněna v roce 1999, ale až verze 1.2 se v roce 2007 stala doporučením \textit{W3C}\footnote{https://www.w3.org/} \cite{W3C07}. Souběžně byl definován architektonický styl \textit{REST} (kapitola \ref{sec:rest}), který se \textit{SOAP}em několik let soutěžil o převahu a v současné době je \textit{de-facto} standardem jakožto předloha \textbf{webových API} (občas označovaných jako \textit{restfull API}).   
 
 %TODO vlastnosti dobrého API
-% loose coupling, high cohesion
-
-% TODO SPI
+Bez ohledu na účel, kterému API slouží, jeho návrh by se měl řídit několika obecnými pravidly \cite{Bloch06}. Dobré API by mělo: 
+\begin{itemize}
+  \item{\textit{být snadno použitelné}}: API by mělo být intuitivní a funkcionalita poskytovaná API by měla být přístupná jednoduše. API by také mělo být minimální, tj. mít co nejméně veřejných prvnků a mělo by mít jasnou a svému účelu adekvátní jmennou konvenci. Takové API je jednoduché na pochopení, zapamatování a ladění. 
+  \item{\textit{být kompletní}}: API by mělo pokrývat veškerou předpokládanou funkcionalitu tak, aby nemuselo být pro nekomplenost nijak obcházeno. Toto je v konfliktu s principem minimality, obě vlastnosti musí být dobře vyváženy.
+  \item{\textit{být rozšířitelné}}: API by mělo být možné v budoucnu rozšiřovat bez změn na stávající části API (veřejná, ale i privátní, API je velice komplikované zpětně upravit). 
+  \item{\textit{vést k čitelnému kódu}}: API by mělo umožnit psaní přehledného, čitelného a efektivního kódu. Naopak by jeho použití nemělo vést k nutnosti přidávání zbytečného kódu (\textit{boilerplate code}). % TODO
+  Code is written once, but read (and debugged and changed) many times. Readable code may sometimes take longer to write, but saves time throughout the product's life cycle.
+\end{itemize}  
 
 \subsection{Softwarové architektury}
 \label{sec:architectures}
@@ -259,7 +269,7 @@ Vzhledem k tomu, že softwarové architektury ztělesňují funkční i nefunkč
 Architektura softwaru (resp. architektonický styl) implikuje řadu klíčových vlastností softwaru \cite{Ghezzi03}, mezi nejdůležitější patří: 
 \begin{itemize}
   \item{\textit{Výkon}}: Výkon je jedním ze zásadních důvodů, proč je třeba se soustředit na architekturu softwaru. Použití vhodné architektury často znamená dopad na výkon softwaru. Na výsledný výkon má vliv mnoho faktorů, mezi nimiž je například \textit{rychlost a efektivita komunikace} (často, ale ne vždy, se jedná o síťovou komunikaci), vlastní algoritmická složitost problému a další. Z uživatelského pohledu lze výkon měřit veličinami jakou jsou \textit{latence} (čas mezi vyvoláním akce a prvním signálem značícím, že akce je vykánána, nebo se vykonává) a \textit{completion time} (čas potřebný na vykonání akce).
-  \item{\textit{Škálovatelnost}}: Škálovatelnost je vlastnost, která úzce souvisesí s výkonem a je silně ovlivněná architekturou systému. Je-li systémškálovatelný, musí být schopen zvládnout velké množství komponent a interakcí mezi nimi bez zásadního dopadu na výkon. Toho může být dosaženo decentralizací interakcí distribucí služeb a omezení závislostí mezi komponentami. %TODO kloudy
+  \item{\textit{Škálovatelnost}}: Škálovatelnost je vlastnost, která úzce souvisesí s výkonem a je silně ovlivněná architekturou systému. Je-li systém škálovatelný, musí být schopen zvládnout velké množství komponent a interakcí mezi nimi bez zásadního dopadu na výkon. Toho může být dosaženo decentralizací interakcí distribucí služeb a omezení závislostí mezi komponentami. V současné době je na škálovatelnost kladen velký důraz v souvislosti s \textit{Cloud Computingem} \cite{Mell11} a ta se tak často stává zásadním faktorem ovlivňujícím výběr architektury.
   \item{\textit{Jednoduchost}}: Primárním způsobem zajištění jednoduchosti softwaru je princip oddělení zájmů komponent. Pokud může být funkcionalita přidělena komponentám takovým způsobem, že jsou jednotlivě podstatně méně složité než jejich kompozice, budou komponenty jednoduše pochopitelné a implementovatelné.  
   \item{\textit{Modifikovatelnost}}: Modifikovatelnost říká, jak jednoduché, či složité je stávající architekturu upravit. Modifikovatelnost je dána několika faktory: \textit{vyvíjitelnost} určuje, zda je možné vyvíjet jednotlivé komponenty nezávisle na ostatních; \textit{rozšířitelnost} určuje, zda je možné do systému přidávat novou funkcionalitu bez dopadu na zbytek systému; \textit{přizpůsobitelnost} určuje, zda může být chování komponenty dočasně upraveno, nebo změněno pro jednoho klienta bez dopadu na ostatní klienty; \textit{konfigurovatelnost a přepooužitelnost} určuje, zda může být komponenta upravena po její implementaci (konfigurovatelnost) a v různých konfiguracích přepoužívána v různých aplikacích bez vzájemného ovlivnění aplikací (přepoužitelnost).
   \item{\textit{Spolehlivost}}: Z pohledu architektury softwaru spolehlivost vyjadřuje schopnost systému zvládnout chyby jeho dílčích částí - komponent, konektrorů, nebo dat. 
@@ -267,18 +277,11 @@ Architektura softwaru (resp. architektonický styl) implikuje řadu klíčových
   \item{\textit{Přenositelnost}}: Pokud je systém přenositelnýný, může být spuštěný na různých prostředích. 
 \end{itemize}
 
-%TODO škálovatelnost - cloud
-% https://www.amazon.com/Patterns-Enterprise-Application-Architecture-Martin/dp/0321127420
-% https://martinfowler.com/articles/microservices.html
-% https://martinfowler.com/tags/application%20architecture.html
-% https://www.youtube.com/watch?v=LAWjdZYrUgI
-
-
 \subsubsection{Vícevrstvá architektura}
 \label{sec:n-tier}
 Vícevrstvá architektura (alias \textit{layered architecture}) je jedním z nejpoužívanějších architektonickýc stylů z toho důvodu, že v jejím centru čato stojí databáze, což je přirozenou vlastností mnoha aplikací \cite{Richards15}. Aplikace je rozdělena do několika vrstev, každá vrstva má vlastní specifický účel, který neplní žádná z ostatních vrstev a naopak, tato vrstva neplní žádné jiné úkoly. Každá vrstva poskytuje služby vrstvě nad sebou a využívá služeb vrstvy pod sebou \cite{Garlan94}. Jednotlivé vrstvy jsou izolovány a komunikují mezi sebou pomocí dobře definovaných \textit{API}. Jejich implementace je skryta a při změně některé z vrstev tak nejsou ostatní vrstvy ovlivněny vůbec, nebo nejhůře v případě změny \textit{API} vrstvy je ovlivněna pouze nejbližší vyšší vrstva. To výrazně snižuje \textit{coupling} a zjednodušuje vývoj, údržbu a testovaní aplikace. Příkladem mohou být komunikační modely ISO/OSI a TCP/IP \cite{Zimmerman80}. 
 
-V kontextu webových aplikací je tento architektonický styl spojován se stylem \textit{klient-server} a vzniká \textit{vícevrstvý klient-server} architektura. Architektury postavené na tomto stylu jsou nazývány jako \textit{2-tiered, 3-tiered}, nebo \textit{n-tiered} architektury \cite{Umar97}. Architektonický styl obecně nespecifikuje, kolik a jaké vrstvy má obsahovat, často se ale jedná o následující: 
+V kontextu webových aplikací je tento architektonický styl spojován se stylem \textit{klient-server} a vzniká \textit{vícevrstvý klient-server} architektura. Architektury postavené na tomto stylu jsou nazývány jako \textit{n-tiered} architektury (\textit{3-tiered, 4-tiered}, atd.) \cite{Umar97}. Architektonický styl obecně nespecifikuje, kolik a jaké vrstvy má obsahovat, často se ale jedná o následující: 
 
 \begin{itemize}
   \item{\textit{Prezentační vrstva (presentation layer)}}: vrstva aplikace sloužící k interakci uživatele s aplikací - uživatelské rozhraní aplikace 
@@ -291,10 +294,6 @@ Vrstvy jsou typicky \textit{zamčené}, je tedy nutné, aby vrstva při zpracov�
 
 % TODO obrázek n-tieru 
 % http://www.oreilly.com/programming/free/files/software-architecture-patterns.pdf
-
-
-%TODO SOAP, SOA? 
-
 
 \subsubsection{REST}
 \label{sec:rest}
@@ -312,21 +311,4 @@ Vrstvy jsou typicky \textit{zamčené}, je tedy nutné, aby vrstva při zpracov�
 
 % TODO RESTFULL API 
 
-% TODO HATE OS 
-
-%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%TOO BAD%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%
-% https://cw.fel.cvut.cz/wiki/courses/a4m36aos/useful_materials
-
-% \subsection{XML-RPC}
-% V roce 1998 se objevil soubor pravidel, který popisuje jak využívat technilogie RPC, XML a HTTP k vzdálenému volání procedur přes internet - \nom{XML-RPC}{Remote Procedure Calling protokol používající XML pro komuniakci přes internet}.\cite{Winner99} XML poskytuje slovník pro popis RPC volání přenášená mezi počítači pomocí HTTP protokolu (ačkoliv je popsán také obecný přístup nezávislý na konkrétním protokolu). Uživatel pošle požadavek na server implementující protokol. Uživatelem je typicky software volající konkrétní proceduru vzdáleného systému. Volání může obasahovat více vstupních parametrů a očekává jedny výstupní hodnotu. Vstupní parametry mohou být vnořené do kolekcí jako jsou mapy a listy, mohou být tedy posílány rozsáhlé struktury. Proto je možné používat XML-RPC pro posílání objektů a struktur (jako vstupních i výsupních parametrů). Díky možnosti popsání předávaných informací pomocí XML umožňuje XML-RPC prakticky vytváření \nomExpl{API}{aplikačních rozhraní} a tím komunikaci dvou a více nehomogeních prostředí.\cite{Laurent01}  
-
-
-% \subsection{SOAP}
-% Nástupcem XML-RPC se stal \nomExpl{SOAP}{Simple Object Access Protocol}. SOAP je postavený na podobných principech jako XML-RPC - používá XML jako formát zpráv a pro jejich přenos využívá protokolů aplikační vrstvy HTTP (standard), nebo SMTP. Cílem SOAPu je zajistit rozšířitelnost, neutralitu a nezávislost komunikace. Umožňuje komukaci procesů běžících na různých operačních systémech (pomocí XML) a volání webových služeb pomocí HTTP nezávisle na platformě a programovacím jazyku. 
-% Přestože specifikace SOAPu byla vytvořena už v roce 1998, byla zveřejněna až v roce 1999. Draft se nicméně nestal standardem \nomExpl{IETF}{Internet Engineering Task Force}\footnote{https://www.ietf.org/}.\cite{Box01} Až verze 1.2 se stala v roce 2007 doporučením \nomExpl{W3C}{World Wide Web Consortium}\footnote{https://www.w3.org/}.\cite{W3C07}
-% % https://en.wikipedia.org/wiki/SOAP
-% % https://www.w3.org/TR/2000/NOTE-SOAP-20000508/
-% % https://www.w3.org/TR/soap/
-% \nomExpl{WSDL}{Web Service Description Language} je formální strojově čitelný popis webové služby. Služba je popsána pomocí portů a koncových bodů
+% TODO HATEOAS 

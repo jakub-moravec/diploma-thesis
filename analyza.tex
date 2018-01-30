@@ -15,7 +15,7 @@ Nástroj má dvě hlavní komponenty (viz diagram \ref{fig:ana-flow-comp}):
 	\item{\textit{Manta Flow Server}}: je serverová Java aplikace, která ukládá získané informace do interního metadatového uložiště, transformuje je, umožňuje jejich visualizaci a přístup k nim pomocí veřejného API. 
 \end{itemize}
 
-Interakce mezi \textit{klientskou} a \textit{serverovou} částí aplikace je popsána zjednodušeným sekvenčním diagramem \ref{fig:ana-flow-seq}. Pro tuto práci je podstatná především \textit{serverová} část aplikace a její interakce s metadatovým uložištěm (kapitola \ref{sec:ana_components}). \textit{Klientská} část aplikace tak není předmětem podrobnější analýzy.
+Interakce mezi \textit{klientskou} a \textit{serverovou} částí aplikace je popsána zjednodušeným sekvenčním diagramem \ref{fig:ana-flow-seq}. Pro tuto práci je podstatná především \textit{serverová} část aplikace a její interakce s metadatovým uložištěm (kapitola \ref{sec:ana_components}). \textit{Klientská} část aplikace je proto popsána méně detailně (kapitola \ref{\label{sec:ana_other}}).
 
 \begin{figure}
 \begin{center}
@@ -32,6 +32,7 @@ Interakce mezi \textit{klientskou} a \textit{serverovou} částí aplikace je po
 \label{fig:ana-flow-seq}
 \end{center}
 \end{figure}
+
 
 \subsection{Metadatové uložiště}
 \label{sec:ana_model}
@@ -97,7 +98,8 @@ V metadatovém uložišti je dále definováno několik typů indexů, konkrétn
 
 a externí \textit{Apache Lucene} indexy, které slouží pro \textit{fulltextové} vyhledávání uzlů dle jejich názvů a pro intervalové vyhledání revizí. 
 
-\subsection{Popis komponent}
+
+\subsection{Popis komponent serverové části}
 \label{sec:ana_components}
 
 Aplikace \textit{Manta Flow} praceje s metadatovým uložištěm několika různými způsoby, přičemž různé moduly aplikace využívají jeden či více těchto přístupů (a často také provádí vlastní pomocné dotazy přímo do metadatového uložiště). Cílem této sekce je tyto způsoby manipulace s metadatovým uložištěm identifikovat a popsat (není tedy účelem detailní technický popis všech dotazů do metadatového uložiště, ale spíše popis obecných principů a specifických situací - například netradiční zacházení s transakcemi). 
@@ -125,6 +127,7 @@ Jednotlivé algoritmy používají výše popsané základní operace (\textit{o
 Posledním způsobem manipulace s metadatovým uložištěm, který modul umožňuje je přístup pomocí \textit{traverserů}. Ty pracují na obecném principu \textit{traversování} grafů popsaném v kapitole \ref{sec:gdb-dotazy}. V tomto případě ale celý průchod grafem není realizován samotnou grafovou databází, ale přímo aplikací, přičemž grafová databáze je dotazována pouze na dílčí informace - například na okolní uzly. \textit{Traversery} jsou používány v případech, kdy je manipulováno s větší částí grafové databáze, například při jejím exportu. Tyto operace jsou realizovány \textit{vizitory} - každý uzel, který je procházen \textit{traverserem} je následně obsloužen \textit{vizitorem}, který provede požadovanou operaci (jedná se o návrhový vzor \textit{Visitor} - viz \cite{Gamma94}). Obě tyto části, tedy procházení grafu \textit{traverserem} i obsloužení všech objektů \textit{visitorem} jsou prováděny za pomocí základních grafových operací definovaných výše (\textit{operations}). Zároveň je ale také z tohoto kontextu grafová databáze dotazována přímo pomocí jazyka \textit{Gremlin}. Jedná se ale spíše o jednoduché dotazy na dohledání uzlů, jejich atributů apod. 
 
 \subsubsection{Merger}
+\label{sec:ana_merger}
 \textit{Merger} je modul, který je používán při analýze zdrojových systémů. Slouží k zanesení výsledků dílčích analýz jednotlivých částí (např. skriptů) zdrojových systémů do metadatového uložiště. 
 
 Vlastní operace \textit{merge}\footnote{Operace \textit{merge} má v kontextu aplikace \textit{Manta Flow} obdobný význam, jako například v \textit{SQL}: pokud objekt není uložen v persistentní vrstvě, je do ní uložen (\textit{insert}), jinak je aktualizován (\textit{update}).} lze zjednodušeně popsat pseudokódem \ref{alg_merger}. Ten je uveden především kvůli složitému mode zanořování transakcí, jehož účelem je umožňení provádění dotazů do metadatového uložiště jinými částmi aplikace, zatímco je prováděn \textit{merge} analyzoných částí zdrojových systémů. % TODO blíže popsat použitý transakční model
@@ -175,6 +178,17 @@ Posledním modulem, který přímo interaguje s metadatovým uložištěm je \te
 
 %todo možná závěr podsekce s diagramem závislostí modulů
 
+\subsection{Popis ostatních komponent}
+\label{sec:ana_other}
+\subsubsection{Manta Flow CLI}
+Klientská část aplikace \textit{Manta Flow} je \textit{command line} aplikace implementovaná v programovacím jazyce Java sestavená z několika modulů. Jejím hlavním úkolem je extrakce skriptů ze zdrojových databázových systémů a repozitářů (modul \textit{Exktractor}), a jejich následné parsování a analýza (modul \textit{Analyzer}). Analýza skriptů probíhá v klientské části aplikace z toho důvodu, že využívá vyextrahované slovníky objektů zdrojového systému, které by v případě provádění analýzy serverovou částí aplikace musely být přenášena na server spolu se skripty. Poté, co proběhne zpracování (\textit{merge} - viz. kapitola \ref{sec:ana_merger}) zanalyzovaných skriptů serverem, výsledky jsou vyexportovány zpět do klientské části aplikace, odkud mohou být případně nahrány do externí metadatové databáze. 
+
+\subsubsection{Configurator}
+\textit{Configurator} je \textit{standalone} webová aplikace implementovaná v programovacím jazyce Java (jako třívrstvá aplikace), jejímž úkolem je poskytnout \textit{GUI (grafické uživatelské rozhraní)}, pomocí kterého může uživatel změnit komplexní konfiguraci aplikace \textit{Manta Flow}. Konfigurace je typicky obsažena v \textit{properties} souborech a to na různých místech. Serverová a klientská část \textit{Manta Flow} má vlastní konfiguraci. \cite{Molitor18}
+
+\subsubsection{Updater}
+\textit{Updater} je \textit{standalone} webová aplikace implementovaná v programovacím jazyce Java (jako třívrstvá aplikace), jejímž úkolem je poskytnout \textit{GUI}, které provede uživatelem \textit{updatem} aplikace \textit{Manta Flow} (konkrétně její serverové části) na novější verzi. Aplikace umožňuje uživateli provést změny v komplexní konfiguraci aplikace a provede \textit{merge} těchto změn s původním nastavením. \cite{Gondek16}  
+
 % TODO POPIS API jednotlivých databází
 \subsection{API grafových databází}
 \label{sec:ana_gdbapi}
@@ -188,6 +202,7 @@ Posledním modulem, který přímo interaguje s metadatovým uložištěm je \te
 
 %TODO
 \subsection{Požadavky}
+TODO
 %security 
 % - podle rolí
 % - nevidím flow v cizích systémech, ale vidím, že z vlastního tam flow vede
@@ -201,12 +216,21 @@ Posledním modulem, který přímo interaguje s metadatovým uložištěm je \te
 
 
 
-\subsection{Architektonická omezení}
-
-
-
+%\subsection{Architektonická omezení}
 % Podněty
 % - Architektura vyhovující cloudovým požadavkům
 %  - žádný filesystem, jen pipes na jiné služby, které mohou filesystem podporovat (lze využívat pouze temp uložiště a sfree buckety)
 %  - např jedna služba client, jedna server, jedna grafovka
 %  - jak by se řešily veškeré konfigurace
+
+% Škálovatelnost - cloud
+% https://acloud.guru/
+% https://www.amazon.com/Patterns-Enterprise-Application-Architecture-Martin/dp/0321127420
+% https://martinfowler.com/articles/microservices.html
+% https://martinfowler.com/tags/application%20architecture.html - Serverless Architectures on AWS
+% https://www.youtube.com/watch?v=LAWjdZYrUgI
+% AWS Lambda - amazon SaaS (?)
+% S3 - cloud storage (?)
+% Cloud computing http://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-145.pdf
+% JPMC GAIA https://www.americanbanker.com/news/unexpected-champion-of-public-clouds-jpmorgan-cio-dana-deasy
+% Cloud Awareness ;  OpenStack
