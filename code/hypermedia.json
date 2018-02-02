@@ -1,0 +1,30 @@
+
+{
+    "content": [ {
+        "price": 499.00,
+        "description": "Apple tablet device",
+        "name": "iPad",
+        "links": [ {
+            "rel": "self",
+            "href": "http://localhost:8080/product/1"
+        } ],
+        "attributes": {
+            "connector": "socket"
+        }
+    }, {
+        "price": 49.00,
+        "description": "Dock for iPhone/iPad",
+        "name": "Dock",
+        "links": [ {
+            "rel": "self",
+            "href": "http://localhost:8080/product/3"
+        } ],
+        "attributes": {
+            "connector": "plug"
+        }
+    } ],
+    "links": [ {
+        "rel": "product.search",
+        "href": "http://localhost:8080/product/search"
+    } ]
+} 

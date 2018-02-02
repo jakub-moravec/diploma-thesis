@@ -2,9 +2,6 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Analýza}
-
-%TODO obrázek nějakého flow
-
 % popis Manty
 \subsection{Manta Flow}
 \textit{Manta Flow}\footnote{https://getmanta.com/} je nástroj umožňující automatickou analýzu zdrojového kódu (SQL, Java) a následný popis transformační logiky v něm obsažené. Software je schopný rozpoznat i těžce čitelné konstruky zdrojového kódu. Díky tomu dokáže automaticky zanalyzovat rozsáhlé databáze a vytvořit z nich přehlednou mapu datových toků, neboli \textit{Data Lineage}. To se v praxi využívá převážně k optimalizaci datových skladů, snižování nákladů na vývoj softwaru, provádění dopadových analýz a při dokumentování prostředí pro potřeby regulačních úřadů.
@@ -15,7 +12,7 @@ Nástroj má dvě hlavní komponenty (viz diagram \ref{fig:ana-flow-comp}):
 	\item{\textit{Manta Flow Server}}: je serverová Java aplikace, která ukládá získané informace do interního metadatového uložiště, transformuje je, umožňuje jejich visualizaci a přístup k nim pomocí veřejného API. 
 \end{itemize}
 
-Interakce mezi \textit{klientskou} a \textit{serverovou} částí aplikace je popsána zjednodušeným sekvenčním diagramem \ref{fig:ana-flow-seq}. Pro tuto práci je podstatná především \textit{serverová} část aplikace a její interakce s metadatovým uložištěm (kapitola \ref{sec:ana_components}). \textit{Klientská} část aplikace je proto popsána méně detailně (kapitola \ref{\label{sec:ana_other}}).
+Interakce mezi \textit{klientskou} a \textit{serverovou} částí aplikace je popsána zjednodušeným sekvenčním diagramem \ref{fig:ana-flow-seq}. Pro tuto práci je podstatná především \textit{serverová} část aplikace a její interakce s metadatovým uložištěm (kapitola \ref{sec:ana_components}). \textit{Klientská} část aplikace je proto popsána méně detailně (kapitola \ref{sec:ana_other}).
 
 \begin{figure}
 \begin{center}
@@ -189,20 +186,16 @@ Klientská část aplikace \textit{Manta Flow} je \textit{command line} aplikace
 \subsubsection{Updater}
 \textit{Updater} je \textit{standalone} webová aplikace implementovaná v programovacím jazyce Java (jako třívrstvá aplikace), jejímž úkolem je poskytnout \textit{GUI}, které provede uživatelem \textit{updatem} aplikace \textit{Manta Flow} (konkrétně její serverové části) na novější verzi. Aplikace umožňuje uživateli provést změny v komplexní konfiguraci aplikace a provede \textit{merge} těchto změn s původním nastavením. \cite{Gondek16}  
 
-% TODO POPIS API jednotlivých databází
 \subsection{API grafových databází}
 \label{sec:ana_gdbapi}
-\textit{Manta Flow} pro dotazování grafové databáze (v tuto chvíli \textit{Titan}) používá programovací jazyk \textit{Gremlin} ve verzi \textit{2.6}. Lze tedy říci, že tento programovací jazyk slouží jako API mezi aplikací a aktuálně používanou grafovou databází. Z benchmarků dalších grafových databází \cite{Kovar18} vyplývá, že bude-li současná grafová databáze nahrazena, jejím nástupcem bude pravděpodobně \textit{JanusGraph}, nebo \textit{OrientDB}\textit{Obě zmíněné databáze jsou blíže popsány v kapitole \ref{sec:gdb-databaze}.}. Obě tyto databáze podporují programovací jazyk \textit{Gremlin}, \textit{JanusGraph} ve verzi \textit{3.x}, zatímco \textit{OrientDB} ve verzi \textit{2.x}. Protože \textit{Gremlin} a API, která mají grafovým databázím zaručit jeho podporu, prošli mezi verzemi \textit{2.x} a \textit{3.x} zásadními změnami (viz \ref{sec:gdb-jazyky}), budou v této sekci popsány obě tyto technologie.
-
-\subsubsection{Gremlin 2.x}
-%TODO
-
-\subsubsection{Gremlin 3.x} 
-%TODO
+\textit{Manta Flow} pro dotazování grafové databáze (v tuto chvíli \textit{Titan}) používá programovací jazyk \textit{Gremlin} ve verzi \textit{2.6}. Lze tedy říci, že tento programovací jazyk slouží jako API mezi aplikací a aktuálně používanou grafovou databází. Z benchmarků dalších grafových databází \cite{Kovar18} vyplývá, že bude-li současná grafová databáze nahrazena, jejím nástupcem bude pravděpodobně \textit{JanusGraph}, nebo \textit{OrientDB}\footnote{Obě zmíněné databáze jsou blíže popsány v kapitole \ref{sec:gdb-databaze}.}. Obě tyto databáze podporují programovací jazyk \textit{Gremlin}, \textit{JanusGraph} ve verzi \textit{3.x}, zatímco \textit{OrientDB} ve verzi \textit{2.x}. Protože \textit{Gremlin} a API, která mají grafovým databázím zaručit jeho podporu, prošli mezi verzemi \textit{2.x} a \textit{3.x} zásadními změnami (viz \ref{sec:gdb-jazyky}), budou v této sekci popsány obě tyto technologie. Obě verze jazyka \textit{Gremlin} poskytují \textit{Java API} (\textit{Gremlin 2.x \cite{Gremlin14}, Gremlin 3.x \cite{Gremlin17}}). Pro přístup do datové databáze budou tedy v práci nadále používána tato dvě API.
 
 %TODO
 \subsection{Požadavky}
 TODO
+
+% TODO procesní diagramy
+
 %security 
 % - podle rolí
 % - nevidím flow v cizích systémech, ale vidím, že z vlastního tam flow vede
