@@ -11,3 +11,5 @@
 *.blg
 *.pdf
 *.gz
+*.fdb_latexmk
+*.fls
