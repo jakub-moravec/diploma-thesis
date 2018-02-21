@@ -173,6 +173,8 @@ Kromě toho \textit{viewer} dotazuje metadatové uložiště o další informace
 \label{sec:ana_exporter}
 Posledním modulem, který přímo interaguje s metadatovým uložištěm je \textit{exporter}, jehož úkolem je exportovat aktuální stav grafové databáze (ne nutně vše, může být exportován například jen interval revizí atd.) buďto do \textit{CSV} souborů, nebo přímo do formátu používaného dalšími nástroji používanými na správu metadat. \textit{Exporter} jako nástroj pro práci s metadatovým uložištěm nejčastěji používá \textit{traversery} a \textit{observery} poskytované modulem \textit{connector}, díky kterým je možné provádět operace nad velkou částí metadatového uložiště bez zásadních paměťových požadavků. Dále jsou využívány základní základní operace (\textit{operations}) poskytované stejným modulem a v některých případech je metadatové uložiště dotazováno přímo pomocí jazyka \textit{Gremlin}.
 
+%TODO dump
+
 %todo možná závěr podsekce s diagramem závislostí modulů
 
 \subsection{Popis ostatních komponent}
@@ -186,46 +188,52 @@ Klientská část aplikace \textit{Manta Flow} je \textit{command line} aplikace
 \subsubsection{Updater}
 \textit{Updater} je \textit{standalone} webová aplikace implementovaná v programovacím jazyce Java (jako třívrstvá aplikace), jejímž úkolem je poskytnout \textit{GUI}, které provede uživatelem \textit{updatem} aplikace \textit{Manta Flow} (konkrétně její serverové části) na novější verzi. Aplikace umožňuje uživateli provést změny v komplexní konfiguraci aplikace a provede \textit{merge} těchto změn s původním nastavením. \cite{Gondek16}
 
-\subsection{Datová konzistence}
-file:///C:/Users/jmoravec/Downloads/javatransactionsbook.pdf
-TODO
-
-Transakce jsou řízeny programaticky (\textit{Programatic Transaction Model} \cite{Little04}) za pomoci implementace \textit{TransactionTemplate}\footnote{\url{https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/transaction/support/TransactionTemplate.html}} pomocí dvou reentrant zámků - jednoho pro grafovou databázi, druhého pro zdrojové kódy. FIXME impl pro Titan a locky.
--- ten na zdrojáky se nepoužívá
-
-Jsou zdrojáky používány v jedné transakci s GDB? Pokud ano (a je potřeba udržet ACID), je vhodné zvážit využití XA.
-
-Zámky
- - SOURCE_LOCK(OneFileMerger - kontrola počtu skriptů) - asi pouze na scriptmetadata H2 databázi, neměl by tedy omezovat přístup do GDB
-
- - Revision_lock - reentrant lock používaný při [vytváření nových revizí, commitování revizí, mazání revizí, RevisionLockedOperation] (uzlů reprezentující revize)
- RevisionLockedOperation
-  - mergeCheckConditions && merge [necommitnutá] -- proč má read zámek, když zapisuje?
-	- aditionalMerge [poslední commitnutá] -- proč má read zámek, když zapisuje?
-	- exportDump [všechny]
-	- propagateEdges [poslední, asi ne nutně necommitnutá] -- proč má read zámek, když zapisuje?
-RevisionWriteOperation
-	- interpolate() [necommitnutá]
-	- performContraction() [necommitnutá]
-	- unifikace() [necommitnutá]
-	- importDump [všechny]
-	- pruneOldestRevisions [všechny] -- proč write zámek, v locku běží jen zjisštění počtu revizí v GDB
-	- pruneToRevision [několik]
-	- rollbackRevision [necommitnutá]
-
-
-% TODO Poznámka k licencím ... pokud je verzování možné vypnout/zapnout pouze v konfigurákách, je možné oddělit license service pro server
-% TODO poznámka k licencím ... vzhledem k tomu, že například RevisionRootHandler obsahuje logiku kontroly licence, měl by být rozdělen na service a dao, ne jen dao
-
-% FIXME otázka - je možné použít Spring deklarativní transakce spolus s Gremlinem?
 
 \subsection{API grafových databází}
 \label{sec:ana_gdbapi}
-\textit{Manta Flow} pro dotazování grafové databáze (v tuto chvíli \textit{Titan}) používá programovací jazyk \textit{Gremlin} ve verzi \textit{2.6}. Lze tedy říci, že tento programovací jazyk slouží jako API mezi aplikací a aktuálně používanou grafovou databází. Z benchmarků dalších grafových databází \cite{Kovar18} vyplývá, že bude-li současná grafová databáze nahrazena, jejím nástupcem bude pravděpodobně \textit{JanusGraph}, nebo \textit{OrientDB}\footnote{Obě zmíněné databáze jsou blíže popsány v kapitole \ref{sec:gdb-databaze}.}. Obě tyto databáze podporují programovací jazyk \textit{Gremlin}, \textit{JanusGraph} ve verzi \textit{3.x}, zatímco \textit{OrientDB} ve verzi \textit{2.x}. Protože \textit{Gremlin} a API, která mají grafovým databázím zaručit jeho podporu, prošli mezi verzemi \textit{2.x} a \textit{3.x} zásadními změnami (viz \ref{sec:gdb-jazyky}), budou v této sekci popsány obě tyto technologie. Obě verze jazyka \textit{Gremlin} poskytují \textit{Java API} (\textit{Gremlin 2.x \cite{Gremlin14}, Gremlin 3.x \cite{Gremlin17}}). Pro přístup do datové databáze budou tedy v práci nadále používána tato dvě API.
+\textit{Manta Flow} pro dotazování grafové databáze (v tuto chvíli \textit{Titan}) používá programovací jazyk \textit{Gremlin} ve verzi \textit{2.6}. Lze tedy říci, že tento programovací jazyk slouží jako API mezi aplikací a aktuálně používanou grafovou databází. Z benchmarků dalších grafových databází \cite{Kovar18} vyplývá, že bude-li současná grafová databáze nahrazena, jejím nástupcem bude pravděpodobně \textit{JanusGraph}, nebo \textit{OrientDB}\footnote{Obě zmíněné databáze jsou blíže popsány v kapitole \ref{sec:gdb-databaze}.}. Obě tyto databáze podporují programovací jazyk \textit{Gremlin}, \textit{JanusGraph} ve verzi \textit{3.x}, zatímco \textit{OrientDB} ve verzi \textit{2.x}.
+Protože \textit{Gremlin} a API, která mají grafovým databázím zaručit jeho podporu, prošli mezi verzemi \textit{2.x} a \textit{3.x} zásadními změnami (viz \ref{sec:gdb-jazyky}), budou v této sekci popsány obě tyto technologie. Obě verze jazyka \textit{Gremlin} poskytují \textit{Java API} (\textit{Gremlin 2.x \cite{Gremlin14}, Gremlin 3.x \cite{Gremlin17}}). Pro přístup do datové databáze budou tedy v práci nadále používána tato dvě API.
 
 %TODO
 \subsection{Požadavky}
 TODO
+
+
+\subsubsection{Datová konzistence}
+Z popisu jednotlivých komponent aplikace v kapitolách \ref{sec:ana_components} a \ref{sec:ana_other} je patrné, že je používáno několik heterogenních přístupů k manipulaci s daty (především v grafové databázi) a je tak třeba pečlivě řídit konzistenci dat. Primárním princepem zaručujícím konzistenci dat je verzování modelů datových toků na jednotlivé \textit{major} a \textit{minor} revize \cite{Sykora17}.
+Cílem je, aby všechny moduly, které pouze provádějí analýzu datových toků a tu předávají (v některé z dostupných forem) dále, tedy \textit{Viewer}, \textit{Exporter} a \textit{Public API}\footnote{Pomocí \textit{Public API} může být grafová databáze i upravována, všechny úpravy jsou ale prováděny pouze pomocí modulu \textit{Merger}.} mohly být spouštěny nad některou z uzavřených (\textit{commitnutých}) revizí, zatímco \textit{Merger}, který vkládá nové informace na základě iniciace klientské části aplikace má k dispozici jednu otevřenou \textit{necommitnutou} pracovní revizi. Všechny zmíněné moduly používají pro přístup do grafové databáze primárně modul \textit{Connector}, který obsahuje operace čtení i zápisu, obecně ale platí, že operace zápisu jsou používány pouze \textit{Mergerem}.
+I přes systém revizí může vzniknout často konkurence při čtení a zápisu dat do grafové databáze:
+
+\begin{itemize}
+	\item{\textit{Úprava uzavřené revize}}: Při vytváření nové revize, která vzniká typicky jako \textit{full update} celého modelu datových toků\footnote{Nová \textit{major} revize vzniká jako \textit{full update} modelu datavých toků, nová \textit{minor} revize jako \textit{incremental update}. Konkrétní implementace obou operací se v některých detailech liší, z pohledu datové konzistence ale řeší oba přístupy koncepčně stejný problém. Můžeme proto analýzu vzniku nové revize datového modelu zobecnit na \textit{full update} přístup - tedy na \textit{major} revize.} může nastat několik situací. Připomeňme, že platnost vztahu mezi dvěmi uzly je parametrem hrany spojující tyto uzly. Pokud se libovolné dva uzly a jejich vztah nezmění mezi uzavřenou revizí \textit{A} a vznikající neuzavřenou revizí\textit{B}, pak jsou upraveny atributy hrany reprezentující tento vztah a může tak vzniknout konkurence při čtení revize \textit{A} a zápisu do revize \textit{B}.
+	\item{\textit{Kombinace operací pro čtení a zápis při vytváření nové revize}}: Modul \textit{Merger} při vytváření nové revize modelu datových toků v grafové databází provádí několik komplexních postproccessingových algoritmů, které vyžadují přístup pro čtení i zápis do pracovní otevřené revize (a jsou v některých případech prováděny paralelně). %TODO footnote on paralel
+	\item{\textit{"Stop the world" operace}}: Je také definováno několik takzvaně "stop the world" operací, tedy operací, při kterých je znepřístupněna velká část, nebo přímo celá grafová databáze. Mezi tyto operace patří odstraňování starých revizí modelu datových toků\footnote{Odstranění starých revizí modelu datových toků z grafové databáze nelze implementovat pouhým odstraňováním objektů z databáze, je z velké části realizováno úpravou intervalu platnosti hran a musí tak dojít k průchodu celého modelu datových toků.}, nebo import či export kompletního \textit{dumpu} grafové databáze.
+\end{itemize}
+
+Vzhledem k výše uvedeným situacím je konkurence při přístupu k datům řízena dvěmi dalšími mechanikami, kterými jsou databázové transakce a synchronizace pomocí \textit{reentrant} zámků.
+
+Transakce jsou řízeny programaticky (\textit{Programatic Transaction Model} \cite{Little04}) za pomoci implementace \textit{Spring TransactionTemplate}\footnote{\url{https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/transaction/support/TransactionTemplate.html}} kombinující \textit{Titan} transakce (převolávané pomocí \textit{Blueprints API}) a Java \textit{reentrant} zámky. \textit{Titan} v případě transakcí pouze přeposkytuje funkcionalitu používané podkladové databáze, kterou je v tuto chvíli \textit{embedded NoSQL databáze typu klíč-hodnota Persistit}\footnote{\url{https://github.com/pbeaman/persistit}}. Ta, stejně jako mnoho dalších grafových databází, implementuje \textit{Multi-Version Concurrency Control (MVCC)} (TODO link) využívající \textit{Snapshot Isolation} (TODO link) úroveň izolace transakcí (TODO zdroj). Jedná se o \textit{optimistický} transakční model, žádné databázové objekty (ani záznamy) nejsou zamykány, takže transakce probíhají v plné rychlosti bez čekání, může tak ale nastat situace, že ne všechny transakce je možné \textit{commitnout} a jedna (nebo více) z těchto transakcí tak musí být zrušena (a zopakována).
+Synchronizace pomocí \textit{reentrant} zámků je používána pro přidělování transakcí, vlastní zámek je pro obecné transakce a vlastní pro \textit{read-only} transakce.
+
+Další používanou synchronizační mechanikou je zamykání grafové databáze (respektive uzlů reprezentující jednotlivé revize) \textit{reentrant read-write} zámkem při několika operacích, které jsou součástí \textit{Mergeru} a importu a exportu \textit{dumpu} grafové databáze.
+
+Poslední synchronizace na straně serveru je zamykání metadatové databáze nesoucí informace a zanalyzovaných skriptech pro účely kontroly licencí.
+
+
+
+
+% FIXME otázka - je možné použít Spring deklarativní transakce spolus s Gremlinem?
+
+Transakce v Perzistitu - optimistické, snapshot transakce, bez lockování
+https://github.com/pbeaman/persistit/blob/master/src/main/java/com/persistit/Transaction.java
+
+Transakce v Orientu - the same
+https://orientdb.com/docs/2.1.x/Transactions.html
+
+JanusGraph zdá se umožňuje pesimistické transakce, ale není to úplně dobře dokumentované
+https://github.com/JanusGraph/janusgraph/blob/0b1b8237c5d4e8a41bde5f9f3b4cc6c66ab698bc/janusgraph-core/src/main/java/org/janusgraph/diskstorage/BackendTransaction.java
+Minimálně BerkeleyDB umí taky locking
+https://docs.oracle.com/cd/E17277_02/html/TransactionGettingStarted/txnconcurrency.html
 
 % TODO procesní diagramy
 
