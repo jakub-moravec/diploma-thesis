@@ -14,10 +14,40 @@
 %
 % Model -stranou
 
+% Rozdělení modulů na API a impl dle https://stackoverflow.com/questions/14856225/maven-separate-modules-for-interfaces-and-implementation-with-spring
+
 % Konzistence
 % - transakce deklarativní, u write operací mandatory propagation
-%    - umožní občasné commity kvůli performance?
-%    - implementace pro Spring jsou v divném stavu, nebo nejsou, vadí to?
+%    - umožní občasné commity kvůli performance? - ANO, pomocnou metodou
+%    - implementace pro Spring jsou v divném stavu, nebo nejsou, vadí to? - ???
+%          - je potřeba zjistit, co by znamenalo implementovat pro gremlin 3, pokud by to bylo rozumné, není problém
+%          - zjistit, jak udělat custom abstrakci transakcí
+%          - zjistit, jak se dá customizovat rollback u deklarativních transakcí a jestli je to potřeba
 % - zámky (long living transakce)
+%    - Je potřeba řešit následující situace:
+%       - vytváření nové verze (zámek na pracovní revizi)
+%       - prune revizí
+%       - dump revizí
 %    a) AS IS (tzn read vs write na celou db)
 %    b) zámky na jednotlivé revize (lock id v db na objektu revize)
+% - merge bez VCS - v jakých případech? Je vlastní revize pro Merge? Pokud ne, jak to ovlivní výkon (je stále potřeba concurrent read-write)?
+
+% performance
+% - zámky na rodiče
+% :: CLI běží typicky ve čtyřech vláknech, ta po skončení (zhruba stejný čas) provolávají server - merger. Ten tedy také běží paralelně
+% ve čtyřech vláknech (vytváření objektů v db). V současné době zámek přidělující write transakce způsobuje, že jsou tato čtyři vlákna
+% v podstatě serializována (respektive spíš doslova).
+% Jednou z možností, jak toto vyřešit je navrhnout zámky o menší granularitě - na rodiče (tedy v tomto pořadí: super_root, resourcy, nody různých úrovní..). Tyto zámky by byly Javovské (pokud by se měnila architektura na cloud, tak by se musely propagovat do DB).
+% :: Mechanismus pro uzly: při vytváření uzlu zámek na jeho rodiče. V rámci jedné transakce by takto byla vytvořená dávka uzlů e.g. 500, po commitu by byly všechny zámky uvolněny (zámky nemohou být uvolněny dříve, ostatní vlákna by neviděla výsledek - read commited).
+% Pokud by mělo dojít k deadlockové situaci (vlákno má zámek na nějaké uzly, ale čeká na jiné zámky, které má jiné vlákno), provede se předčasný commit (zmenší se dávka) a tím se zámky uvolní.
+% :: Mechanismus pro (flow) hrany: TODO
+% Premisy:
+%  - jak výchozí, tak koncový vrchol již nutně musí existovat (byly na začátku stejného CSV)
+% Návrhy:
+%  - mělo by stačit zamykat výchozí vrchol (hrany by byly vytvářeny jen ze směru z->do)
+%  - kdyby u hran byl odkaz i na rodiče zdroje (např. na tabulku sloupečku), stačilo by zamknout tabulku a flow hrany pod tímto zámkem vložit všechny (TODO jsou hrany seřazeny po tabulkách, nebo náhodně?)
+% read lock = nolock ?
+% zámky na revize pro stop-the world?
+
+
+% TODO zeptat se na generované gremlin dotazy

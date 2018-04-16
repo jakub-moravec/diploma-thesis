@@ -127,7 +127,7 @@ Posledním způsobem manipulace s metadatovým uložištěm, který modul umož�
 \label{sec:ana_merger}
 \textit{Merger} je modul, který je používán při analýze zdrojových systémů. Slouží k zanesení výsledků dílčích analýz jednotlivých částí (např. skriptů) zdrojových systémů do metadatového uložiště.
 
-Vlastní operace \textit{merge}\footnote{Operace \textit{merge} má v kontextu aplikace \textit{Manta Flow} obdobný význam, jako například v \textit{SQL}: pokud objekt není uložen v persistentní vrstvě, je do ní uložen (\textit{insert}), jinak je aktualizován (\textit{update}).} lze zjednodušeně popsat pseudokódem \ref{alg_merger}. Ten je uveden především kvůli složitému mode zanořování transakcí, jehož účelem je umožňení provádění dotazů do metadatového uložiště jinými částmi aplikace, zatímco je prováděn \textit{merge} analyzoných částí zdrojových systémů. % TODO blíže popsat použitý transakční model
+Vlastní operace \textit{merge}\footnote{Operace \textit{merge} má v kontextu aplikace \textit{Manta Flow} obdobný význam, jako například v \textit{SQL}: pokud objekt není uložen v persistentní vrstvě, je do ní uložen (\textit{insert}), jinak je aktualizován (\textit{update}).} lze zjednodušeně popsat pseudokódem \ref{alg_merger} (správa transakcí a synchronizace je blíže popsána v kapitole \ref{sec:ana_transactions}). Ten je uveden především kvůli složitému transakčnímu modelu, jehož účelem je umožňení provádění dotazů do metadatového uložiště jinými částmi aplikace, zatímco je prováděn \textit{merge} analyzoných částí zdrojových systémů.
 
 Operace se chová různě v případě, kdy je umožňěno verzovaní metadatového uložiště (a to tak obsahuje více revízí) a kdy je vypnuto. V případě zapnutého verzování je \textit{merge} prováděn vždy do nové revize, pokud je verzování vypnuté, je prováděn do hlavní (jediné) revize.
 
@@ -137,24 +137,23 @@ Samotné \textit{merge} operace nad objekty grafové databáze (uzly, hranami, a
 \caption{Merger pseudocode}
 \label{alg_merger}
 \begin{algorithmic}
-	\State $beginWriteTransaction()$
+	\State $acquireGraphLock()$
 	\State $revision\gets getNewestRevision()$
 	\If {$revision.isOpen()$}
-		\State $beginWriteTransaction()$
+		\State $acquireScriptsLock()$
 		\ForAll{$script in scripts$}
 			\State $beginWriteTransaction()$
 			\State $merge(script)$
 			\State $conditionalCommit()$
 		\EndFor
+		\State $releaseScriptsLock()$
 		\State $beginWriteTransaction()$
 		\ForAll{$object in objects$}
-			\State $beginWriteTransaction()$
 			\State $merge(object)$
-			\State $occasionalCommit()$
+			\State $periodicalCommit()$
 		\EndFor
-		\State $commit()$
 	\EndIf
-	\State $commit()$
+	\State $releaseGraphLock()$
 \end{algorithmic}
 \end{algorithm}
 
@@ -189,17 +188,12 @@ Klientská část aplikace \textit{Manta Flow} je \textit{command line} aplikace
 \textit{Updater} je \textit{standalone} webová aplikace implementovaná v programovacím jazyce Java (jako třívrstvá aplikace), jejímž úkolem je poskytnout \textit{GUI}, které provede uživatelem \textit{updatem} aplikace \textit{Manta Flow} (konkrétně její serverové části) na novější verzi. Aplikace umožňuje uživateli provést změny v komplexní konfiguraci aplikace a provede \textit{merge} těchto změn s původním nastavením. \cite{Gondek16}
 
 
-\subsection{API grafových databází}
-\label{sec:ana_gdbapi}
-\textit{Manta Flow} pro dotazování grafové databáze (v tuto chvíli \textit{Titan}) používá programovací jazyk \textit{Gremlin} ve verzi \textit{2.6}. Lze tedy říci, že tento programovací jazyk slouží jako API mezi aplikací a aktuálně používanou grafovou databází. Z benchmarků dalších grafových databází \cite{Kovar18} vyplývá, že bude-li současná grafová databáze nahrazena, jejím nástupcem bude pravděpodobně \textit{JanusGraph}, nebo \textit{OrientDB}\footnote{Obě zmíněné databáze jsou blíže popsány v kapitole \ref{sec:gdb-databaze}.}. Obě tyto databáze podporují programovací jazyk \textit{Gremlin}, \textit{JanusGraph} ve verzi \textit{3.x}, zatímco \textit{OrientDB} ve verzi \textit{2.x}.
-Protože \textit{Gremlin} a API, která mají grafovým databázím zaručit jeho podporu, prošli mezi verzemi \textit{2.x} a \textit{3.x} zásadními změnami (viz \ref{sec:gdb-jazyky}), budou v této sekci popsány obě tyto technologie. Obě verze jazyka \textit{Gremlin} poskytují \textit{Java API} (\textit{Gremlin 2.x \cite{Gremlin14}, Gremlin 3.x \cite{Gremlin17}}). Pro přístup do datové databáze budou tedy v práci nadále používána tato dvě API.
-
 %TODO
-\subsection{Požadavky}
+\subsection{Požadavky a omezení}
 TODO
 
-
 \subsubsection{Datová konzistence}
+\label{sec:ana_transactions}
 Z popisu jednotlivých komponent aplikace v kapitolách \ref{sec:ana_components} a \ref{sec:ana_other} je patrné, že je používáno několik heterogenních přístupů k manipulaci s daty (především v grafové databázi) a je tak třeba pečlivě řídit konzistenci dat. Primárním princepem zaručujícím konzistenci dat je verzování modelů datových toků na jednotlivé \textit{major} a \textit{minor} revize \cite{Sykora17}.
 Cílem je, aby všechny moduly, které pouze provádějí analýzu datových toků a tu předávají (v některé z dostupných forem) dále, tedy \textit{Viewer}, \textit{Exporter} a \textit{Public API}\footnote{Pomocí \textit{Public API} může být grafová databáze i upravována, všechny úpravy jsou ale prováděny pouze pomocí modulu \textit{Merger}.} mohly být spouštěny nad některou z uzavřených (\textit{commitnutých}) revizí, zatímco \textit{Merger}, který vkládá nové informace na základě analýzy provedené klientskou částí aplikace, má k dispozici jednu otevřenou \textit{necommitnutou} pracovní revizi. Všechny zmíněné moduly používají pro přístup do grafové databáze primárně modul \textit{Connector}, který obsahuje operace čtení i zápisu, obecně ale platí, že operace zápisu jsou používány pouze \textit{Mergerem}.
 I přes systém revizí může vzniknout často konkurence při čtení a zápisu dat do grafové databáze:
@@ -207,20 +201,40 @@ I přes systém revizí může vzniknout často konkurence při čtení a zápis
 \begin{itemize}
 	\item{\textit{Úprava uzavřené revize}}: Při vytváření nové revize, která vzniká typicky jako \textit{full update} celého modelu datových toků\footnote{Nová \textit{major} revize vzniká jako \textit{full update} modelu datavých toků, nová \textit{minor} revize jako \textit{incremental update}. Konkrétní implementace obou operací se v některých detailech liší, z pohledu datové konzistence ale řeší oba přístupy koncepčně stejný problém. Můžeme proto analýzu vzniku nové revize datového modelu zobecnit na \textit{full update} přístup - tedy na \textit{major} revize.}, může nastat několik situací. Připomeňme, že platnost vztahu mezi dvěmi uzly je parametrem hrany spojující tyto uzly. Pokud se libovolné dva uzly a jejich vztah nezmění mezi uzavřenou revizí \textit{A} a vznikající neuzavřenou revizí\textit{B}, pak jsou upraveny atributy hrany reprezentující tento vztah a může tak vzniknout konkurence při čtení revize \textit{A} a zápisu do revize \textit{B}.
 	\item{\textit{Kombinace operací pro čtení a zápis při vytváření nové revize}}: Modul \textit{Merger} při vytváření nové revize modelu datových toků v grafové databází spouští několik komplexních postproccessingových algoritmů, které vyžadují přístup pro čtení i zápis do pracovní otevřené revize (a jsou v některých případech prováděny paralelně).
-	\item{\textit{"Stop the world" operace}}: Je také definováno několik takzvaně "stop the world" operací, tedy operací, při kterých je znepřístupněna velká část, nebo přímo celá grafová databáze. Mezi tyto operace patří odstraňování starých revizí modelu datových toků\footnote{Odstranění starých revizí modelu datových toků z grafové databáze nelze implementovat pouhým odstraňováním objektů z databáze, je z velké části realizováno úpravou intervalu platnosti hran a musí tak dojít k průchodu celého modelu datových toků.}, nebo import či export kompletního \textit{dumpu} grafové databáze.
+	\item{\textit{"Stop the world" operace}}: Je také definováno několik takzvaně "stop the world" operací, tedy operací, při kterých je znepřístupněna velká část, nebo přímo celá grafová databáze. Mezi tyto operace patří odstraňování starých revizí modelu datových toků, import či export kompletního \textit{dumpu} grafové databáze.
 \end{itemize}
 
 Vzhledem k výše uvedeným situacím je konkurence při přístupu k datům řízena dvěmi dalšími mechanikami, kterými jsou databázové transakce a synchronizace pomocí \textit{reentrant} zámků.
 
 Transakce jsou řízeny programaticky\footnote{Kromě programatického řízení transakcí je možné použít i deklarativní řízení transakcí (\textit{Declarative Transaction Model}). Ne pro všechny grafové databáze ale v tuto chvíli existují implementace, které by deklarativní transakce v rámci \textit{Spring} frameworku umožňovaly. V tuto chvíli je podporuje například \textit{Orient DB} (\url{https://github.com/orientechnologies/spring-data-orientdb}) a databáze přístupné pomocí \textit{TinkerPop Gremlin 2.x} (\url{https://github.com/gjrwebber/spring-data-gremlin}). Podpora pro \textit{Apache TinkerPop 3.x} je aktuálně ve vývoji.} (\textit{Programatic Transaction Model} \cite{Little04}) za pomoci implementace \textit{Spring TransactionTemplate}\footnote{\url{https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/transaction/support/TransactionTemplate.html}} kombinující \textit{Titan} transakce a Java \textit{reentrant} zámky.
-\textit{Titan} v případě transakcí pouze přeposkytuje funkcionalitu používané podkladové databáze, kterou je v tuto chvíli \textit{embedded NoSQL databáze typu klíč-hodnota Persistit}\footnote{\url{https://github.com/pbeaman/persistit}}. Ta, stejně jako mnoho dalších grafových databází, implementuje \textit{Multi-Version Concurrency Control (MVCC)} \cite{Prakash10} využívající \textit{Snapshot Isolation}\footnote{Všechny záznamy v databázi jsou verzovány. Při čtení transakce vytvoří kopii poslední \textit{commitnuté} verze čteného záznamu, ta je po ukončení transakce odstraněna. \textit{Snapshot isolation} tak v zásadě odpovídá úrovni izolace transakcí \textit{Read committed}.} úroveň izolace transakcí.
-Jedná se o \textit{optimistický} transakční model, žádné databázové objekty (ani záznamy) nejsou zamykány, takže transakce probíhají v plné rychlosti bez čekání. Může tak ale nastat situace, že ne všechny transakce je možné \textit{commitnout} a jedna (nebo více) z těchto transakcí tak musí být zrušena (a zopakována).
-Aby k těmto konfliktům paralelních transakcí nedocházelo, používá aplikace při přidělování transakcí synchronizaci pomocí \textit{reentrant} zámků, přičemž vlastní zámek je pro obecné transakce a vlastní pro \textit{read-only} transakce. Nemohou tak současně existovat dvě transakce, které by mohly do databáze zapisovat zároveň - což může potenciálně velmi snižovat rychlost prováděných operací.
+\textit{Titan} v případě transakcí pouze přeposkytuje funkcionalitu používané podkladové databáze, kterou je v případě \textit{Manta Flow} embedded NoSQL databáze typu klíč-hodnota \textit{Persistit}\footnote{\url{https://github.com/pbeaman/persistit}}. Ta, stejně jako mnoho dalších grafových databází, implementuje \textit{Multi-Version Concurrency Control (MVCC)} \cite{Prakash10} využívající \textit{Snapshot Isolation}\footnote{Všechny záznamy v databázi jsou verzovány. Při čtení transakce vytvoří kopii poslední \textit{commitnuté} verze čteného záznamu, ta je po ukončení transakce odstraněna. \textit{Snapshot isolation} tak v zásadě odpovídá úrovni izolace transakcí \textit{Read committed}.} úroveň izolace transakcí.
+Jedná se o \textit{optimistický} transakční model, žádné databázové objekty (ani záznamy) nejsou zamykány, takže transakce probíhají v plné rychlosti bez čekání. Může tak ale nastat situace, že ne všechny transakce je možné \textit{commitnout} a jedna (nebo více) z těchto transakcí tak musí být zrušena (a zopakována). \textit{Snapshot} izolace transakcí má v grafových databázích také další specifický důsled. Zatímco v případě relačních databází vždy existuje unikátní identifikátor každého záznamu (byť i implicitní), v grafových databázích tomu tak není - tedy neexistuje žádná unikátnost uzlů a hran v grafové databázi za předpokladu, že není explicitně vynucena pomocí unikátních indexů. Ty nejsou v aplikaci \textit{Manta Flow} používány, může tak nastat situace, kdy se dvě transakce souběžně snaží o vytvoření (z pohledu aplikační logiky) identického uzlu či hrany, obě transakce uspějí (nedojde k jejich kolizi) a objekt je tak vytvořen dvakrát (čímž je zanesena nekonzistence do metadatového uložiště).
+Aby k těmto konfliktům paralelních transakcí nedocházelo, používá aplikace při přidělování transakcí synchronizaci pomocí \textit{reentrant} zámků, přičemž vlastní zámek je pro obecné transakce a vlastní pro \textit{read-only} transakce. Nemohou tak současně existovat dvě transakce, které by mohly do databáze zapisovat zároveň - což může potenciálně velmi snižovat rychlost prováděných operací. Důsledkem tohoto systému zámků je serializace paralelních klientských požadavků pro zápis do metadatového uložiště (\textit{merge}). Tento process v klientské části aplikace přitom probíhá paralelně, tipicky minimálně ve čtyřech vláknech.
+% TODO poznámka k performance Zároveň se jedná o proces, u kterého je rychlost jedním ze zásadních kritérií - jedná se o noční proces, v některých případech přitom trvá více než pět hodin.
 
 Další používanou synchronizační mechanikou je zamykání grafové databáze (respektive uzlů reprezentující jednotlivé revize) \textit{reentrant read-write} zámkem při několika operacích, které jsou součástí \textit{Mergeru} a importu a exportu \textit{dumpu} grafové databáze. Tyto zámky tak společně s verzováním modelu metadat slouží při \textit{mergi} de-facto jako implementace \textit{long living} transakcí - samotný \textit{merge} objektů do grafové databáze je prováděn v několika transakcích\footnote{Transakce jsou objektem uloženým v operační paměti, přičemž velikost transakce narůstá s počtem úprav v databázi.}.
 
 Poslední synchronizace na straně serveru je zamykání metadatové databáze nesoucí informace a zanalyzovaných skriptech pro účely kontroly licencí. K této synchronizaci dochází při \textit{mergi} v okamžiku, kdy jsou informace o skriptech do metadatového uložiště nahrávány.
 
+
+\subsubsection{Výkon aplikace}
+\label{sec:ana_performance}
+%TODO
+
+
+\subsubsection{Škálovatelnost}
+\label{sec:ana_scaling}
+%TODO
+
+\subsubsection{Modifikovatelnost}
+\label{sec:ana_modularity}
+%TODO
+
+
+\subsubsection{API grafových databází}
+\label{sec:ana_gdbapi}
+\textit{Manta Flow} pro dotazování grafové databáze (v tuto chvíli \textit{Titan}) používá programovací jazyk \textit{Gremlin} ve verzi \textit{2.6}. Lze tedy říci, že tento programovací jazyk slouží jako API mezi aplikací a aktuálně používanou grafovou databází. Z benchmarků dalších grafových databází \cite{Kovar18} vyplývá, že bude-li současná grafová databáze nahrazena, jejím nástupcem bude pravděpodobně \textit{JanusGraph}, nebo \textit{OrientDB}\footnote{Obě zmíněné databáze jsou blíže popsány v kapitole \ref{sec:gdb-databaze}.}. Obě tyto databáze podporují programovací jazyk \textit{Gremlin}, \textit{JanusGraph} ve verzi \textit{3.x}, zatímco \textit{OrientDB} ve verzi \textit{2.x}.
+Protože \textit{Gremlin} a API, která mají grafovým databázím zaručit jeho podporu, prošli mezi verzemi \textit{2.x} a \textit{3.x} zásadními změnami (viz \ref{sec:gdb-jazyky}), budou v této sekci popsány obě tyto technologie. Obě verze jazyka \textit{Gremlin} poskytují \textit{Java API} (\textit{Gremlin 2.x \cite{Gremlin14}, Gremlin 3.x \cite{Gremlin17}}). Pro přístup do datové databáze budou tedy v práci nadále používána tato dvě API.
 
 % TODO procesní diagramy
 
@@ -233,7 +247,7 @@ Poslední synchronizace na straně serveru je zamykání metadatové databáze n
 % ==> Neupravovat algoritmy, natož DB dotazy
 % ==> Nalezená flow by měla být filtrována -> sw. vrstva - na jaké úrovni?
 % - Filtrovat by se mělo až ve chvíli, kdy je flow kompletní
-% - -
+% --
 
 
 
