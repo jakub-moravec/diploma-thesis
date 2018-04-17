@@ -1,7 +1,4 @@
-\chapter{Teoretická část}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Grafové databáze}
+\chapter{Grafové databáze}
 \label{sec:gdb}
 
 Grafy jsou velice přirozeným způsobem reprezentaci dat, zvláště v době, kdy většina dat je vytvářena uživateli a není strukturovaná. Grafy pomocí uzlů a hran přirozeně popisují objekty a vztahy mezi nimi, nevynucují náročné datové modelování skutečnosti do složitých datových struktur a usnadňují tak proces objevování informací v datech. Díky tomu, že grafy umožňují jednoduché prohledávání objektů, které mezi sebou mají vztahy (uzlů propojených hranami), jsou operace tohoto typu nad grafy relativně (například vůči relačním databázím) rychlé.
@@ -10,7 +7,7 @@ Grafové databáze umožňují data reprezentovaná grafem ukládat a procházet
 
 Tato kapitola má za cíl představit základní principy grafových databází. Popisuje reprezentaci grafů v databázi, možnosti analýzy dat a rozhraní, kterých je k tomu možné použít.
 
-\subsection{NoSQL databáze}
+\section{NoSQL databáze}
 \label{sec:gdb-nosql}
 NoSQL databázové sice nejsou předmětem této práce, grafové databáze nicméně bývají zařazovány jako podkategorie NoSQL a proto zde základní principy této skupiny technologií popíšeme. Samotná zkratka NoSQL je vykládaná různě, většinou jako \textit{"Not only SQL"} \cite{Evans09} a vykládá se jako označení pro databáze nerelačního typu určené pro zpracování \textit{Big Data}\footnote{Big Data jsou soubory dat velkého objemu, velké rychlosti a/nebo velké různorodosti, která vyžadují nové formy zpracování pro umožnění lepšího rozhodování, většího porozumění domény a optimalizace procesů.\cite{Laney01}}. Mezi hlavní uváděné výhody NoSQL databází patří:
 
@@ -32,7 +29,7 @@ Aby těchto výhod NoSQL databáze dosáhly, využívají různé přístupy k r
 \end{itemize}
 
 
-\subsection{Grafy}
+\section{Grafy}
 \label{sec:gdb-grafy}
 % Matematická definice
 Ještě před popisem vlastních grafových databází blíže popíšeme grafy jako takové a jejich typy. Nejdříve uvedeme základní matematický rámec teorie grafů, se kterým budeme dále pracovat.
@@ -72,7 +69,7 @@ Ohodnocené grafy sice poskytují možnost rozlišit typy hran a uzlů, v mnoha 
 Generalizací grafu je tzv. \textit{hypergraf}. Ten se proti grafu liší tím, že zatímco hrana grafu vede mezi právě dvěma vrcholy, hyperhrana (tedy hrana v hypergrafu) je mnoužinou jednoho a více vrcholů.\cite{Diestel00} Hypergrafy jsou používány k reprezentaci dat v mnoha oborech a některé grafové databáze je přímo podporují (například HypergraphDB\footnote{\url{http://hypergraphdb.org/}}).
 
 
-\subsection{Reprezentace grafu}
+\section{Reprezentace grafu}
 \label{sec:gdb-reprezentace}
 Aby bylo možné v dalších kapitolách popsat pokročilé aspekty grafových databází (jako jsou dotazování, indexování, či transakce v grafových databázích), je nejdříve nutné popsat jejich základní principy. Nutnost ukládat data ve formě grafů je starší než grafové databáze samotné, existuje tak mnoho způsobů uložení grafů z nichž ty nejběžnější zde popíšeme. Ještě předtím je nutno poznamenat, k jakým typům úloh jsou grafové databáze zejména využívány. Základními grafovými úlohami jsou \nomExpl{BSF}{průchod grafu do hloubky (Breadth-first search)} a \nomExpl{DFS}{průchod grafu do šířky (Depth-first search)}. Oba tyto algoritmy musí projít v nejhorším případě\footnote{Pro konkrétní problémy jsou často BFS a DFS algoritmy upravovány tak, aby bylo možné některé větve průchodu tzv. ořezávat - tedy procházet pouze jejich část, nebo je neprocházet vůbec.} všechny hrany a uzly grafu, je tedy vidět, že pro efektivitu grafových databází je klíčová rychlost přechodu z jednodoho uzlu do (všech) jeho sousedních uzlů pomocí existujících hran.
 
@@ -106,7 +103,7 @@ Při reprezentaci velkých grafů pomocí listů sousednosti se používají kom
 Důležitým kritériem pro výběr reprezentace grafu je \textit{lokalita dat}. Cílem je uložit graf tak, aby jejich fyzické umístění odpovídalo jejich logické vzdálenosti a při průchodu grafem tak byla data pro další krok načtena co nejrychleji. K dosažení optimality lokality dat reprezentovaných grafem existuje mnoho technik, vzhledem k tomu, že se ale jedná o \textit{NP-těžkou} úlohu, jedná se často o heuristiky a aproximační algoritmy. Některé z používaných metod jsou například metoda minimalizace šířky matice autorů \textit{Cuthill a McKee} \cite{Cuthill69}, \textit{rekurzivní spektrální bisekce} \cite{Barnard93}, nebo metoda založená na průchodedech grafu do šířky (\textit{Breadth First Search Layout}) \cite{Furaih98}.
 
 
-\subsection{Typy dotazů}
+\section{Typy dotazů}
 \label{sec:gdb-dotazy}
 
 % Traversal pattern
@@ -142,7 +139,7 @@ Je zjevné, že tyto typy dotazů jsou velmi závislé na konkrétních indexač
 \end{center}
 \end{figure}
 
-\subsection{Indexy}
+\section{Indexy}
 \label{sec:gdb-indexy}
 % Indexování uzlů a hran
 Stejně jako je tomu u relačních databází, i ve světě grafových databází se hojně používají indexy (a také už byly v předchozím textu několikrát zmíněny) a je jich hned několik typů. Průchody (\textit{traverzování}) grafem používají pouze základní indexy a to ve chvíly, kdy jsou hledány výchozí uzly. Konkrétní databáze můžou k indexům přistupovat specifickým způsobem, je tedy vhodné si u každé databáze ověřit, co je automaticky indexováno. Zpravidla je žádoucí indexovat typy (\textit{labely}) a vybrané atributy hran a uzlů. Například pokud by existoval index na typ uzlů a chtěli bychom v grafu o milionu uzlů vyhledat všechny uzly typu \textit{:OSOBA} (a z nich graf procházet), databáze by neprocházela všechny uzly, ale podle indexu by vyhledala přesně uzly tohoto typu. Tyto základní indexy si můžeme představit jako indexy které známe z relačních databází, tedy jako B-stromy a jim podobné struktury\footnote{Implementace indexu v Neo4J (\textit{GB+Tree}): \url{https://github.com/neo4j/neo4j/blob/3.4/community/index/src/main/java/org/neo4j/index/internal/gbptree/GBPTree.java}}.
@@ -152,7 +149,7 @@ U strukturálních dotazů je situace komplikovanější. V případě \textit{d
 
 % TODO fultextové indexy + intervalové hledání - LUCENE
 
-\subsection{Transakce}
+\section{Transakce}
 %ACID
 Pojďme nejprve připomenout standardní transakční model světa relačních databází - \textbf{ACID}. Tento model říká, že transakce v databázovém systému musí být atomické (\textit{\textbf{A}tomocity}, tedy nedělitelné. Pokud tedy selže některá z operací transakce, selže celá transakce a je proved její \textit{rollback}\footnote{Rollback transakce je událost, která nastává, pokud transakce selže, nebo pokud je uživatelem explicitně vyvolána. Všechny kroky, které byly v rámci transakce provedeny jsou vráceny, po rollbacku transakce je tedy databáze ve stejném stavu, jako před spuštěním transakce. Opakem rollbacku je operace \textit{commit}, která potvrzuje všechny změny provedené v transakci.}. Nemůže se tedy stát, že by byla provedena jen část operací transakce a databáze se ocitla v nekonzistentním stavu. Jinými slovy, po provedení jakékoliv transakce (úspěšném i neúspěšném) bude databáze vždy konzistentní (\textit{\textbf{C}onsistency}). Všechny transakce jsou také izolované (\textit{\textbf{I}solated}), tedy transakce jsou na sobě navzájem nezávislé a neovlivňují si navzájem data. V případě, že dojde ke konfliktu několika transakcí, databázový systém konflikt vyřeší tak, aby byla tato vlastnost zachována\footnote{Existuje několik stupňů izolace transakcí , výčtem \textit{read uncommitted}, \textit{read committed}, \textit{repeatable read} a \textit{serializable}.}. Právě na úrovni izolace konfliktujících transakcí záleží, jakým způsobem bude konflikt vyřešen. Poslední vlastností transakcí v transakčním modelu ACID je trvanlivost (\textit{\textbf{D}urability}). Tato vlastnost zajistí, že změny provedené transakcí jsou trvalé.
 
@@ -161,7 +158,7 @@ Vlastnosti ACID transakčního modelu jsou klíčové pro relační databázové
 
 Jak už bylo zmíněno, grafové databáze jsou typem NoSQL databází. Přesto většina grafových databází není NoSQL databází v pravém smyslu slova. Výsledkem tak je, že některé grafové databáze plně podporují ACID transakční model, jiné naopak BASE. Toto je blíže diskutováno v popisu konkrétních grafových databází (kapitola \ref{sec:gdb-databaze}).
 
-\subsection{Distribuovatelnost}
+\section{Distribuovatelnost}
 \label{sec:gdb-distribution}
 V kapitole \ref{sec:gdb-nosql} jsme zmínili, že distribuovanost dat je klíčovou vlastností NoSQL databází\footnote{Pokud je to možné, je vždy efektivnější když data distribuovaná nejsou. K jejich distribuování přikračujeme až ve chvíli, kdy nás k tomu nutí okolnosti - například velikost dat.}. Pro distribuci dat se využívá kombinování dvou technik - \textit{rozdělení (sharding)} a \textit{replikace} dat.
 
@@ -174,7 +171,7 @@ Aby byla při případném výpadku části uzlů stále přístapná všechna d
 % Kontext grafů
 U grafových databází je ale distribuce dat (a tedy horizontální škálování) výrazně komplikovanější, než u ostatních NoSQL databází. Data v nich jsou uložena do několika několika struktur (tabulek, dokumentů, dvojic klíč-hodnota), zatímco obsahem grafové databáze je typicky pouze jediná struktura - graf. Rozdělení grafu na podgrafy je obtížný problém (zvláště pokud se jedná například o úplný graf), proto obecně ne mnoho grafových databází tuto možnost vůbec umožňuje. Přesto existují metody, které se distribucí grafu zabývají. Výsledná distribuce je potom optimální pouze pro podmnožinu grafových úloh (například průchod do šířky, hledání nejmenší kostry atd.). Distribucí grafu na několik uzlů se mění čas, v jakém je možné získat seznam sousedních vrcholů grafu v případech, kdy hrana mezi vrcholem a jeho sousedem spojuje dva podgrafy na dvou různých uzlech, je tedy obtížné graf distribuovat při snaze zachovat co nejvyšší rychlost průchodu grafem. Příkladem algoritmů pro rozdělení grafu může být \textit{1D dělení} a \textit{2D dělení} matice sousednosti \cite{Yoo05}, nebo mnoho technik aproximujících \textit{optimální k-rozdělení grafu}\footnote{Optimální bisekce grafu je NP-obtížný problém \cite{Garey90}, tedy i optimální k-rozdělení grafu je nejméně NP-obtížný problém. Proto jsou používány aproximační algoritmy.}.\cite{George78} \cite{Fiduccia82} \cite{Battiti99}
 
-\subsection{Databáze - příklady}
+\section{Databáze - příklady}
 \label{sec:gdb-databaze}
 
 % Neo4J
@@ -191,7 +188,7 @@ Databází s velice podobonými charakteristikami jako má \textit{OrientDB} je 
 \textit{Titan} je zaměřen (jak už napovídají nabízené \textit{back-end} databáze) na masivní škálovatelnost grafových databází, zároveň ale nabízí oba transakční modely - \textit{ACID} i \textit{BASE}. Dotazování dat v Titanu je možné pomocí \textit{Java API}, nebo jazyka \textit{Gremlin}. V roce 2015 proběhla akvizice \textit{Titanu} (respektive společnosti \textit{Aurelius}, která ho vyvíjela) společností \textit{DataStax}, čímž prakticky skončil vývoj této databáze. \textit{Open-source forkem} a pokračovatelem\cite{Datami17} \textbf{Titanu} je databáze \textit{JanusGraph}\footnote{\url{http://janusgraph.org/}}. Obě databáze jsou implementovány v programovacím jazyce \textit{Java} a licencovány pod \textit{Apache 2.0} licencí.
 
 
-\subsection{Dotazovací jazyky}
+\section{Dotazovací jazyky}
 \label{sec:gdb-jazyky}
 
 % API a REST API
@@ -221,7 +218,7 @@ Existují i další dotazovací jazyky pro grafové databáze než výše zmín�
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Softwarové abstrakce}
+\chapter{Softwarové abstrakce}
 
 % Důvody pro abstrakci abstrakce
 Vývoj softwaru je dnes jistě v mnoha ohledech jednodušší, než v padesátých letech dvacátého století, kdy programátor musel znát strojový kód, počty a velikosti registrů a v nejhorších případech musel fyzicky propojit vodiče mezi výpočetními jednotkami. Postupem času s příchodem nových programovacích jazyků byl programátor stále více abstrahován od hardwaru a i některých softwarových vrstev nad ním. Vývojáři webových stránek stačí vhodný operační systém, aplikační a databázový server k tomu, aby mohl rychle vytvořit webové stránky, nepotřebuje k tomu přitom podrobnou znalost všech používaných technologií. Stejně tak Java vývojář dnes již nebude psát celou aplikaci s pomocí Javy samotné, ale využije mnoho existujících open-sourcových knihoven, které mu práci výrazně usnadní. Není tedy nutné, aby uměl vývojář vyřešit každý problém, pro řešení některých stačí přepoužití vhodných nástrojů. To má za následek nejen usnadnění práce při implementaci, ale také celkově čistší a přehlednější kód aplikace - kód obsahuje pouze aplikační logiku a nezbytné množství obslužných rutin. Přehledný kód potom vede k jednoduššímu vývoji, testování a údržbě aplikace. Lze tedy říci, že vhodně zvolené abstrakce na různých úrovních - ať už se jedná o architekturu celé aplikace, či návrh několika spolupracujících tříd, jsou pro softwarové systémy klíčové.
@@ -233,7 +230,7 @@ Základním principem zajišťující abstrakci na úrovni zdrojového kódu apl
 
 Cílem této kapitoly je popsat pro práci relevantní principy sloužící k zavedení vhodných úrovní softwarové abstrakce. Konkrétně popisuje API jako obecný nástroj k oddělení různých částí aplikace (kapitola \ref{sec:api}); vícevrstvou architekturu (kapitola \ref{sec:n-tier}), jejíž návrh pro definovaný problém je jedním z cílů této diplomocé práce; a architektonický styl \textit{REST} (kapitola \ref{sec:rest}), který je dnes jedním ze standardů pro architektury webových aplikací. Na závěr jsou popsány principy architektur určených pro \textit{cloudové} systémy (kapitola \ref{sec:cloud}). Ty jsou již několik let sílícím trendem a bylo by krátkozraké je nevzít v potaz.
 
-\subsection{API}
+\section{API}
 \label{sec:api}
 API je jasně definovaným rozhraním, které poskytuje uživateli přístup k funkcím softwarové jednotky, kterou obaluje. Vzhledem k tomu, že API je obecný pojem a má v softwarovém inženýrství široké uplatnění (které je v této kapitole alespoň částečně popsáno), neexistuje obecně uznávaná definice, která by vymezovala, z čeho se API skládá. Obecně je API souborem specifikací programových rutin a datových struktur.
 
@@ -256,7 +253,7 @@ Bez ohledu na účel, kterému API slouží, jeho návrh by se měl řídit něk
   \item{\textit{vést k čitelnému kódu}}: API by mělo umožnit psaní přehledného, čitelného a efektivního kódu. Naopak by jeho použití nemělo vést k nutnosti přidávání zbytečného kódu (\textit{boilerplate code}).
 \end{itemize}
 
-\subsection{Softwarové architektury}
+\section{Softwarové architektury}
 \label{sec:architectures}
 Softwarová architektura je úroveň návrhu softwaru, která sahá za hranice konkrétních algoritmů a datových struktur výpočtu. Navrhuje a specifikuje obecnou strukturu systému včetně komunikace,
 synchronizace a přístupu k datům. Architektura přiřazuje funkcionalitu jednotlivým návrhovým elementům, předurčuje jejich fyzickou distribuci, kompozici, škálovatelnost, výkon a také jejich možné alternativy \cite{Garlan94}. Jádrem softwarové architektury je princip abstrakce - skrývání některých detailů pomocí zapouzdření za účelem lepší identifikace vlastností návrhových elementů \cite{Shaw90}. Komplexní systém může mít mnoho úrovní abstrakce a mnoho operačních fází, přičemž každá z nich může mít vlastní architekturu \cite{Bass98}.
@@ -278,7 +275,7 @@ Architektura softwaru (resp. architektonický styl) implikuje řadu klíčových
   \item{\textit{Přenositelnost}}: Pokud je systém přenositelnýný, může být spuštěný na různých prostředích.
 \end{itemize}
 
-\subsubsection{Vícevrstvá architektura}
+\subsection{Vícevrstvá architektura}
 \label{sec:n-tier}
 Vícevrstvá architektura (alias \textit{layered architecture}) je jedním z nejpoužívanějších architektonickýc stylů z toho důvodu, že v jejím centru čato stojí databáze, což je přirozenou vlastností mnoha aplikací \cite{Richards15}. Aplikace je rozdělena do několika vrstev, každá vrstva má vlastní specifický účel, který neplní žádná z ostatních vrstev a naopak, tato vrstva neplní žádné jiné úkoly. Každá vrstva poskytuje služby vrstvě nad sebou a využívá služeb vrstvy pod sebou \cite{Garlan94}. Jednotlivé vrstvy jsou izolovány a komunikují mezi sebou pomocí dobře definovaných \textit{API}. Jejich implementace je skryta a při změně některé z vrstev tak nejsou ostatní vrstvy ovlivněny vůbec, nebo nejhůře v případě změny \textit{API} vrstvy je ovlivněna pouze nejbližší vyšší vrstva. To výrazně snižuje \textit{coupling} a zjednodušuje vývoj, údržbu a testovaní aplikace. Příkladem mohou být komunikační modely ISO/OSI a TCP/IP \cite{Zimmerman80}.
 
@@ -293,7 +290,7 @@ V kontextu webových aplikací je tento architektonický styl spojován se style
 
 Vrstvy jsou typicky \textit{zamčené}, je tedy nutné, aby vrstva při zpracování požadavku pracovala pouze se sousedními vrstvami, není možné žádné vrstvy přeskakovat. Jsou ale případy, kdy je vhodné nechat některé vrstvy \textit{odemčené} a mít tedy možnost je přeskakovat. Například pokud chceme umožnit aplikacím třetích stran používat aplikaci jako \textit{webovou službu}, necháme \textit{prezentační vrstvu} odemčenou a umožníme tak přístup na \textit{servisní vrstvu (service layer)}, která potom komunikuje s \textit{vrstvou byznys logiky} (pokud tyto dvě vrstvy nejsou spojeny v jednu). Dalším uplatněním odemčených vrstev může být zvýšení efektivity, režie při zpracování dat způsobená  jejich předáváním přes několik vrstev je primární nevýhodou vícevrstvé architektury \cite{Clark90}.
 
-\subsubsection{REST}
+\subsection{REST}
 \label{sec:rest}
 \textit{\nomExpl{REST}{Representational State Transfer}} je architektonický styl, který ve své dizertační práci v roce 2000 popsal Thomas Fielding \cite{Fielding00}. Jeho cílem je definovat standard pro škálovatelné webové aplikace. Styl je definovaný několika architektonickými omezeními:
 
@@ -315,8 +312,7 @@ V seznamu architektonických omezení je důležitý bod a totiž, že vlastní 
 % RESTfull APIs
 Podle \cite{Fowler10} jsou \textit{hypermedia} nejvyšší úrovní (level 3) využití \textit{REST} architektury. Základem tohoto modelu je použití \textit{HTTP} jako komunikačního protokolu (level 0), zavedení unkátně identifikovatelný (pomocí \textit{URI}) zdrojů namísto jednoho přístupového bodu (level 1), a sémanticky správné použití \textit{HTTP} požadavků - především \textit{GET, HEAD, POST, PUT a DELETE} (leve 2). Každý odkaz obsažený v \textit{hypermedia} odpovědi by měl implementovat \textit{HTTP} požadavky (nebo jejich podmnožinu) dle jejich sémantiky a poskytnutí odkazu tak stačí k tomu, aby se mohl klient službou jendoduše navigovat. API, která poskytují služby splňující tyto podmínky jsou označována jako \textit{RESTfull APIs}.
 
-%TODO
-\subsubsection{Architektury cloudových aplikací}
+\subsection{Architektury cloudových aplikací}
 \label{sec:cloud}
 Cloudové systémy jsou sílícím trendem posledních let, proto má také, stejně jako mnoho pojmů ze světa softwaru, mnoho neustálených definic. \textit{NIST}\footnote{National Institute of Standards and Technology - \url{https://www.nist.gov/}} přiřazuje cloudovým systémům následující vlastnosti \cite{Mell11} :
 

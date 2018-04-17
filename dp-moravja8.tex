@@ -1,8 +1,8 @@
-\documentclass[11pt,twoside,a4paper]{book}  
+\documentclass[11pt,twoside,a4paper]{book}
 % definice dokumentu
 \usepackage[czech, english]{babel}
-\usepackage[T1]{fontenc} 				% pouzije EC fonty 
-\usepackage[utf8]{inputenc} 			% utf8 kódování vstupu 
+\usepackage[T1]{fontenc} 				% pouzije EC fonty
+\usepackage[utf8]{inputenc} 			% utf8 kódování vstupu
 \usepackage[square, numbers]{natbib}	% sazba pouzite literatury
 \usepackage{indentfirst} 				% 1. odstavec jako v cestine, pro práci v aj možno zakomentovat
 \usepackage{fancyhdr}					% tisk hlaviček a patiček stránek
@@ -11,10 +11,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % informace o práci
 \newcommand\WorkTitle{Analýza a návrh abstraktní vícevrstvé architektury pro práci s grafovou databází realizující metadatové úložiště pro data lineage}
-\newcommand\FirstandFamilyName{Bc. Jakub Moravec}															
-\newcommand\Supervisor{Ing. Michal Valenta, Ph.D.}															
+\newcommand\FirstandFamilyName{Bc. Jakub Moravec}
+\newcommand\Supervisor{Ing. Michal Valenta, Ph.D.}
 
-\newcommand\TypeOfWork{Diplomová práce}	
+\newcommand\TypeOfWork{Diplomová práce}
 
 \newcommand\StudProgram{Otevřená Informatika, Magisterský}	% program
 \newcommand\StudBranch{Softwarové inženýrství}				% obor
@@ -33,7 +33,7 @@ citecolor=blue,
 linkcolor=blue,
 unicode=true,
 ]
-{hyperref}								% pro zobrazování "prokliknutelných" linků 
+{hyperref}								% pro zobrazování "prokliknutelných" linků
 
 % rozšiřující importy
 \usepackage{listings} 			%slouží pro tisk zdrojových kódů se syntax higlighting
@@ -47,7 +47,7 @@ unicode=true,
 % příkazy šablony
 \makenomenclature								% při překladu zajistí vytvoření pracovního souboru se seznamem zkratek
 
-\let\oldUrl\url									% url adresy budou zobrazeny: <url> 
+\let\oldUrl\url									% url adresy budou zobrazeny: <url>
 \renewcommand\url[1]{<\texttt{\oldUrl{#1}}>}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -78,17 +78,17 @@ unicode=true,
 % vlastní dokument
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
-	
-	%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+	%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% nastavení jazyka, kterým je práce psána
 	\selectlanguage{czech}	% podle jazyka práce nastavte na [czech | english]
 	\translate				% nastaví české nebo anglické popisy (např. katedra -> department); viz k336_thesis_macros
 
-	%%%%%%%%%%%%%%%%%%%%%%%%%%    
+	%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% Poznamky ke kompletaci prace
-	% Nasledujici pasaz uzavrenou v {} ve sve praci samozrejme 
-	% zakomentujte nebo odstrante. 
-	% Ve vysledne svazane praci bude nahrazena skutecnym 
+	% Nasledujici pasaz uzavrenou v {} ve sve praci samozrejme
+	% zakomentujte nebo odstrante.
+	% Ve vysledne svazane praci bude nahrazena skutecnym
 	% oficialnim zadanim vasi prace.
 	{
 	\pagenumbering{roman} \cleardoublepage \thispagestyle{empty}
@@ -102,28 +102,28 @@ unicode=true,
 	\newpage
 	}
 
-	%%%%%%%%%%%%%%%%%%%%%%%%%%    
-	% Titulni stranka / Title page 
+	%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% Titulni stranka / Title page
 	\coverpagestarts
 
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%    
-	% Poděkovani / Acknowledgements 
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% Poděkovani / Acknowledgements
 
 	\acknowledgements
 	\noindent
 	Zde můžete napsat své poděkování, pokud chcete a máte komu děkovat.
 
 
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%   
-	% Prohlášení / Declaration 
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% Prohlášení / Declaration
 
 	\declaration{V~Kořenovicích nad Bečvárkou dne 15.\,5.\,2008}
 	%\declaration{In Kořenovice nad Bečvárkou on May 15, 2008}
 
 
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
-	% Abstrakt / Abstract 
- 
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% Abstrakt / Abstract
+
 	\abstractpage
 
 	Translation of Czech abstract into English.
@@ -139,37 +139,40 @@ unicode=true,
 	\noindent
 	Očekávají se cca 1 -- 2 odstavce, maximálně půl stránky.
 
-	%%%%%%%%%%%%%%%%%%%%%%%%%%    
+	%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% obsahy a seznamy
-	\tableofcontents		% Obsah / Table of Contents 
+	\tableofcontents		% Obsah / Table of Contents
 
 	% pokud v práci nejsou obrázky nebo tabulky - odstraňte jejich seznam
-	\listoffigures			% Obsah / Table of Contents 
+	\listoffigures			% Obsah / Table of Contents
 	\listoftables			% Seznam tabulek / List of Tables
 	\lstlistoflistings         % Seznam kódů
 
-	%%%%%%%%%%%%%%%%%%%%%%%%%% 
-	% začátek textu  
+	%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% začátek textu
 	\mainbodystarts
 
 \include{uvod}
 \include{teorie}
 \include{analyza}
 \include{navrh}
+\include{implementace}
+\include{validace}
+\include{zaver}
 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%% 
-% Seznam literatury je v samostatnem souboru reference.bib. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Seznam literatury je v samostatnem souboru reference.bib.
 \bibliographystyle{csplainnat}
 {
 \def\CS{$\cal C\kern-0.1667em\lower.5ex\hbox{$\cal S$}\kern-0.075em $}
 \bibliography{reference}
 }
 
-%%%%%%%%%%%%%%%%%%%%%%%%%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%
 % vše co následuje bude uvedeno v přílohách
-\appendix	
+\appendix
 
 \printnomenclature
 \label{apx:zkratky}

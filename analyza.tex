@@ -1,9 +1,6 @@
-\chapter{Praktická část}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Analýza}
+\chapter{Analýza}
 % popis Manty
-\subsection{Manta Flow}
+\section{Manta Flow}
 \textit{Manta Flow}\footnote{https://getmanta.com/} je nástroj umožňující automatickou analýzu zdrojového kódu (SQL, Java) a následný popis transformační logiky v něm obsažené. Software je schopný rozpoznat i těžce čitelné konstruky zdrojového kódu. Díky tomu dokáže automaticky zanalyzovat rozsáhlé databáze a vytvořit z nich přehlednou mapu datových toků, neboli \textit{Data Lineage}. To se v praxi využívá převážně k optimalizaci datových skladů, snižování nákladů na vývoj softwaru, provádění dopadových analýz a při dokumentování prostředí pro potřeby regulačních úřadů.
 
 V souladu s architektonickým stylem \textit{klient - server} má aplikace dvě hlavní komponenty (viz diagram \ref{fig:ana-flow-comp}):
@@ -32,7 +29,7 @@ Pro tuto práci je podstatná především \textit{serverová} část aplikace a
 \end{figure}
 
 
-\subsection{Metadatové uložiště}
+\section{Metadatové uložiště}
 \label{sec:ana_model}
 Jak již bylo zmíněno v úvodu práce (kapitola \ref{sec:uvod}) metadatové uložiště produktu \textit{Manta Flow} je aktuálně implementováno grafovou databází \textit{Titan} (ve verzi 0.4) a je snaha o výměnu této databáze\cite{Kovar18}.
 Než přistoupíme k bližšímu popisu jednotlivých komponent aplikace a jejich interakcí s metadatovým uložištěm (kapitola \ref{sec:ana_components}, je třeba nejdříve popsat entity, které jsou součástí analýzy datových toků a datový model metadatového uložiště (zobrazený na obrázku \ref{fig:ana-model}\footnote{Z modelu metadatového uložiště je zřejmé, že ne všechny podgrafy tvoří \textit{strom}. Vlastnosti \textit{stromu} nicméně porušují pouze hrany typu \textit{directFlow} a \textit{filterFlow}, které jsou výsledkem analýzy datových toků a jejichž odstraněním by strom vznikl. V textu je tak v některých případech používána teminologie vztahující se ke \textit{stromům} (například \textit{kořen}) - na celý graf je nahlíženo jako ne \textit{les}.}).
@@ -97,12 +94,12 @@ V metadatovém uložišti je dále definováno několik typů indexů, konkrétn
 a externí \textit{Apache Lucene} indexy, které slouží pro \textit{fulltextové} vyhledávání uzlů dle jejich názvů a pro intervalové vyhledání revizí.
 
 
-\subsection{Popis komponent serverové části}
+\section{Popis komponent serverové části}
 \label{sec:ana_components}
 
 Aplikace \textit{Manta Flow} praceje s metadatovým uložištěm několika různými způsoby, přičemž různé moduly aplikace využívají jeden či více těchto přístupů (a často také provádí vlastní pomocné dotazy přímo do metadatového uložiště). Cílem této sekce je tyto způsoby manipulace s metadatovým uložištěm identifikovat a popsat (není tedy účelem detailní technický popis všech dotazů do metadatového uložiště, ale spíše popis obecných principů a specifických situací - například netradiční zacházení s transakcemi).
 
-\subsubsection{Connector}
+\subsection{Connector}
 \label{sec:ana_connector}
 Modul, který je nejblíže metadatovému uložišti, tzv. \textbf{connector} má dvě hlavní zodpovědnosti - zajištění připojení aplikace k uložišti a provádění dotazů nad ním.
 
@@ -124,7 +121,7 @@ Jednotlivé algoritmy používají výše popsané základní operace (\textit{o
 % Traversal
 Posledním způsobem manipulace s metadatovým uložištěm, který modul umožňuje je přístup pomocí \textit{traverserů}. Ty pracují na obecném principu \textit{traversování} grafů popsaném v kapitole \ref{sec:gdb-dotazy}. V tomto případě ale celý průchod grafem není realizován samotnou grafovou databází, ale přímo aplikací, přičemž grafová databáze je dotazována pouze na dílčí informace - například na okolní uzly. \textit{Traversery} jsou používány v případech, kdy je manipulováno s větší částí grafové databáze, například při jejím exportu. Tyto operace jsou realizovány \textit{vizitory} - každý uzel, který je procházen \textit{traverserem} je následně obsloužen \textit{vizitorem}, který provede požadovanou operaci (jedná se o návrhový vzor \textit{Visitor} - viz \cite{Gamma94}). Obě tyto části, tedy procházení grafu \textit{traverserem} i obsloužení všech objektů \textit{visitorem} jsou prováděny za pomocí základních grafových operací definovaných výše (\textit{operations}). Zároveň je ale také z tohoto kontextu grafová databáze dotazována přímo pomocí jazyka \textit{Gremlin}. Jedná se ale spíše o jednoduché dotazy na dohledání uzlů, jejich atributů apod.
 
-\subsubsection{Merger}
+\subsection{Merger}
 \label{sec:ana_merger}
 \textit{Merger} je modul, který je používán při analýze zdrojových systémů. Slouží k zanesení výsledků dílčích analýz jednotlivých částí (např. skriptů) zdrojových systémů do metadatového uložiště.
 
@@ -158,38 +155,38 @@ Samotné \textit{merge} operace nad objekty grafové databáze (uzly, hranami, a
 \end{algorithmic}
 \end{algorithm}
 
-\subsubsection{Viewer}
+\subsection{Viewer}
 \label{sec:ana_viewer}
 \textit{Viewer} je modul sloužící k poskytování dat uživatelskému rozhraní aplikace (klientské části webové aplikace). Jeho nejčastější interakce s metadatovým uložištěm je dotaz na \textit{referenční view} dle parametrů zadaných uživatelem. To je prováděno pomocí algoritmů definovaných v modulu \textit{connector} (viz \ref{sec:ana_connector}), který obsahuje algoritmy pro hledání datových toků (resp. \textit{referenčního view}).
 
 Kromě toho \textit{viewer} dotazuje metadatové uložiště o další informace, které následně propaguje do uživatelského rozhraní - především o informace o revizích metadatového uložiště a o objekty zdrojových systémů, pomocí kterých uživatel vybírá výchozí uzly pro hledání datových toků (\textit{referenčního view}). Informace o revizích metadatového uložiště jsou dohledávány pomocí základních operací definovaných v modulu \textit{connector} (viz \ref{sec:ana_connector}) a pomocí přímých dotazů do metadatového uložiště pomocí jazyka \textit{Gremlin} s explicitního řízení transakcí. Pro vyhledávání objektů zdrojových systémů (v metadatovém uložišti uzly typu \textit{NODE}, viz \ref{sec:ana_model}) je použito vyhledávání pomocí fulltextového indexu implementovaného pomocí \textit{Apache Lucene}. Ten indexuje uzly v metadatovém uložišti podle jejich názvu a umožňuje jejich rychlé vyhledávání.
 
 
-\subsubsection{Public API}
+\subsection{Public API}
 \label{sec:ana_public}
 \textit{Public API} je modul, který by měl umožňovat vzdálené volání veřejné části funkcionality aplikace pomocí \textit{REST API}. Konkrétně lze tímto způsobem volat například analýzu datových toků mezi různými objekty zdrojového systému. Modul přepoužívá část funkcionality poskytovanou modulem \textit{connector}, část těchto funkcionalit ale duplikuje (s menšími úpravami) a přímo tak dotazuje metadatové uložiště.
 
-\subsubsection{Exporter}
+\subsection{Exporter}
 \label{sec:ana_exporter}
 Posledním modulem, který přímo interaguje s metadatovým uložištěm je \textit{exporter}, jehož úkolem je exportovat aktuální stav grafové databáze (ne nutně vše, může být exportován například jen interval revizí atd.) buďto do \textit{CSV} souborů, nebo přímo do formátu používaného dalšími nástroji používanými na správu metadat. \textit{Exporter} jako nástroj pro práci s metadatovým uložištěm nejčastěji používá \textit{traversery} a \textit{observery} poskytované modulem \textit{connector}, díky kterým je možné provádět operace nad velkou částí metadatového uložiště bez zásadních paměťových požadavků. Dále jsou využívány základní základní operace (\textit{operations}) poskytované stejným modulem a v některých případech je metadatové uložiště dotazováno přímo pomocí jazyka \textit{Gremlin}.
 
 %todo možná závěr podsekce s diagramem závislostí modulů
 
-\subsection{Popis ostatních komponent}
+\section{Popis ostatních komponent}
 \label{sec:ana_other}
-\subsubsection{Manta Flow CLI}
+\subsection{Manta Flow CLI}
 Klientská část aplikace \textit{Manta Flow} je \textit{command line} aplikace implementovaná v programovacím jazyce Java sestavená z několika modulů. Jejím hlavním úkolem je extrakce skriptů ze zdrojových databázových systémů a repozitářů (modul \textit{Exktractor}), a jejich následné parsování a analýza (modul \textit{Analyzer}). Analýza skriptů probíhá v klientské části aplikace z toho důvodu, že využívá vyextrahované slovníky objektů zdrojového systému, které by v případě provádění analýzy serverovou částí aplikace musely být přenášena na server spolu se skripty. Poté, co proběhne zpracování (\textit{merge} - viz. kapitola \ref{sec:ana_merger}) zanalyzovaných skriptů serverem, výsledky jsou vyexportovány zpět do klientské části aplikace, odkud mohou být případně nahrány do externí metadatové databáze.
 
-\subsubsection{Configurator}
+\subsection{Configurator}
 \textit{Configurator} je \textit{standalone} webová aplikace implementovaná v programovacím jazyce Java (jako třívrstvá aplikace), jejímž úkolem je poskytnout \textit{GUI (grafické uživatelské rozhraní)}, pomocí kterého může uživatel změnit komplexní konfiguraci aplikace \textit{Manta Flow}. Konfigurace je typicky obsažena v \textit{properties} souborech a to na různých místech. Serverová a klientská část \textit{Manta Flow} má vlastní konfiguraci. \cite{Molitor18}
 
-\subsubsection{Updater}
+\subsection{Updater}
 \textit{Updater} je \textit{standalone} webová aplikace implementovaná v programovacím jazyce Java (jako třívrstvá aplikace), jejímž úkolem je poskytnout \textit{GUI}, které provede uživatelem \textit{updatem} aplikace \textit{Manta Flow} (konkrétně její serverové části) na novější verzi. Aplikace umožňuje uživateli provést změny v komplexní konfiguraci aplikace a provede \textit{merge} těchto změn s původním nastavením. \cite{Gondek16}
 
-\subsection{Požadavky a omezení}
+\section{Požadavky a omezení}
 V následujících podkapitolách jsou popsány aktuální architektonická omezení a problémy aplikace \textit{Manta Flow}. Cílem nově navržené architektury je, aby řešila problémy pramenící z nevhodné manipulace s grafovou databází představující metadatové uložiště a umožnila řešení ostatních problémů popsaných v této kapitole.
 
-\subsubsection{Datová konzistence}
+\subsection{Datová konzistence}
 \label{sec:ana_transactions}
 Z popisu jednotlivých komponent aplikace v kapitolách \ref{sec:ana_components} a \ref{sec:ana_other} je patrné, že je používáno několik heterogenních přístupů k manipulaci s daty (především v grafové databázi) a je tak třeba pečlivě řídit konzistenci dat. Primárním princepem zaručujícím konzistenci dat je verzování modelů datových toků na jednotlivé \textit{major} a \textit{minor} revize \cite{Sykora17}.
 Cílem je, aby všechny moduly, které pouze provádějí analýzu datových toků a tu předávají (v některé z dostupných forem) dále, tedy \textit{Viewer}, \textit{Exporter} a \textit{Public API}\footnote{Pomocí \textit{Public API} může být grafová databáze i upravována, všechny úpravy jsou ale prováděny pouze pomocí modulu \textit{Merger}.} mohly být spouštěny nad některou z uzavřených (\textit{commitnutých}) revizí, zatímco \textit{Merger}, který vkládá nové informace na základě analýzy provedené klientskou částí aplikace, má k dispozici jednu otevřenou \textit{necommitnutou} pracovní revizi. Všechny zmíněné moduly používají pro přístup do grafové databáze primárně modul \textit{Connector}, který obsahuje operace čtení i zápisu, obecně ale platí, že operace zápisu jsou používány pouze \textit{Mergerem}.
@@ -213,7 +210,7 @@ Další používanou synchronizační mechanikou je zamykání grafové databáz
 Poslední synchronizace na straně serveru je zamykání metadatové databáze nesoucí informace a zanalyzovaných skriptech pro účely kontroly licencí. K této synchronizaci dochází při \textit{mergi} v okamžiku, kdy jsou informace o skriptech do metadatového uložiště nahrávány.
 
 
-\subsubsection{Výkon aplikace}
+\subsection{Výkon aplikace}
 \label{sec:ana_performance}
 Výkon je významným kvalitativním kritériem aplikace. U různých procesů jsou přitom požadavky na výkon různé:
 \begin{itemize}
@@ -229,7 +226,7 @@ Výkon je významným kvalitativním kritériem aplikace. U různých procesů j
 
 Důležitým důsledkem optimalizace výkonu je používání \textit{embedded} databáze \textit{Persistit}, jako podkladového uložiště pro grafovou databázi \textit{Titan}. Bylo provedeno výkonostní testování různých grafových databází (v různých konfiguracích), v žádném případě se ale nepodařilo se výkonem přiblížit k aktuálně používané konfiguraci \cite{Kovar18}. To je způsobeno především tím, že grafové algoritmy, které jsou součástí jednotlivých procesů \textit{Manta Flow} jsou implementovány jako součást byznys logiky aplikace. Výsledkem tedy je, že grafová databáze vykonává pouze jednoduché dotazy, které se často omezují pouze na prohledání sousedních hran a uzlů počátečního uzlu.
 
-\subsubsection{Škálovatelnost}
+\subsection{Škálovatelnost}
 \label{sec:ana_scaling}
 Škálovatelnost je jedním z problémů, se kterými se může aplikace \textit{Manta Flow} v blízké budoucnosti potýkat. V současné době je možné pouze omezené škálování aplikace - zatímco klientská část aplikace existuje typicky jedna pro každý datový zdroj instance aplikace (což umožňuje její horizontální školování), serverová část aplikace je \textit{de-facto} monolit a umožňuje tedy pouze vertikální škálování. Vzhledem k tomu, že jako podkladové uložiště grafové databáze je používána \textit{embedded} databáze \textit{Persistit}, není možné využít ani možnosti horizontálního škálování grafové databáze \textit{Titan}, kterou (stejně jako většina ostatních grafových databází) standardně nabízí.
 
@@ -242,12 +239,12 @@ Potenciální potřeba horizontálního škálování serverové části aplikac
 \end{itemize}
 
 
-\subsubsection{Viditelnost}
+\subsection{Viditelnost}
 \label{sec:ana_visibility}
 Přestože je klientská i serverová část aplikace \textit{Manta Flow} rozdělena na jednotlivé moduly, viditelnost je v některých částech aplikace nízká. Nejzásadněji k tomu přispívá způsob práce s metadatovým uložištěm. V kapitole \ref{sec:ana_transactions} je popsána implementace správy transakcí - transakce jsou programatické a jako objekty jsou propagovány z modulu \textit{Connector} do (všech) ostatních modulů serverové části aplikace. Důsledkem tohoto návrhu je, že aplikace umožňuje přímý přístup do metadatového uložiště z kteréhokoliv místa, kam je zpropagován objekt transakce. Velká část implementace modulů obsahujících byznys logiku aplikace tak obchází sadu operací definovaných pro práci s metadatovým uložištěm (často je důvodem nedostatečné pokrytí potřeb pro práci s uložištěm těmito operacemi) a provádí vlastní, specifické dotazy do metadatového uložiště. Toto prolínání byznys logiky a perzistenční logiky potom kód jednotlivých modulů značně komplikuje a dělá jej nepřehledným, obtížně modifikovatelným a v některých případech znemožňuje vytvoření jednotkových testů funkcionality (nelze oddělit testování byznys logiky od testování perzistenční logiky).
 
 
-\subsubsection{Modifikovatelnost}
+\subsection{Modifikovatelnost}
 \label{sec:ana_modularity}
 Požadavky na modifikovatelnost aplikace \textit{Manta Flow} lze rozdělit na několik stěžejních problémů:
 
@@ -262,7 +259,7 @@ Požadavky na modifikovatelnost aplikace \textit{Manta Flow} lze rozdělit na n�
 \end{itemize}
 
 
-\subsubsection{API grafových databází}
+\subsection{API grafových databází}
 \label{sec:ana_gdbapi}
 \textit{Manta Flow} pro dotazování grafové databáze (v tuto chvíli \textit{Titan}) používá programovací jazyk \textit{Gremlin} ve verzi \textit{2.6}. Lze tedy říci, že tento programovací jazyk slouží jako API mezi aplikací a aktuálně používanou grafovou databází. Z benchmarků dalších grafových databází \cite{Kovar18} vyplývá, že bude-li současná grafová databáze nahrazena, jejím nástupcem bude pravděpodobně \textit{JanusGraph}, nebo \textit{OrientDB}\footnote{Obě zmíněné databáze jsou blíže popsány v kapitole \ref{sec:gdb-databaze}.}. Obě tyto databáze podporují programovací jazyk \textit{Gremlin}, \textit{JanusGraph} ve verzi \textit{3.x}, zatímco \textit{OrientDB} ve verzi \textit{2.x}.
 Protože \textit{Gremlin} a API, která mají grafovým databázím zaručit jeho podporu, prošli mezi verzemi \textit{2.x} a \textit{3.x} zásadními změnami (viz \ref{sec:gdb-jazyky}), budou pro přístup do datové databáze v práci nadále uvažovány obě verze jazyka \textit{Gremlin}, respektive \textit{Java API}, které obě verze jazyka poskytují (\textit{Gremlin 2.x \cite{Gremlin14}, Gremlin 3.x \cite{Gremlin17}}).
