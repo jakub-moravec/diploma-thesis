@@ -17,3 +17,5 @@ del /s /q .\uvod.aux
 del /s /q .\uvod.log
 del /s /q .\teorie.aux
 del /s /q .\teorie.log
+del /s /q .\dp-moravja8.fdb_latexmk
+del /s /q .\dp-moravja8.fls
