@@ -30,9 +30,23 @@ V aplikacích používajích relační databáze je k tomuto účelu standardně
 V kontextu grafových databázích ale pro tento model zatím není u řady databází podpora a o standardní řešení se nejedná. Součástí návrhové fázy tak bylo vytvoření dvou \textit{PoC} implementací (TODO odkazy), které ověřují použitelnost tohoto řešení pro dotazovací jazyk \textit{Gremlin} ve verzi \textit{2.x} a \textit{3.x}. V obou případech bylo ověřeno, že použití \textit{deklarativního transakčního modelu} v kombinaci s frameworkem \textit{Spring} je pro aplikaci \textit{Manta Flow} vhodným řešením. Podpora pro jazyk \textit{Gremlin} ve zmíněných verzích, respektive pro databáze, které ho podporují, byla v rámci těchto \textit{PoC} implementována vlastní - existující implementace (uvedené v kapitole \ref{sec:ana_transactions}) jsou dostupné pouze v experimentálních verzích a obsahují chyby.
 Důležitým omezením, které vyplývá ze zvoleného řešení je, že všechny komponenty, do kterých jsou propagovány transakce musí být součástí monolitické architektury - není možná propagace transakcí pomocí standardních komunikačních protokolů (například \textit{HTTP/s}).
 
+Dalším faktorem ovlivňující architekturu serverové části aplikace, který se týká datové konzistence, je systém explicitních zámků. Ten zajišťuje synchronizaci (serializaci) paralelních přístupů do grafové databáze - na úrovni celé detabáze může v jednu chvíli existovat pouze jedna zapisovací transakce (popsáno v kapitole \ref{sec:ana_transactions}). Tento systém je velkým omezením pro architekturu aplikace, protože zabraňuje jejímu (efektivnímu) škálování. Systém zámků je nutný - pokud by nebyl používán, docházelo by k zanášení nekonzistencí do metadatového uložiště a to především k duplikacím objektů\footnote{Potenciální alternativou k systémů zámků by bylo zavedení unikátních identifikátorů uzlů a vytvoření indexů hlídajících tuto vlastnost. V tom případě by nedocházelo k duplikaci uzlů a používání zámků by nebylo nutné. Používání unikátních indexů v grafových databázích ale není obecně příliš efektivní. Uzly typu \textit{NODE} navíc žádné přirozené unikátní identifikátory nemají, respektive jejich vytvoření by vedlo často na řetězce obsahující stovky znaků. Tento přístup byl tedy zavržen.}. Je tedy nutné tento systém upravit tak, aby lépe vyhovoval požadavků aplikace. Konkrétně byl navržen algoritmus pro zamykání objektů uložených v metadatovém uložišti definovaný následujícím chováním:
 
+\begin{itemize}
+   \item zamykány jsou uzly v grafové databázi,
+   \item existují dvě úrovně zámků - pro čtení a pro zápis,
+   \item zámky pro čtení jsou uplatňovány pouze v případě, že je čteno z \textit{necommitnuté} revize,
+   \item při úpravě vlastností uzlu (zpravidla úprava intervalu platnosti uzlu) je zamykán tento uzel,
+   \item při vytváření novéhu uzlu je zamykán uzel, který je předkem uzlu,
+   \item při mazání uzlu je zamykán uzel, který je předkem uzlu,
+   \item v případě situace vedoucí k potencionálnímu \textit{dead-locku} dojde ke \textit{commitu} všech zůčastněných transakcí a zpracování dalších uzlů v nové transakci
+\end{itemize}
 
+Operace, které by i nadále měly zamykat celou databázi jsou promazávání starých revizí a export či import kompletního dumpu databáze.
 
+Takto navržený systém zámků umožní paralelní zápis do metadatového uložiště (byť zrychlení kvůli zamykání objektů a tedy potenciálnímu čekání v praxi nebude dosahovat počtu paralelních procesů). I tak ale existuje silná závislost mezi architektonickými omezeními aplikace a omezeními na implementaci zámků. \textit{Gremlin} (v žádné verzi) neposkytuje vlastní řešení zámků v grafových databázích. Zamykat objekty databáze pomocí databázových zámků je tak možné pouze u některých grafových databází. Nabízí se tak možnost sychnronizace pomocí \textit{Java} konstruktů, jakou jsou \textit{synchronized} metody/bloky, zámky, atomické proměnné atd. Tyto nástroje je ale možné použít pouze v případě zachování monolitické architektury serverové části aplikace. V případě její rozdělení na  komponety spouštěné na různých \textit{JVM} by bylo pro synchronizaci zámků nutné používat externí nástroje jako například relační databáze, nebo specifické nástroje jako je \textit{Redisson}\footnote{\url{https://redisson.org/}}.
+
+Vzhledem k tomu, že systém zámků řeší konzistenci dat z pohledu byznys logiky aplikace (integrita dat je zajištěna používáním transakcí), měl by být implementován komponentou obsahující tuto byznys logiku - konkrétně modul \textit{Merger} (kapitola \ref{sec:ana_merger}), který může jako jediná komponenta implementující byznys logiku aplikace pracovat s \textit{necommitnutou} revizí metadatového uložiště.
 
 \subsection{Návrh komponent}
 \label{sec:des_components}
@@ -52,7 +66,7 @@ Je evidentní, že tento doménový model není pro navrženou architekturu vhod
 Základními omezeními návrhu doménového modelu jsou:
 \begin{itemize}
    \item{\textit{Rich model}}: Doménový model je navržen jako tzv. \textit{rich domain model}, obsahuje nejen definice entint a jejich parametrů, ale také základní logiku, kterou tyto entity a vazby mezi nimi představují.
-   \item{\textit{POJO model}}: Současně by měl být doménový model tvořen ale pouze \textit{POJO třídami} \footnote{\textit{POJO (Plain Old Java Object)} je označení pro \textit{obyčejný Java objekt}, tedy objekt, který není \textit{J2EE Bean, Spring Bean, Entity Bean,}  atd.}.
+   \item{\textit{POJO model}}: Doménový model by měl být tvořen pouze \textit{POJO třídami} \footnote{\textit{POJO (Plain Old Java Object)} je označení pro \textit{obyčejný Java objekt}, tedy objekt, který není \textit{J2EE Bean, Spring Bean, Entity Bean,}  atd.}.
    \item{\textit{Model neobsahuje perzistenční logiku}}: Součástí doménového modelu by neměla být perzistenční logika. Toto omezení je v podstatě důsledkem omezení na \textit{POJO} objekty - obsahoval-li by doménový model perzistenční logiku, musel by nutně obsahovat také transakční logiku, která je ale navržna tak (kapitola TODO), že není realizovatelná pomocí \textit{POJO} objektů. Perzistenční logika je tak realizovaná samostatnou komponentou (kapitola \ref{sec:des_persistence}).
 \end{itemize}
 
