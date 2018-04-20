@@ -119,7 +119,7 @@ Další částí modulu \textit{connector} jsou tzv. algoritmy, tedy komponenta,
 Jednotlivé algoritmy používají výše popsané základní operace (\textit{operations}) a v některých případech také samy dotazují metadatové uložiště přímo pomocí jazyka \textit{Gremlin}.
 
 % Traversal
-Posledním způsobem manipulace s metadatovým uložištěm, který modul umožňuje je přístup pomocí \textit{traverserů}. Ty pracují na obecném principu \textit{traversování} grafů popsaném v kapitole \ref{sec:gdb-dotazy}. V tomto případě ale celý průchod grafem není realizován samotnou grafovou databází, ale přímo aplikací, přičemž grafová databáze je dotazována pouze na dílčí informace - například na okolní uzly. \textit{Traversery} jsou používány v případech, kdy je manipulováno s větší částí grafové databáze, například při jejím exportu. Tyto operace jsou realizovány \textit{vizitory} - každý uzel, který je procházen \textit{traverserem} je následně obsloužen \textit{vizitorem}, který provede požadovanou operaci (jedná se o návrhový vzor \textit{Visitor} - viz \cite{Gamma94}). Obě tyto části, tedy procházení grafu \textit{traverserem} i obsloužení všech objektů \textit{visitorem} jsou prováděny za pomocí základních grafových operací definovaných výše (\textit{operations}). Zároveň je ale také z tohoto kontextu grafová databáze dotazována přímo pomocí jazyka \textit{Gremlin}. Jedná se ale spíše o jednoduché dotazy na dohledání uzlů, jejich atributů apod.
+Posledním způsobem manipulace s metadatovým uložištěm, který modul umožňuje je přístup pomocí \textit{traversalů}. Ty pracují na obecném principu \textit{traversování} grafů popsaném v kapitole \ref{sec:gdb-dotazy}. V tomto případě ale celý průchod grafem není realizován samotnou grafovou databází, ale přímo aplikací, přičemž grafová databáze je dotazována pouze na dílčí informace - například na okolní uzly. \textit{Traversaly} jsou používány v případech, kdy je manipulováno s větší částí grafové databáze, například při jejím exportu. Tyto operace jsou realizovány \textit{vizitory} - každý uzel, který je procházen \textit{traversalem} je následně obsloužen \textit{vizitorem}, který provede požadovanou operaci (jedná se o návrhový vzor \textit{Visitor} - viz \cite{Gamma94}). Obě tyto části, tedy procházení grafu \textit{traversalem} i obsloužení všech objektů \textit{visitorem} jsou prováděny za pomocí základních grafových operací definovaných výše (\textit{operations}). Zároveň je ale také z tohoto kontextu grafová databáze dotazována přímo pomocí jazyka \textit{Gremlin}. Jedná se ale spíše o jednoduché dotazy na dohledání uzlů, jejich atributů apod.
 
 \subsection{Merger}
 \label{sec:ana_merger}
@@ -184,6 +184,7 @@ Klientská část aplikace \textit{Manta Flow} je \textit{command line} aplikace
 \textit{Updater} je \textit{standalone} webová aplikace implementovaná v programovacím jazyce Java (jako třívrstvá aplikace), jejímž úkolem je poskytnout \textit{GUI}, které provede uživatelem \textit{updatem} aplikace \textit{Manta Flow} (konkrétně její serverové části) na novější verzi. Aplikace umožňuje uživateli provést změny v komplexní konfiguraci aplikace a provede \textit{merge} těchto změn s původním nastavením. \cite{Gondek16}
 
 \section{Požadavky a omezení}
+\label{sec:ana_problems}
 V následujících podkapitolách jsou popsány aktuální architektonická omezení a problémy aplikace \textit{Manta Flow}. Cílem nově navržené architektury je, aby řešila problémy pramenící z nevhodné manipulace s grafovou databází představující metadatové uložiště a umožnila řešení ostatních problémů popsaných v této kapitole.
 
 \subsection{Datová konzistence}
@@ -263,3 +264,10 @@ Požadavky na modifikovatelnost aplikace \textit{Manta Flow} lze rozdělit na n�
 \label{sec:ana_gdbapi}
 \textit{Manta Flow} pro dotazování grafové databáze (v tuto chvíli \textit{Titan}) používá programovací jazyk \textit{Gremlin} ve verzi \textit{2.6}. Lze tedy říci, že tento programovací jazyk slouží jako API mezi aplikací a aktuálně používanou grafovou databází. Z benchmarků dalších grafových databází \cite{Kovar18} vyplývá, že bude-li současná grafová databáze nahrazena, jejím nástupcem bude pravděpodobně \textit{JanusGraph}, nebo \textit{OrientDB}\footnote{Obě zmíněné databáze jsou blíže popsány v kapitole \ref{sec:gdb-databaze}.}. Obě tyto databáze podporují programovací jazyk \textit{Gremlin}, \textit{JanusGraph} ve verzi \textit{3.x}, zatímco \textit{OrientDB} ve verzi \textit{2.x}.
 Protože \textit{Gremlin} a API, která mají grafovým databázím zaručit jeho podporu, prošli mezi verzemi \textit{2.x} a \textit{3.x} zásadními změnami (viz \ref{sec:gdb-jazyky}), budou pro přístup do datové databáze v práci nadále uvažovány obě verze jazyka \textit{Gremlin}, respektive \textit{Java API}, které obě verze jazyka poskytují (\textit{Gremlin 2.x \cite{Gremlin14}, Gremlin 3.x \cite{Gremlin17}}).
+
+\section{Existující nástroje}
+\label{sec:ana_state_of_art}
+
+% TODO state of the art
+
+% TODO závěr, kde se říká, že je potřeba udělat architekturu connectoru a obecnou

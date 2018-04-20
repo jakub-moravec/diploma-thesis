@@ -1,5 +1,84 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Návrh architektury}
+Cílem této kapitoly práce je navrhnout a popsat architekturu, která bude řešit, či umožní budoucí řešení problémů popsaných v kapitole \ref{sec:ana_problems}. %todo dvě části ...
+
+\section{Architektura modulu pro přístup k metadatovému uložišti}
+Jak bylo uvedeno v sekci \ref{sec:ana_problems}, jedním z klíčových problémů, kterým v současné době aplikace \textit{Manta Flow} čelí je splývání byznys logiky aplikace s perzistenční logikou, která implementuje ukládání datových toků do grafové databáze a jejich dotazování. To je nejvíce patrné v modulu \textit{Connector}, který zajišťuje připojení aplikace k grafové databázi, vkládání a dotazování dat do/z grafové databáze (perzistenční logika) a poskytuje způsoby analýzy dat uložených v grafové databázi (algoritmy a traversaly - \ref{sec:ana_connector}), obsahuje tedy také značné množství byznys logiky serverové části aplikace. První částí návrhu architektury je tak změna architektury \textit{Manta Flow Serveru} tak, aby byl tento modul nahrazen vícevrstvou architekturou, která:
+
+\begin{itemize}
+   \item umožní připojení aplikace do grafové databáze,
+   \item definuje operace, které tvoří persistenční logiku aplikace, pomocí \textit{API} a zamezí přímému přístupu do grafové databáze z jiných komponent,
+   \item umožní přidělení/zamezení přístupu ke konkrétním informacím obsaženým v grafové databázi na základě definovaných oprávnění uživatelů a
+   \item poskytne funkcionalitu pro pokrytí všech požadavků ostatních modulů serverové části aplikace
+\end{itemize}
+
+Hlavní kvalitativní kritéria zvolené architektury, které vycházejí z těchto požadavků, jsou:
+
+\begin{itemize}
+   \item{\textit{Jednoduchost}}: Zvolená architektura musí maximalizovat princip separace zájmů. Tím bude výrazně snížena závislost (\textit{coupling}) byznys logiky aplikace a persistenční logiky a bude docíleno jednoduchosti komponent.
+   \item{\textit{Viditelnost}}: Komunikace mezi jednotlivými komponentami musí být přímočará a musí být rozšířitelná o novou komponentu. Aktuálně existuje požadavek na začlenění komponenty, která bude řídit přístup uživatele k informacím uloženým v metadatovém uložišti na základě oprávnění uživatele.
+   \item{\textit{Modifikovatelnost}}: Jednotlivé komponenty musí být jednoduše rozšířitelné. Musí být snadné přidávání komponent. Implementace (některých) komponent musí být zaměnitelná bez dopadů na další komponenty (jedná se především o implementaci komponenty implementující perzistenční logiku aplikace - kvůli možné výměně grafové databáze a tedy i dotazovacího jazky).
+   \item{\textit{Výkon}}: V kapitole \ref{sec:ana_performance} jsou popsány požadavky na výkon (především) serverové části aplikace \textit{Manta Flow}. Architektura musí umožňovat splnění těchto požadavků a musí být definovány možné způsoby optimalizace výkonu.
+\end{itemize}
+
+\subsection{Transakční model a řízení konzisence dat}
+\label{sec:des_transactions}
+Jak je popsáno v kapitole \ref{sec:ana_transactions}, aplikace \textit{Manta Flow} má velmi specické požadavky týkající se řízení datové konzistence metadatového uložiště. Jedná se o problém, který je koncepční a může mít podstatné dopady na architekturu aplikace.
+
+Bylo uvedeno, že stávající řešení používá \textit{programatický} transakční model, transakce jsou mezi jednotlivými komponentami serverové části aplikace propagovány jako objekty a jsou používány k přímému přístupu do databáze. Cílený stav je takový, aby byl přímí přístup do databáze možný pouze z z komponenty k tomu určené a ostatní komponenty (obsahující byznys logiku aplikace) pro přístup do databáze vždy používali tuto komponentu. Současně ale musí být umožněno propagování transakcí mimo tuto komponentu, transakce jsou často rozsáhlé\footnote{Úroveň izolací \textit{snapshot isolation} vyplývající z \textit{MVCC} implementace transakcí používané grafovými databázemi je specifická v tom, že je v průběhu transakce duplikováno velké množství databázových objektů. Ty jsou navíc často ukládány do paměti klientské služby, nikoliv databáze. Pro optimalizaci přístupů do grafové databáze je tak podstatné zvolení správné velikosti transakcí. V případě minimalistických transakcí zahrnujících jednotky operací je režie transakcí příliš velká a práce s databází není efektivní. Při příliš rozsáhlých transakcích dochází k vyčerpání operační paměti klientské služby kvůli duplikování databázových objektů.}. Je tedy nutné zavést mechanismus \textbf{abstrakce transakcí}.
+V aplikacích používajích relační databáze je k tomuto účelu standardně používán \textbf{deklarativní transakční model}. Ten umožňuje konfigurovat chování každé metody, která přistupuje do datového zdroje (v tomto případě databáze), nebo která takovou metodu volá. U každé takové metody je definováno, jak má být transakce propagována, jaký je stupeň izolace transakce, zda je \textit{read-only} a v jakém případě dochází k \textit{rollbacku} transakce. Implementace tohoto modelu frameworkem \textit{Spring} je popsána v dokumentaci \cite{SpringTransactions}.
+V kontextu grafových databázích ale pro tento model zatím není u řady databází podpora a o standardní řešení se nejedná. Součástí návrhové fázy tak bylo vytvoření dvou \textit{PoC} implementací (TODO odkazy), které ověřují použitelnost tohoto řešení pro dotazovací jazyk \textit{Gremlin} ve verzi \textit{2.x} a \textit{3.x}. V obou případech bylo ověřeno, že použití \textit{deklarativního transakčního modelu} v kombinaci s frameworkem \textit{Spring} je pro aplikaci \textit{Manta Flow} vhodným řešením. Podpora pro jazyk \textit{Gremlin} ve zmíněných verzích, respektive pro databáze, které ho podporují, byla v rámci těchto \textit{PoC} implementována vlastní - existující implementace (uvedené v kapitole \ref{sec:ana_transactions}) jsou dostupné pouze v experimentálních verzích a obsahují chyby.
+Důležitým omezením, které vyplývá ze zvoleného řešení je, že všechny komponenty, do kterých jsou propagovány transakce musí být součástí monolitické architektury - není možná propagace transakcí pomocí standardních komunikačních protokolů (například \textit{HTTP/s}).
+
+
+
+
+
+\subsection{Návrh komponent}
+\label{sec:des_components}
+V zádání diplomové práce je navržno, aby byl jako architektonický styl pro návrh architektury splňující uvedená kritéria zvolena vícevrstvá architektura. Ta uvedeným kritériím zcela vyhovuje. Navržená architektura je popsána \textit{UML\footnote{Unified Modeling Languege. Používaná notace 2.5.1 \cite{UML17}} diagramem komponent} \ref{TODO} a jednotlivé její komponenty jsou popsány v následujícíh podkapitolách.
+
+\subsubsection{Doménový model}
+\label{sec:des_domain}
+Jedním z důsledků splývání byznys a persistenční logiky je absence doménového objektové modelu serverové části aplikace. Místo něj je používán obecný model založený na třídách \textit{Vertex} (vrchol) a \textit{Edge} (hrana). Tato reprezentace dat v aplikaci má dva zásadní dopady:
+
+\begin{itemize}
+   \item Model je příliš obecný (dokáže pojmout graf jakékoliv struktury, potažmo graf bez definované struktury), datový model metadatového uložiště je ale přesně specifikovaný (diagram \ref{fig:ana-model}) a jeho nedodržení by znamenola zanesení nekonzistence a tedy riziko selhání aplikace.
+   \item Vzhledem k tomu, že zmíněný model poskytuje jako \textit{SPI} dotazovací jazyk \textit{Gremlin} (respektive \textit{API Blueprints}) a to je implementováno \textit{Java} knihovnou pro práci s grafovou databází \textit{Titan}, umožňují instance tohoto modelu přímý přístup do grafové databáze.
+\end{itemize}
+
+Je evidentní, že tento doménový model není pro navrženou architekturu vhodný, byl tak vytvořen vlastní, \textbf{specifický doménový model}.
+
+Základními omezeními návrhu doménového modelu jsou:
+\begin{itemize}
+   \item{\textit{Rich model}}: Doménový model je navržen jako tzv. \textit{rich domain model}, obsahuje nejen definice entint a jejich parametrů, ale také základní logiku, kterou tyto entity a vazby mezi nimi představují.
+   \item{\textit{POJO model}}: Současně by měl být doménový model tvořen ale pouze \textit{POJO třídami} \footnote{\textit{POJO (Plain Old Java Object)} je označení pro \textit{obyčejný Java objekt}, tedy objekt, který není \textit{J2EE Bean, Spring Bean, Entity Bean,}  atd.}.
+   \item{\textit{Model neobsahuje perzistenční logiku}}: Součástí doménového modelu by neměla být perzistenční logika. Toto omezení je v podstatě důsledkem omezení na \textit{POJO} objekty - obsahoval-li by doménový model perzistenční logiku, musel by nutně obsahovat také transakční logiku, která je ale navržna tak (kapitola TODO), že není realizovatelná pomocí \textit{POJO} objektů. Perzistenční logika je tak realizovaná samostatnou komponentou (kapitola \ref{sec:des_persistence}).
+\end{itemize}
+
+\subsubsection{Databázová vrstva}
+\label{sec:des_database}
+
+\subsubsection{Perzistentní vrstva}
+\label{sec:des_persistence}
+Jak je zmíněno v kapitole \ref{sec:ana_state_of_art}, žádný ze zkoumaných nástrojů pro abstrakci objektově-grafového mapování nevyhovuje požadavkům \textit{Manta Flow} a navržená architektura tak s žádný takový nástroj nepoužívá. Místo toho je navržena vlastní abstraktní softwarová vrstva, která toto mapování provádí.
+
+\subsubsection{Vrstva datového přístupu}
+\label{sec:des_data_access}
+
+\subsubsection{Algoritmy}
+
+\subsubsection{Traversal}
+
+
+
+
+
+
+\section{Globální architektura aplikace}
+TODO
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % TODO vlastní vrstva řešící licence (licence na moduly vs licence na počty skriptů)
