@@ -8,3 +8,9 @@ Doménový model definuje typy entit, se kterými může aplikace pracovat a mo�
    \item{} Doménový model neobsahuje tzv. \textit{řídící hrany} datového modelu, tedy hrany, které tvoří hiearchickou strukturu uzlů. Jediným netechnickým parametrem těchto hran je interval platnosti uzlů. Ten je ale spíše vlastností uzlů samotných, nikoliv jejich řídících hran (jeho umístění na řídící hrany v objektovém modelu je důsledek optimalizace výkonu aplikace). Nic tedy nebrání tomu, aby byl doménový model zjednodušen.
    \item{} Doménový model obsahuje ekvivalenty hran typu \textit{DIRECT, FILTER a MAPS\_TO} datového modelu. Tyto hrany mají vlastní interval platnosti, který je sice omezen intervaly platnosti uzlů, které spojují, ale může od těchto intervalů lišit. Hrany také obsahují další parametry podstatné pro analýzu datových toků. Entita doménového modelu \textit{Flow} zahrnuje entity datového modelu \textit{DIRECT i FILTER}.
 \end{itemize}
+
+%%
+% TODO fluent API
+% TODO mapper vrstva
+% TODO domain model
+% 

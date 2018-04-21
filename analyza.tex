@@ -178,9 +178,11 @@ Posledním modulem, který přímo interaguje s metadatovým uložištěm je \te
 Klientská část aplikace \textit{Manta Flow} je \textit{command line} aplikace implementovaná v programovacím jazyce Java sestavená z několika modulů. Jejím hlavním úkolem je extrakce skriptů ze zdrojových databázových systémů a repozitářů (modul \textit{Exktractor}), a jejich následné parsování a analýza (modul \textit{Analyzer}). Analýza skriptů probíhá v klientské části aplikace z toho důvodu, že využívá vyextrahované slovníky objektů zdrojového systému, které by v případě provádění analýzy serverovou částí aplikace musely být přenášena na server spolu se skripty. Poté, co proběhne zpracování (\textit{merge} - viz. kapitola \ref{sec:ana_merger}) zanalyzovaných skriptů serverem, výsledky jsou vyexportovány zpět do klientské části aplikace, odkud mohou být případně nahrány do externí metadatové databáze.
 
 \subsection{Configurator}
+\label{sec:ana_configurator}
 \textit{Configurator} je \textit{standalone} webová aplikace implementovaná v programovacím jazyce Java (jako třívrstvá aplikace), jejímž úkolem je poskytnout \textit{GUI (grafické uživatelské rozhraní)}, pomocí kterého může uživatel změnit komplexní konfiguraci aplikace \textit{Manta Flow}. Konfigurace je typicky obsažena v \textit{properties} souborech a to na různých místech. Serverová a klientská část \textit{Manta Flow} má vlastní konfiguraci. \cite{Molitor18}
 
 \subsection{Updater}
+\label{sec:ana_updater}
 \textit{Updater} je \textit{standalone} webová aplikace implementovaná v programovacím jazyce Java (jako třívrstvá aplikace), jejímž úkolem je poskytnout \textit{GUI}, které provede uživatelem \textit{updatem} aplikace \textit{Manta Flow} (konkrétně její serverové části) na novější verzi. Aplikace umožňuje uživateli provést změny v komplexní konfiguraci aplikace a provede \textit{merge} těchto změn s původním nastavením. \cite{Gondek16}
 
 \section{Požadavky a omezení}
@@ -265,9 +267,7 @@ Požadavky na modifikovatelnost aplikace \textit{Manta Flow} lze rozdělit na n�
 \textit{Manta Flow} pro dotazování grafové databáze (v tuto chvíli \textit{Titan}) používá programovací jazyk \textit{Gremlin} ve verzi \textit{2.6}. Lze tedy říci, že tento programovací jazyk slouží jako API mezi aplikací a aktuálně používanou grafovou databází. Z benchmarků dalších grafových databází \cite{Kovar18} vyplývá, že bude-li současná grafová databáze nahrazena, jejím nástupcem bude pravděpodobně \textit{JanusGraph}, nebo \textit{OrientDB}\footnote{Obě zmíněné databáze jsou blíže popsány v kapitole \ref{sec:gdb-databaze}.}. Obě tyto databáze podporují programovací jazyk \textit{Gremlin}, \textit{JanusGraph} ve verzi \textit{3.x}, zatímco \textit{OrientDB} ve verzi \textit{2.x}.
 Protože \textit{Gremlin} a API, která mají grafovým databázím zaručit jeho podporu, prošli mezi verzemi \textit{2.x} a \textit{3.x} zásadními změnami (viz \ref{sec:gdb-jazyky}), budou pro přístup do datové databáze v práci nadále uvažovány obě verze jazyka \textit{Gremlin}, respektive \textit{Java API}, které obě verze jazyka poskytují (\textit{Gremlin 2.x \cite{Gremlin14}, Gremlin 3.x \cite{Gremlin17}}).
 
-\section{Existující nástroje}
+\section{Existující řešení pro abstrakci grafových databází}
 \label{sec:ana_state_of_art}
 
 % TODO state of the art
-
-% TODO závěr, kde se říká, že je potřeba udělat architekturu connectoru a obecnou
