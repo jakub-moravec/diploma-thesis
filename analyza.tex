@@ -14,14 +14,6 @@ Pro tuto práci je podstatná především \textit{serverová} část aplikace a
 
 \begin{figure}
 \begin{center}
-\includegraphics[width=14cm]{figures/flow_comp}
-\caption{Architektura \textit{Manta Flow}}
-\label{fig:ana-flow-comp}
-\end{center}
-\end{figure}
-
-\begin{figure}
-\begin{center}
 \includegraphics[width=14cm]{figures/flow_seq}
 \caption{Interakce mezi \textit{klientskou} a \textit{serverovou} částí \textit{Manta Flow}}
 \label{fig:ana-flow-seq}
@@ -170,7 +162,6 @@ Kromě toho \textit{viewer} dotazuje metadatové uložiště o další informace
 \label{sec:ana_exporter}
 Posledním modulem, který přímo interaguje s metadatovým uložištěm je \textit{exporter}, jehož úkolem je exportovat aktuální stav grafové databáze (ne nutně vše, může být exportován například jen interval revizí atd.) buďto do \textit{CSV} souborů, nebo přímo do formátu používaného dalšími nástroji používanými na správu metadat. \textit{Exporter} jako nástroj pro práci s metadatovým uložištěm nejčastěji používá \textit{traversery} a \textit{observery} poskytované modulem \textit{connector}, díky kterým je možné provádět operace nad velkou částí metadatového uložiště bez zásadních paměťových požadavků. Dále jsou využívány základní základní operace (\textit{operations}) poskytované stejným modulem a v některých případech je metadatové uložiště dotazováno přímo pomocí jazyka \textit{Gremlin}.
 
-%todo možná závěr podsekce s diagramem závislostí modulů
 
 \section{Popis ostatních komponent}
 \label{sec:ana_other}
@@ -269,5 +260,16 @@ Protože \textit{Gremlin} a API, která mají grafovým databázím zaručit jeh
 
 \section{Existující řešení pro abstrakci grafových databází}
 \label{sec:ana_state_of_art}
+Existují nástroje, které si kladou za cíl poskytnout aplikacím využívajícím grafové databáze podobné nástroje na mapování mezi doménovými objekty a databázovými objekty, jako je dostupná pro databáze relační. U relačních databází je tento princip označován jako \textit{ORM (objektově-relační mapování)} a pro programovací jazyk \textit{Java} jsou používanými například \textit{JPA (Java Persistence API)}\footnote{\url{http://www.oracle.com/technetwork/java/javaee/tech/persistence-jsp-140049.html}}, nebo nadstavba této technologie - \textit{Hibernate}\footnote{\url{http://hibernate.org/}}. Alternativa pro grafové databáze je označována jako \textit{OGM (objektově-grafové mapování)}. Níže jsou popsány nástroje, které tuto funkcionalitu (nebo její část) poskytují. Porovnání výkonu jednotlivých nástrojů je uvedeno především na základě testů \cite{FermaBenchmarks}.
 
-% TODO state of the art
+\begin{itemize}
+	\item{\textit{Frames}}\footnote{\url{https://github.com/tinkerpop/frames/wiki}} jsou nativní součástí projektu \textit{TinkerPop} a poskytují \textit{DSL (Domain Specific Language)} pro dotazovací jazyk \textit{Gremlin 2.x}. Novější verzi jazyka (\textit{3.x}) ale nepodporují a vykazují několikanásobně horší výkon v porovnání s nativními \textit{Gremlin} dotazy.
+
+	\item{\textit{Totorom}}\footnote{\url{https://github.com/BrynCooke/totorom}} je alternativou \textit{TinkerPop Frames}. Steně jako \textit{Frames} poudporuje pouze verzi \textit{2.x} jazyka \textit{Gremlin}, navíc má dle dostupných testů horší výkon, než \textit{Frames}.
+
+	\item{\textit{Peapod}}\footnote{\url{http://bayofmany.github.io/}} je dalším nástrojem poskytujícím \textit{DSL} pro jazyk \textit{Gremlin}, v tomto případě ale pouze pro verzi jazyka \textit{3.x}. Není tedy použitelný pro práci s aktuálně používanou grafovou databází \textit{Titan}.
+
+	\item{\textit{Ferma}}\footnote{\url{http://syncleus.com/Ferma/}} je aktuálně jediným \textit{OGM} nástrojem podporujícím jazyk \textit{Gremlin} ve verzi \textit{2.x i 3.x}. Verze nástroje \textit{Ferma} ale bohužel nejsou zpětně kompatibilní, celý problém se rozdílností programovacího jazyka \textit{Grelin} v různých verzích \textit{Ferma} tak jen posouvá o krok dále - \textit{Ferma 2.x} podporuje \textit{Gremlin 2.x} a \textit{Ferma 3.x} podporuje \textit{Gremlin 3.x}. Srovnání výkonu nástroje \textit{Ferma} s nativními \textit{Gremlin} dotazy není tak špatné, jako je tomu u ostatních nástrojů, stále je ale o zhruba 25\% horší.
+\end{itemize}
+
+Žádný z existujících nástrojů neřeší jeden z podstatných problémů aplikace \textit{Manta Flow}, kterým je špatná modikovatelnost aplikace. Použitím těchto nástrojů by se neodstranila závislost implementace byznys logiky aplikace na konkrétním dotazovacím jazyce. Zároveň by použití kteréhokoliv z uvedených nástrojů znamenalo zhoršení výkonu dotazů do grafové databáze. Výkon je přitom jedním ze zásadních kvalitavních kritérií pro nově navrhovanou architekturu.

@@ -6,7 +6,7 @@ Ty lze rozdělit na dvě skupiny. První jsou problémy způsobené mícháním 
 
 Do druhé skupiny patří omezení vyplývající z aktuální architektury - především v závislosti na monolitickém návrhu serverové části aplikace. Současně vznikají podpůrné aplikace jako je \textit{Configurator} (kapitola \ref{sec:ana_configurator}) a \textit{Updater} (kapitola \ref{sec:ana_updater}), které zatím nejsou ukotveny v architektuře aplikace. Tyto problémy jsou adresovány sekcí \ref{sec:des_architecture} této kapitoly.
 
-\section{Úpravav architektury komponenty Connector}
+\section{Úprava architektury komponenty Connector}
 \label{sec:des_api}
 Jak bylo uvedeno v sekci \ref{sec:ana_problems}, jedním z klíčových problémů, kterým v současné době aplikace \textit{Manta Flow} čelí je splývání byznys logiky aplikace s perzistenční logikou, která implementuje ukládání datových toků do grafové databáze a jejich dotazování. To je nejvíce patrné v modulu \textit{Connector}, který zajišťuje připojení aplikace k grafové databázi, vkládání a dotazování dat do/z grafové databáze (perzistenční logika) a poskytuje způsoby analýzy dat uložených v grafové databázi (algoritmy a traversaly - \ref{sec:ana_connector}), obsahuje tedy také značné množství byznys logiky serverové části aplikace. První částí návrhu architektury je tak změna architektury \textit{Manta Flow Serveru} tak, aby byl tento modul nahrazen vícevrstvou architekturou, která:
 
@@ -101,7 +101,7 @@ Tato funkcionalita je vyčleněna do samostatné vrstvy především kvůli prin
 
 \subsubsection{Perzistentní vrstva}
 \label{sec:des_persistence}
-Jak je zmíněno v kapitole \ref{sec:ana_state_of_art}, žádný ze zkoumaných nástrojů pro abstrakci objektově-grafového mapování nevyhovuje požadavkům \textit{Manta Flow} a navržená architektura tak s žádný takový nástroj nepoužívá. Místo toho je navržena vlastní softwarová vrstva, která toto mapování provádí. Tou je právě \textit{Perzistentní vrstva}. Jejím úkolem je poskytnout API, které pokryje všechny požadavky na dotazy do grafové databáze (a jeho implementaci). \textit{Perzistentní vrstva} je \textit{uzavřená vrstva} (viz \ref{sec:n-tier}), nemůže tedy být obcházena vyššími vrstvami při přístupu k nižší vrstvě.
+Jak je zmíněno v kapitole \ref{sec:ana_state_of_art}, žádný ze zkoumaných nástrojů pro abstrakci objektově-grafového mapování nevyhovuje požadavkům \textit{Manta Flow} a navržená architektura tak s žádný takový nástroj nepoužívá. Místo toho je navržena vlastní softwarová vrstva, která toto mapování provádí. Tou je právě \textit{Perzistentní vrstva}. Jejím úkolem je poskytnout API, které pokryje všechny požadavky na dotazy do grafové databáze (a jeho implementaci). \textit{Perzistentní vrstva} je \textit{uzamčená vrstva} (viz \ref{sec:n-tier}), nemůže tedy být obcházena vyššími vrstvami při přístupu k nižší vrstvě.
 
 \textbf{API je tvořeno sadou \textit{repository} objektů}, které implementují (mimo jiné) \textit{CRUD} operace a jsou inspirovány návrhovým vzorem \textit{Repository pattern} \cite{Dorfmann16}. Pro každou entitu reprezentovanou doménovým modelem existuje jeden \textit{repository} objekt, přičemž každý z těchto objektů obsahuje (pokud je to pro příslušnou entitu relevantní) následující typy metod:
 
@@ -144,13 +144,11 @@ Samotná perzistentní vrstva je dále rozčleněna na komponenty (viz diagram \
 
 \subsubsection{Vrstva datového přístupu}
 \label{sec:des_data_access}
-Vrstva datového přístupu je nejbližší vyšší vrstva perzistentní vrstvy, jejíž funkcionalitu rozšiřuje o kontrolu oprávnění uživatele na dotazovaná data. API této vrstvy kopíruje API perzistentní vrstvy, přičemž každou metodu dotazující data\footnote{Kontrola oprávnění není nutná ve všech případech. Existuje premisa, že pokud má uživatel oprávnění na instanci entity, pak musí mít nuntě oprávnění na všechny předky této instance v hiearchii grafu datových toků.} rozšiřuje o definici strategie, pomocí které dojde k validaci oprávnění uživatele a případnému odstranění dat, na která uživatel nemá oprávnění z výsledku operace. Vrstva datového přístupu vrstva je \textit{uzavřená vrstva}.
+Vrstva datového přístupu je nejbližší vyšší vrstva perzistentní vrstvy, jejíž funkcionalitu rozšiřuje o kontrolu oprávnění uživatele na dotazovaná data. API této vrstvy kopíruje API perzistentní vrstvy, přičemž každou metodu dotazující data\footnote{Kontrola oprávnění není nutná ve všech případech. Existuje premisa, že pokud má uživatel oprávnění na instanci entity, pak musí mít nuntě oprávnění na všechny předky této instance v hiearchii grafu datových toků.} rozšiřuje o definici strategie, pomocí které dojde k validaci oprávnění uživatele a případnému odstranění dat, na která uživatel nemá oprávnění z výsledku operace. Vrstva datového přístupu vrstva je \textit{uzamčená vrstva}.
 
 \subsubsection{Algoritmy}
-TODO
+Další vrstva - \textit{Algoritmy} obsahuje funkcionalitu stávajícího modulu \textit{Connector}, respektive jeho částí \textit{Algorithm} a \textit{Traversal}. Jedná se o první vrstvu realizující byznys logiku aplikace (funkcionalita je popsána v kapitole \ref{sec:ana_connector}). Jedná se o \textit{odemčenou vrstvu}, může být tedy obcházena vyššími vrstvami v případě, že chtějí použít přímo API vrstvy datového přístupu. Komponentami ve vyšších vrstvách serverové části aplikace jsou \textit{Merger, Viewer, Exporter a Public Api}.
 
-\subsubsection{Traversal}
-TODO
 
 \section{Globální architektura aplikace}
 \label{sec:des_architecture}
