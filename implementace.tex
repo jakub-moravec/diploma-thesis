@@ -1,16 +1,38 @@
 \chapter{Implementace prototypu}
+Součástí práce je prototypová implementace architektury navržené v kapitole \ref{sec:des_api}, konkrétně komponent \textit{Doménový model, Databázová vrstva, Perzistentní vrstva a Vrstva datového přístupu}. Na základě prototypové implementace bude provedena validace navržené architektury a API. V této kapitole jsou popsány důležité nebo nestandardní části implementace.
 
-% DOMAIN
-Doménový model definuje typy entit, se kterými může aplikace pracovat a možné parametry těchto entit. Při porovnání s datovým modelem metadatového uložiště je patrné, že:
+
+%Domain
+\section{Doménový model}
+Doménový model definuje typy entit, se kterými může aplikace pracovat a možné parametry těchto entit. Prakticky tak definuje také schéma (datový model) grafové databáze, přestože ta nutně nemusí koncept schémat podporovat. Hlavní entity doménového modelu jsou popsány \textit{\nomExpl{BDM}{Business Domain Model} UML diagramem} \ref{fig:impl-domain} (cílem diagramu je popsat entity a vztahy mezi nimy, ne konkrétní implementaci). Při porovnání s datovým modelem metadatového uložiště je patrné, že:
 
 \begin{itemize}
-   \item{} Pro každý typ uzlu, který je součástí datového modelu existuje ekvivalent v doménovém modelu (s adekvátně definovanými parametry). Výjimku tvoří umělé typy uzlů, tedy \textit{REVISION\_ROOT, SOURCE\_ROOT a SUPER\_ROOT}.
-   \item{} Doménový model neobsahuje tzv. \textit{řídící hrany} datového modelu, tedy hrany, které tvoří hiearchickou strukturu uzlů. Jediným netechnickým parametrem těchto hran je interval platnosti uzlů. Ten je ale spíše vlastností uzlů samotných, nikoliv jejich řídících hran (jeho umístění na řídící hrany v objektovém modelu je důsledek optimalizace výkonu aplikace). Nic tedy nebrání tomu, aby byl doménový model zjednodušen.
-   \item{} Doménový model obsahuje ekvivalenty hran typu \textit{DIRECT, FILTER a MAPS\_TO} datového modelu. Tyto hrany mají vlastní interval platnosti, který je sice omezen intervaly platnosti uzlů, které spojují, ale může od těchto intervalů lišit. Hrany také obsahují další parametry podstatné pro analýzu datových toků. Entita doménového modelu \textit{Flow} zahrnuje entity datového modelu \textit{DIRECT i FILTER}.
+   \item Pro každý typ uzlu, který je součástí datového modelu existuje ekvivalent v doménovém modelu (s adekvátně definovanými parametry). Výjimku tvoří umělé typy uzlů, tedy \textit{REVISION\_ROOT, SOURCE\_ROOT a SUPER\_ROOT}.
+   \item Doménový model neobsahuje tzv. \textit{řídící hrany} datového modelu, tedy hrany, které tvoří hiearchickou strukturu uzlů. Jediným netechnickým parametrem těchto hran je interval platnosti uzlů. Ten je ale spíše vlastností uzlů samotných, nikoliv jejich řídících hran (jeho umístění na řídící hrany v objektovém modelu je důsledek optimalizace výkonu aplikace). Nic tedy nebrání tomu, aby byl doménový model zjednodušen.
+   \item Doménový model obsahuje ekvivalenty hran typu \textit{DIRECT, FILTER a MAPS\_TO} datového modelu. Tyto hrany mají vlastní interval platnosti, který je sice omezen intervaly platnosti uzlů, které spojují, ale může od těchto intervalů lišit. Hrany také obsahují další parametry podstatné pro analýzu datových toků. Entita doménového modelu \textit{Flow} zahrnuje entity datového modelu \textit{DIRECT i FILTER}.
 \end{itemize}
+
+
+% TODO Databázová vrstva
+
+
+%Perzistence
+\section{Perzistentní vrstva}
+Implementace perzistentní vrstvy je tvořena především implementací \textit{repository} objektů definovaných v API vrstvy (popsáno v kapitole \ref{sec:des_persistence}). Dokumentace celého API perzistentní vrstvy je dostupná na přiloženém CD (viz obsah CD v příloze \ref{apx:cd}).
+
+\subsection{Vrstva \textit{mapperů}}
+Modul obsahující implementaci perzistentní vrstvy obsahuje další vnitřní vrstvu tzv. \textit{mapperů} - objektů provádějících mapování vrcholů a hran grafové databáze (reprezentovaných \textit{Gremlin} třídami \textit{Vertex a Edge}) na objekty doménového modelu.  Pro účely prototypu byla zvolena implementace pro (aplikací aktuálně používaný) jazyk \textit{Gremlin 2.x}.
+
+\subsection{Dotazy do metadatového uložiště}
+Jednoduché dotazy jsou implementovány nativními dotazy jazyka \textit{Gremlin}. Příklad \ref{exa:mapper} ukazuje mapování entity \textit{Flow} pomocí jazyka \textit{Gremlin 2.x}.
+
+\lstinputlisting[language=Java, caption=Mapování entity \textit{Flow} (implementace pomocí \textit{Gremlin 2.x}), label=exa:mapper]{code/clear_gremlin.java}
+
+Pro větší efektivitu dotazů byly v některých případech nativní \textit{Gremlin} dotazy nahrazeny dotazy pomocí další součástí \textit{TinkerPop} projektu - \textit{Pipes}\footnote{\url{https://github.com/tinkerpop/pipes/wiki}}. \textit{Pipes} slouží právě jako nástroj pro komplexnější průchody grafem pro jazyk \textit{Gremlin 2.x}\footnote{\textit{Gremlin 3.x} nahrazuje \textit{Pipes} navazujícím řešením s názvem \textit{Graph Traversal}}. Průchodu grafu pomocí \textit{Pipes} je ukázán na příkladu \ref{exa:pipes}, kde uvedený kód nalzene instanci entity \textit{Node} podle kvalifikovaného jména (jedná se tedy o průchod víceúrovňovou hierchií grafu grafových toků).
+
+\lstinputlisting[language=Java, caption=Nalezení uzlu dle kvalifikovaného jména (implementace pomocí \textit{Pipes}), label=exa:pipes]{code/pipes.java}
+
+\subsection{\textit{Fluent API} pro \textit{query} metody}
 
 %%
 % TODO fluent API
-% TODO mapper vrstva
-% TODO domain model
-% 
