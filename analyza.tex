@@ -1,12 +1,12 @@
 \chapter{Analýza}
 % popis Manty
 \section{Manta Flow}
-\textit{Manta Flow}\footnote{https://getmanta.com/} je nástroj umožňující automatickou analýzu zdrojového kódu (SQL, Java) a následný popis transformační logiky v něm obsažené. Software je schopný rozpoznat i těžce čitelné konstruky zdrojového kódu. Díky tomu dokáže automaticky zanalyzovat rozsáhlé databáze a vytvořit z nich přehlednou mapu datových toků, neboli \textit{Data Lineage}. To se v praxi využívá převážně k optimalizaci datových skladů, snižování nákladů na vývoj softwaru, provádění dopadových analýz a při dokumentování prostředí pro potřeby regulačních úřadů.
+\textit{Manta Flow}\footnote{https://getmanta.com/} je nástroj umožňující automatickou analýzu zdrojového kódu (\textit{SQL}, Java) a následný popis transformační logiky v něm obsažené. Software je schopný rozpoznat i těžce čitelné konstruky zdrojového kódu. Díky tomu dokáže automaticky zanalyzovat rozsáhlé databáze a vytvořit z nich přehlednou mapu datových toků, neboli \textit{Data Lineage}. To se v praxi využívá převážně k optimalizaci datových skladů, snižování nákladů na vývoj softwaru, provádění dopadových analýz a při dokumentování prostředí pro potřeby regulačních úřadů.
 
 V souladu s architektonickým stylem \textit{klient - server} má aplikace dvě hlavní komponenty (viz diagram \ref{fig:ana-flow-comp}):
 \begin{itemize}
 	\item{\textit{Manta Flow CLI}}: je Java řádková aplikace provádějící extrakci skriptů ze zdrojových databází a uložišť a jejich analýzu. Analyzovaná data jsou následně poslána \textit{Manta Flow Serveru}. \textit{Klientská aplikace} také může nahrávat vygenerované exporty ze \textit{serveru} do externí metadatové databáze.
-	\item{\textit{Manta Flow Server}}: je serverová Java aplikace, která ukládá získané informace do interního metadatového uložiště, transformuje je, umožňuje jejich visualizaci a přístup k nim pomocí veřejného API.
+	\item{\textit{Manta Flow Server}}: je serverová Java aplikace, která ukládá získané informace do interního metadatového uložiště, transformuje je, umožňuje jejich visualizaci a přístup k nim pomocí veřejného \textit{API}.
 \end{itemize}
 
 Interakce mezi \textit{klientskou} a \textit{serverovou} částí aplikace je popsána zjednodušeným sekvenčním diagramem \ref{fig:ana-flow-seq}. Tento proces je označován jako \textit{merge} a je blíže popsán v kapitole \ref{sec:ana_merger}.
@@ -34,7 +34,7 @@ Samotný datový model se skládá z devíti typů uzlů:
 
 \begin{itemize}
 	\item{\textit{SUPER\_ROOT}}: Uzel (právě jeden v databázi), který slouží jako umělý kořen všech uzlů typu \textit{RESOURCE}.
-	\item{\textit{RESOURCE}}: Uzly tohoto typu reprezentují zdrojové systémy - zdroje definic objektů, zdrojových kódů, ETL řešení a další.
+	\item{\textit{RESOURCE}}: Uzly tohoto typu reprezentují zdrojové systémy - zdroje definic objektů, zdrojových kódů, \textit{ETL} řešení a další.
 	\item{\textit{NODE}}: Uzly typu \textit{NODE} představují reálné objekty zdrojového systému - databáze, tabulky, sloupce, procedury, skripty a další.
 	\item{\textit{LAYER}}: Uzly typu \textit{LAYER} reprezentují vrstvy modelu metadat. Datové toky nalezené při analýze zdrojových kódů jsou vždy ukládány do \textit{fyzické vrstvy}, ze které je potom možné generovat abstraktnější vrstvy modelu datových toků.
 	\item{\textit{ATTRIBUTE}}: Uzly typu \textit{ATTRIBUTE} reprezentují atributy uzlů typu \textit{NODE} - parametry sloupců, popisy databázových objektů a další.
@@ -162,7 +162,7 @@ Klientská část aplikace \textit{Manta Flow} je \textit{command line} aplikace
 
 \subsection{Configurator}
 \label{sec:ana_configurator}
-\textit{Configurator} je \textit{standalone} webová aplikace implementovaná v programovacím jazyce Java (jako třívrstvá aplikace), jejímž úkolem je poskytnout \textit{GUI (grafické uživatelské rozhraní)}, pomocí kterého může uživatel změnit komplexní konfiguraci aplikace \textit{Manta Flow}. Konfigurace je typicky obsažena v \textit{properties} souborech a to na různých místech. Serverová a klientská část \textit{Manta Flow} má vlastní konfiguraci. \cite{Molitor18}
+\textit{Configurator} je \textit{standalone} webová aplikace implementovaná v programovacím jazyce Java (jako třívrstvá aplikace), jejímž úkolem je poskytnout \textit{grafické uživatelské rozhraní (GUI)}, pomocí kterého může uživatel změnit komplexní konfiguraci aplikace \textit{Manta Flow}. Konfigurace je typicky obsažena v \textit{properties} souborech a to na různých místech. Serverová a klientská část \textit{Manta Flow} má vlastní konfiguraci. \cite{Molitor18}
 
 \subsection{Updater}
 \label{sec:ana_updater}
@@ -179,7 +179,7 @@ Cílem je, aby všechny moduly, které pouze provádějí analýzu datových tok
 I přes systém revizí může vzniknout často konkurence při čtení a zápisu dat do grafové databáze:
 
 \begin{itemize}
-	\item{\textit{Úprava uzavřené revize}}: Při vytváření nové revize, která vzniká typicky jako \textit{full update} celého modelu datových toků\footnote{Nová \textit{major} revize vzniká jako \textit{full update} modelu datavých toků, nová \textit{minor} revize jako \textit{incremental update}. Konkrétní implementace obou operací se v některých detailech liší, z pohledu datové konzistence ale řeší oba přístupy koncepčně stejný problém. Můžeme proto analýzu vzniku nové revize datového modelu zobecnit na \textit{full update} přístup - tedy na \textit{major} revize.}, může nastat několik situací. Připomeňme, že platnost vztahu mezi dvěmi uzly je parametrem hrany spojující tyto uzly. Pokud se libovolné dva uzly a jejich vztah nezmění mezi uzavřenou revizí \textit{A} a vznikající neuzavřenou revizí\textit{B}, pak jsou upraveny atributy hrany reprezentující tento vztah a může tak vzniknout konkurence při čtení revize \textit{A} a zápisu do revize \textit{B}.
+	\item{\textit{Úprava uzavřené revize}}: Při vytváření nové revize, která vzniká typicky jako \textit{full update} celého modelu datových toků\footnote{Nová \textit{major} revize vzniká jako \textit{full update} modelu datavých toků, nová \textit{minor} revize jako \textit{incremental update}. Konkrétní implementace obou operací se v některých detailech liší, z pohledu datové konzistence ale řeší oba přístupy koncepčně stejný problém. Můžeme proto analýzu vzniku nové revize datového modelu zobecnit na \textit{full update} přístup - tedy na \textit{major} revize.}, může nastat několik situací. Připomeňme, že platnost vztahu mezi dvěmi uzly je parametrem hrany spojující tyto uzly. Pokud se libovolné dva uzly a jejich vztah nezmění mezi uzavřenou revizí \textit{A} a vznikající neuzavřenou revizí \textit{B}, pak jsou upraveny atributy hrany reprezentující tento vztah a může tak vzniknout konkurence při čtení revize \textit{A} a zápisu do revize \textit{B}.
 	\item{\textit{Kombinace operací pro čtení a zápis při vytváření nové revize}}: Modul \textit{Merger} při vytváření nové revize modelu datových toků v grafové databází spouští několik komplexních postproccessingových algoritmů, které vyžadují přístup pro čtení i zápis do pracovní otevřené revize (a jsou v některých případech prováděny paralelně).
 	\item{\textit{"Stop the world" operace}}: Je také definováno několik takzvaně "stop the world" operací, tedy operací, při kterých je znepřístupněna velká část, nebo přímo celá grafová databáze. Mezi tyto operace patří odstraňování starých revizí modelu datových toků, import či export kompletního \textit{dumpu} grafové databáze.
 \end{itemize}
@@ -200,7 +200,7 @@ Poslední synchronizace na straně serveru je zamykání metadatové databáze n
 \label{sec:ana_performance}
 Výkon je významným kvalitativním kritériem aplikace. U různých procesů jsou přitom požadavky na výkon různé:
 \begin{itemize}
-	\item{\textit{Analýza datových toků}}: Analýza datových toků probíhá v reálném čase na základě požadavku uživatele (pomocí GUI aplikace poskytované modulem \textit{Viewer} - kapitola \ref{sec:ana_viewer}), nebo pomocí \textit{REST API} - kapitola \ref{sec:ana_public}). Maximální \textit{response time} požadavku je tedy v řádu jednotek vteřin. Toho je docíleno především optimalizací algoritmů počítajících datové toky na základě uživatelského požadavku a optimalizací dotazování metadatového uložiště pomocí interních a externích indexů (kapitola \ref{sec:ana_model}).
+	\item{\textit{Analýza datových toků}}: Analýza datových toků probíhá v reálném čase na základě požadavku uživatele (pomocí \textit{GUI} aplikace poskytované modulem \textit{Viewer} - kapitola \ref{sec:ana_viewer}), nebo pomocí \textit{REST API} - kapitola \ref{sec:ana_public}). Maximální \textit{response time} požadavku je tedy v řádu jednotek vteřin. Toho je docíleno především optimalizací algoritmů počítajících datové toky na základě uživatelského požadavku a optimalizací dotazování metadatového uložiště pomocí interních a externích indexů (kapitola \ref{sec:ana_model}).
 
 	\item{\textit{Update metadatového uložiště}}: Narozdíl od výpočtu datových toků je update metadatového uložiště dávkový (typicky noční) proces, který probíhá v závislosti na procesech uživatelů \textit{Manta Flow} jednou denně až jednou měsíčně\footnote{Předpokládá se, že v návaznosti na zavedení nové funkce inkrementálního updatu \cite{Sykora17} bude prováděn update metadatového uložiště výrazně častěji, než je tomu v tuto chvíli. Kvůli povaze inkrementálního updatu je ale možné předpokládat, že tato operace bude výpočetně výrazně méně náročná, než úplný update, a bude tak na pomezí mezi dávkovým procesem a \textit{online} procesem. Výkon operace je tak důležité sledovat a optimalizovat především v případě úplného updatu metadatového uložiště.}. Základním výkonnovým požadavkem pro tento proces tak je, aby byl dokončitelný řádu malých jednotek hodin a to (teoreticky) nezávisle na velikosti vstupů a aktuální velikosti metadatového uložiště. V současné době se update metadatového uložiště na některých instancích vstupních dat blíží k hranici maximálního \textit{response time}, je proto nutné, aby navržená architektura tento stav reflektovala a umožnila zrychlení procesu optimalizací, nebo škálováním algoritmu.
 

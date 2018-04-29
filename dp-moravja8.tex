@@ -142,7 +142,7 @@ unicode=true,
 
 	% pokud v práci nejsou obrázky nebo tabulky - odstraňte jejich seznam
 	\listoffigures			% Obsah / Table of Contents
-	\listoftables			% Seznam tabulek / List of Tables
+	\listoftables			% Seznam tabulek / List of Tables TODO delete if empty
 	\lstlistoflistings         % Seznam kódů
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -175,6 +175,77 @@ unicode=true,
 \printnomenclature
 \label{apx:zkratky}
 
+\textbf{ACID} - \textit{Atomicity, Consistency, Isolation, Durability}
+
+\textbf{API} - \textit{Application Programming Interface}
+
+\textbf{BASE} - \textit{Basically Available, Soft state, Eventual consistency}
+
+\textbf{BFS} - \textit{Breadth First Search}
+
+\textbf{CRUD} - \textit{Create, Read, Update, Delete}
+
+\textbf{CSV} - \textit{Comma Separated Variable}
+
+\textbf{DDL} - \textit{Data Definition Language}
+
+\textbf{DFS} - \textit{Depth First Seacrh}
+
+\textbf{DSL} - \textit{Domain Specific Language}
+
+\textbf{ETL} - \textit{Extract, Transform, Load}
+
+\textbf{FaaS} - \textit{Functino as a Service}
+
+\textbf{GUI} - \textit{Graphical User Interface}
+
+\textbf{HTTP} - \textit{Hypertext Transfer Protocol}
+
+\textbf{IaaS} - \textit{Infrastructure as a Service}
+
+\textbf{JSON} - \textit{JavaScript Object Notation}
+
+\textbf{JVM} - \textit{Java Virtual Machine}
+
+\textbf{LOC} - \textit{Lines of Code}
+
+\textbf{MVCC} - \textit{Multi-Version Concurrency Control}
+
+\textbf{NoSQL} - \textit{Not only SQL}
+
+\textbf{OGM} - \textit{Object Graph Mapper}
+
+\textbf{OLAP} - \textit{Online Analytical Processing}
+
+\textbf{ORM} - \textit{Object Relational Mapper}
+
+\textbf{PaaS} - \textit{Platform as a Service}
+
+\textbf{POJO} - \textit{Plain Old Java Object}
+
+\textbf{RDBMS} - \textit{Relational Database Management System}
+
+\textbf{REST} - \textit{Representational State Transfer}
+
+\textbf{RPC} - \textit{Remote Procedure Call}
+
+\textbf{SaaS} - \textit{Software as a Service}
+
+\textbf{SOA} - \textit{Service Oriented Architectures}
+
+\textbf{SOAP} - \textit{Simple Object Access Protocol}
+
+\textbf{SPI} - \textit{Service Provider Interface}
+
+\textbf{SQL} - \textit{Structured Query Language}
+
+\textbf{URI} - \textit{Uniform Resource Identifier}
+
+\textbf{WSDL} - \textit{Web Services Description Language}
+
+\textbf{XML} - \textit{Extensible Markup Language}
+
+
 \chapter{Diagramy}
 
 \begin{figure}
@@ -201,11 +272,18 @@ unicode=true,
 \end{center}
 \end{figure}
 
+\begin{figure}
+\begin{center}
+\includegraphics[width=14cm]{figures/permission-class}
+\caption{Implementace kontroly oprávnění} %TODO nechce se otočit
+\label{fig:impl-permission}
+\end{center}
+\end{figure}
 
 \chapter{Obsah přiloženého CD}
 \label{apx:cd}
 TODO
 - JavaDoc API (TODO)
-
+- PoCs (TODO)
 
 \end{document}
