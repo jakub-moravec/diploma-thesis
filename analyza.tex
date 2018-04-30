@@ -157,7 +157,8 @@ Posledním modulem, který přímo interaguje s metadatovým uložištěm je \te
 
 \section{Popis ostatních komponent}
 \label{sec:ana_other}
-\subsection{Manta Flow CLI}
+\subsection{Manta Flow Client}
+\label{sec:ana_cli}
 Klientská část aplikace \textit{Manta Flow} je \textit{command line} aplikace implementovaná v programovacím jazyce Java sestavená z několika modulů. Jejím hlavním úkolem je extrakce skriptů ze zdrojových databázových systémů a repozitářů (modul \textit{Exktractor}), a jejich následné parsování a analýza (modul \textit{Analyzer}). Analýza skriptů probíhá v klientské části aplikace z toho důvodu, že využívá vyextrahované slovníky objektů zdrojového systému, které by v případě provádění analýzy serverovou částí aplikace musely být přenášena na server spolu se skripty. Poté, co proběhne zpracování (\textit{merge} - viz. kapitola \ref{sec:ana_merger}) zanalyzovaných skriptů serverem, výsledky jsou vyexportovány zpět do klientské části aplikace, odkud mohou být případně nahrány do externí metadatové databáze.
 
 \subsection{Configurator}
@@ -244,6 +245,21 @@ Požadavky na modifikovatelnost aplikace \textit{Manta Flow} lze rozdělit na n�
 	\item{\textit{Rozšířitelnost}}: Kvůli nadměrné složitosti části implementace některých modulů serverové části aplikace (důvody popsány v kapitole \ref{sec:ana_visibility}) je v některých případech obtížné aplikaci rozšiřovat o další funkcionality (či upravovat stávající). Například nový požadavek na rozšíření serverové části aplikace o funkcionalitu, která bude omezovat přístup k informacím uloženým v metadatovém uložišti na základě konfigurace oprávnění jednotlivých uživatelů aplikace, je při stávající architektuře a implementaci serverové části aplikace velmi komplikované implementovat tak, aby byly pokryty skutečně všechny adekvátní procesy přistupující do metadatového uložiště.
 \end{itemize}
 
+
+\subsection{Orchestrace aplikací}
+\label{sec:ana_orchestrace}
+V rámci této kapitoly byly popsány čtyři samostatné aplikace: \textit{Manta Flow Server} (sekce \ref{sec:ana_components}), \textit{Manta Flow Client} (sekce \ref{sec:ana_cli}), \textit{Updater} (sekce \ref{sec:ana_updater}) a
+\textit{Configurator} (sekce \ref{sec:ana_configurator}).
+Komunikace mezi \textit{Manta Flow Server a Client} je popsána diagramem \ref{fig:ana-flow-seq}. \textit{Updater} a \textit{Configurator} jsou obslužné aplikace provádějící úprávy \textit{Serveru} a \textit{Clienta} zahrnující úpravy, přidávání či odebírání konfiguračních i zdrojových souborů těchto aplikací. V některých případech mohou být upravovány i konfigurační soubory aplikačního serveru \textit{Tomcat}\footnote{\url{https://tomcat.apache.org/}}, který je součástí \textit{Manta Flow Serveru}. \textit{Updater} a \textit{Configurator} tak musí být spouštěny na jiném aplikačním serveru, než \textit{Manta Flow Server}.
+Zároveň mohou obě aplikace aktuálně provádět změny pouze na stejném fyzickém zařízení, na kterém jsou nainstalovány - za předpokladu že serverová a klientská část aplikace jsou nainstalovány na různých zařízeních (což je z architektury aplikace v podstatě pravidlem), musí být aplikace \textit{Updater} a \textit{Configurator} instalovány dvakrát.
+
+Tento způsob orchestrace aplikací (popsaný \textit{UML} diagramem nasazení \ref{fig:ana-deployment}) má zřejmé nevýhody.
+
+Samotný fakt, že obě aplikace (\textit{Updater} i \textit{Configurator}) mají dvě instance na dvou různých zařízeních přináší novou režii při správě aplikací. Původní instalace nástroje \textit{Manta Flow} zahrnovala celkem dvě a více instancí (server a jeden či více klientů). S přidáním nových instancí \textit{Updateru} i \textit{Configuratoru} by se jednalo o šest a více instancí. Snížená režie pro správu nástroje, kterou tyto aplikace znamenají, by tak byla částečně kompenzována režií těchto čtyř nových instancí\footnote{Aplikace \textit{Updater} a \textit{Configurator} také obsahují konfiguraci (byť jednoduchou) a mohou být verzovány (byť méně dynamicky, než základní aplikace).}.
+
+Dalším problémem jsou možné nekonzistence, které mohou kvůli dvěma instancím obslužných aplikací vzniknout. Tento problém je zvlášť patrný u aplikace \textit{Updater}. Verzovací model \textit{Manta Flow} je nastaven tak, že verze klienta by měla vždy odpovídat verzi serveru - v opačném případě nemůže být zajištěna kompatibilita verzí. Dvě instance \textit{Updateru} ale znamenají, že \textit{update} každé instance serveru a klienta je samostatným procesem - může tak snadno dojít k \textit{updatu} na nekompatibilní verze instancí. U aplikace \textit{Configurator} tento problém není tak zásadní, protože konfigurace serveru a klienta jsou disjunktní a navzájem se neovlivňují. Provádění konfigurace pomocí dvou instancí \textit{Configuratoru} ale není příliš uživatelsky přívětivé.
+
+Posledním problémem na této úrovni architektury aplikace je způsob dodávání klientské části aplikace. Ta podporuje mnoho různých technologií a každá instance má tak často vlastní \textit{build} v závislosti na tom, s jakými technologiemi bude využívána. To znamená značnou režii při nasazování aplikace.
 
 \subsection{API grafových databází}
 \label{sec:ana_gdbapi}
