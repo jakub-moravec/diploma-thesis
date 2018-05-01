@@ -169,7 +169,7 @@ Klientská část aplikace \textit{Manta Flow} je \textit{command line} aplikace
 \label{sec:ana_updater}
 \textit{Updater} je \textit{standalone} webová aplikace implementovaná v programovacím jazyce Java (jako třívrstvá aplikace), jejímž úkolem je poskytnout \textit{GUI}, které provede uživatelem \textit{updatem} aplikace \textit{Manta Flow} (konkrétně její serverové části) na novější verzi. Aplikace umožňuje uživateli provést změny v komplexní konfiguraci aplikace a provede \textit{merge} těchto změn s původním nastavením. \cite{Gondek16}
 
-\section{Požadavky a omezení}
+\section{Omezení stávající architektury aplikace}
 \label{sec:ana_problems}
 V následujících podkapitolách jsou popsány aktuální architektonická omezení a problémy aplikace \textit{Manta Flow}. Cílem nově navržené architektury je, aby řešila problémy pramenící z nevhodné manipulace s grafovou databází představující metadatové uložiště a umožnila řešení ostatních problémů popsaných v této kapitole.
 
@@ -265,6 +265,54 @@ Posledním problémem na této úrovni architektury aplikace je způsob dodává
 \label{sec:ana_gdbapi}
 \textit{Manta Flow} pro dotazování grafové databáze (v tuto chvíli \textit{Titan}) používá programovací jazyk \textit{Gremlin} ve verzi \textit{2.6}. Lze tedy říci, že tento programovací jazyk slouží jako API mezi aplikací a aktuálně používanou grafovou databází. Z benchmarků dalších grafových databází \cite{Kovar18} vyplývá, že bude-li současná grafová databáze nahrazena, jejím nástupcem bude pravděpodobně \textit{JanusGraph}, nebo \textit{OrientDB}\footnote{Obě zmíněné databáze jsou blíže popsány v kapitole \ref{sec:gdb-databaze}.}. Obě tyto databáze podporují programovací jazyk \textit{Gremlin}, \textit{JanusGraph} ve verzi \textit{3.x}, zatímco \textit{OrientDB} ve verzi \textit{2.x}.
 Protože \textit{Gremlin} a API, která mají grafovým databázím zaručit jeho podporu, prošli mezi verzemi \textit{2.x} a \textit{3.x} zásadními změnami (viz \ref{sec:gdb-jazyky}), budou pro přístup do datové databáze v práci nadále uvažovány obě verze jazyka \textit{Gremlin}, respektive \textit{Java API}, které obě verze jazyka poskytují (\textit{Gremlin 2.x \cite{Gremlin14}, Gremlin 3.x \cite{Gremlin17}}).
+
+\section{Požadavky na návrh architektury aplikace}
+\label{sec:ana_requiremets}
+Na základě rozboru omezeních aplikace je vytvořen seznam funkčních (tabulka \ref{tab:funcional}) a nefunkčních (tabulka \ref{tab:nonfuncional}) požadavků na architekturu aplikace. Součástí seznamu jsou všechny požadavky vyplývající z rozboru výše, tedy i požadavky, jejichž řešení není součástí zadání této práce. Kromě závažnosti požadavků (\textit{kritická}, \textit{důležitá}, \textit{střední}) je tak u každého požadavku definován také jeho vztah k této práci - cíl (\textit{NI} - návrh a prototypová implementace řešení, \textit{N} návrh řešení, \textit{P} - při řešení ostatních požadavků je daný požadavek brán v potaz).
+
+\begin{table}[h!]
+\begin{center}
+\centering
+\caption{Funkční požadavky na architekturu aplikace}
+\label{tab:funcional}
+\begin{tabular}{|p{1cm}|p{9cm}|p{2cm}|p{1cm}|}
+	\hline
+    ID & Popis & Závažnost & Cíl \\ \hline
+
+	 F1 & Navržená architektura umožní uživatlsky přívětivý update všech komponent aplikace v rámci jedné operace & Důležitá & N \\ \hline
+
+	 F2 & Navržená architektura umožní uživatelsky přívětivovu konfiguraci všech komponent aplikace z jednoho místa. & Důležitá & N \\ \hline
+ \end{tabular}
+ \end{center}
+ \end{table}
+
+\begin{table}[h!]
+\begin{center}
+\centering
+\caption{Nefunkční požadavky na architekturu aplikace}
+\label{tab:nonfuncional}
+\begin{tabular}{|p{1cm}|p{9cm}|p{2cm}|p{1cm}|}
+	\hline
+    ID & Popis & Závažnost & Cíl \\ \hline
+
+    N1 & Grafová databáze bude dotazována přímo pouze z jediného modulu aplikace, který bude zpřístupňovat svou funkcionalitu ostatním modulům a/nebo komponentám pomocí privátního \textit{API}.  Žádný jiný modul neobsahuje dotazy do grafové databáze. & Kritická  & NI  \\ \hline
+
+	 N2 & Pro dotazování grafové databáze bude použit jazyk \textit{Gremlin} ve verzi \textit{2.x}. Architektura ale umožní změnu tohoto jazyka na verzi \textit{3.x}, nebo na jiné jazyky sloužící pro dotazování grafových databází. & Kritická  & NI  \\ \hline
+
+	 N3 & Navržená architektura povede k lepšímu zajištění konzistence dat v grafové databázi. & Důležitá & NI \\ \hline
+
+	 N4 & Navržená architektura umožní horizontální škálování aplikace. & Důležitá  & N   \\ \hline
+
+	 N5 & Navržená architekura umožní lepší rozšířitelnost serverové částí aplikace. & Důležitá & N \\ \hline
+
+	 N6 & Navržená architektura zvýší viditelnost interakcí komponent, které jsou nyní součástí serverové části aplikace.  & Střední & N \\ \hline
+
+	 N7 & Navržená architektura zachová stávající úroveň, nebo zlepší úroveň přizpůsobitelnosti aplikace na nástroje třetích stran, které pro aplikaci představují zdrojové nebo integrační systémy. & Kritická & P \\ \hline
+
+	 N8 & Navržená architektura zachová stávající úroveň, nebo zvýší výkon aplikace. Tento požadavek se týká především z pohledu výkonu aplikace kritických operací definovaných v sekci \ref{sec:ana_performance}. & Důležitá & P \\ \hline
+ \end{tabular}
+ \end{center}
+ \end{table}
 
 \section{Existující řešení pro abstrakci grafových databází}
 \label{sec:ana_state_of_art}
