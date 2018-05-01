@@ -142,7 +142,7 @@ unicode=true,
 
 	% pokud v práci nejsou obrázky nebo tabulky - odstraňte jejich seznam
 	\listoffigures			% Obsah / Table of Contents
-	\listoftables			% Seznam tabulek / List of Tables TODO delete if empty
+	\listoftables			% Seznam tabulek / List of Tables
 	\lstlistoflistings         % Seznam kódů
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -282,9 +282,17 @@ unicode=true,
 
 \begin{figure}
 \begin{center}
-\includegraphics[width=14cm]{figures/permission-class}
-\caption{Implementace kontroly oprávnění} %TODO nechce se otočit
+\includegraphics[width=1.3\linewidth, angle=90]{figures/permission-class}
+\caption{Implementace kontroly oprávnění}
 \label{fig:impl-permission}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=14cm]{figures/modules}
+\caption{Diagram komponent prototypové implementace}
+\label{fig:poc_components}
 \end{center}
 \end{figure}
 
@@ -299,11 +307,14 @@ TODO
 % TODOS
 % poděkování
 % abstractpage
-% Závěr
-% analýza - Požadavky
-% návrh - 1 kapitola (orchestrace + škálování)
+
+% návrh - 2 kapitoly (orchestrace + škálování)
+
 % implementace - 3 podkapitoly
 % implementace - kvalita kódu
+
+% Závěr
+
 % obsah cd
 % cd
 
