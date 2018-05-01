@@ -1,10 +1,14 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{Návrh architektury}
-Cílem této kapitoly práce je navrhnout a popsat architekturu, která bude řešit, či umožní budoucí řešení problémů popsaných v kapitole \ref{sec:ana_problems}.
+Cílem této kapitoly práce je navrhnout a popsat architekturu, která bude řešit, či umožní budoucí řešení problémů popsaných v kapitole \ref{sec:ana_problems} a vyhoví tak požadavkům na architekturu aplikace definovaným v kapitole \ref{sec:ana_requiremets}.
 
-Ty lze rozdělit na dvě skupiny. První jsou problémy způsobené mícháním perzistentní a byznys logiky aplikace, mezi které patří především špatná \textit{modifikovatelnost} a \textit{viditelnost} aplikace. Také jsou diskutovány dopady této situace na \textit{výkon} a \textit{škálovatelnost} aplikace. Tyto problémy jsou adresovány sekcí \ref{sec:des_api} této kapitoly.
+Tyto požadavky jsou rozděleny na tři skupiny, přičemž řešení požadavků mezi jednotlivými skupinami na jsou na sobě bůďto navzájem nezávislá, nebo je případná závislost explicitně uvedena v následujícím textu.
 
-Do druhé skupiny patří omezení vyplývající z aktuální architektury - především v závislosti na monolitickém návrhu serverové části aplikace. Současně vznikají podpůrné aplikace jako je \textit{Configurator} (kapitola \ref{sec:ana_configurator}) a \textit{Updater} (kapitola \ref{sec:ana_updater}), které zatím nejsou ukotveny v architektuře aplikace. Tyto problémy jsou adresovány sekcí \ref{sec:des_architecture} této kapitoly.
+První jsou problémy způsobené mícháním perzistentní a byznys logiky v rámci serverové části aplikace aplikace, mezi které patří především špatná \textit{modifikovatelnost} aplikace a nízká \textit{viditelnost} interakcí jednotlivých komponent serverové částí aplikace. Také jsou diskutovány dopady těchto omezení na \textit{výkon} aplikace. Konkrétně do této skupiny patří požadavky \textit{N1, N2, N3, N5, N6} a \textit{N8}. Tyto požadavky jsou realizovány především změnou architektury komponenty \textit{Connector} (sekce \ref{sec:ana_connector}) popsanou v sekci \ref{sec:des_api} této kapitoly.
+
+Do druhé skupiny patří omezení vyplývající z aktuální architektury \textit{Manta Flow} na úrovni orchestrace jednotlivých aplikací, které jsou součástí celého řešení. Nově vzniklé podpůrné aplikace \textit{Configurator} (kapitola \ref{sec:ana_configurator}) a \textit{Updater} (kapitola \ref{sec:ana_updater}) zatím nejsou ukotveny v architektuře celého řešení. Do této skupiny patří požadavky \textit{F1, F2} a \textit{N7}. Návrh řešení této skupiny požadavků je popsán sekcí \ref{sec:des_architecture} této kapitoly.
+
+Třetí část této kapitoly je věnována požadavku \textit{N4} a navrhuje možnosti horizontálního škálování aplikace - sekce \textit{sec:des_scaling}.
 
 \section{Úprava architektury komponenty Connector}
 \label{sec:des_api}
@@ -151,11 +155,13 @@ Vrstva datového přístupu je nejbližší vyšší vrstva perzistentní vrstvy
 Další vrstva - \textit{Algoritmy} obsahuje funkcionalitu stávajícího modulu \textit{Connector}, respektive jeho částí \textit{Algorithm} a \textit{Traversal}. Jedná se o první vrstvu realizující byznys logiku aplikace (funkcionalita je popsána v kapitole \ref{sec:ana_connector}). Jedná se o \textit{odemčenou vrstvu}, může být tedy obcházena vyššími vrstvami v případě, že chtějí použít přímo \textit{API} vrstvy datového přístupu. Komponentami ve vyšších vrstvách serverové části aplikace jsou \textit{Merger, Viewer, Exporter a Public Api}.
 
 
-\section{Globální architektura aplikace}
+\section{Orchestrace komponent Manta Flow}
 \label{sec:des_architecture}
 TODO
 
-
+\section{Možnosti horizontálního škálování aplikace}
+\label{sec:des_scaling}
+TODO
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Vrstvy:
