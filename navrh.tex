@@ -160,11 +160,13 @@ Další vrstva - \textit{Algoritmy} obsahuje funkcionalitu stávajícího modulu
 \label{sec:des_orchestration}
 TODO
 
+
 \section{Možnosti horizontálního škálování aplikace}
 \label{sec:des_scaling}
 V kapitole \ref{sec:ana_scaling} je uvedeno, že \textit{Manta Flow} může mít v budoucnu problémy s množstvím dat, které zpracovává. Aplikace může narazit na mezní hranici kapacity metadatového úložiště, která je v současné době omezena především používáním \textit{embedded} databáze \textit{Persistit} jako podkladové vrstvy pro \textit{Titan}. Současně může být v některých kontextech problematický i výpočetní čas operací byznys logiky aplikace (viz sekce \ref{sec:ana_performance}), který při současné architektuře narůstá lineárně v závislosti na vstupních datech.
 
 V této kapitole jsou popsány možnosti, jak může být stávající architektura aplikace \textit{Manta Flow} (nutně zahrnující změny popsané v kapitole \ref{sec:des_api} a volitelně zahnující změny popsané v kapitole \ref{sec:des_orchestration}) postupnými kroky upravována tak, aby průběžně vyhovovala zvyšujícím se požadavkům na horizontální škálování.
+
 
 \subsection{Škálování grafové databáze}
 \label{sec:des_scaling_db}
@@ -177,19 +179,11 @@ Druhým omezením je závislost aplikace na dotazovacím jazyce \textit{Gremlin 
 Změna architektury komponenty \textit{Connector} navržená v kapitole \ref{sec:des_api} oba tyto problémy řeší. Všechny dotazy do grafové databáze jsou definovány v nově navržené perzistentní vrstvě a jsou tak jednoduše upravitelné (včetně změny dotazovacího jazyk, kterým jsou realizovány) bez dopadů na ostatní komponenty (díky definovanému privátnímu \textit{API}). %TODO \textit{API} je navrženo tak, aby byla ve vhodných případech snížena granularita dotazů a byl tak omezen problém režie síťové komunikace aplikace se vzdálenou databází. Příkladem ...
 Díky tomu je otevřena možnost použití vzdálené grafové databáze, a je tedy možné \textbf{využít horizontální škálovatelnost grafových databází}, která je nativní vlastností většiny z nich. Je zřejmé, že lépší škálovatelnost budou vykazovat spíše komplexnější dotazy do grafové databáze, než dotazy atomické. Je proto možné, že pro maximalizaci využití horizontální škálovatelnosti grafové databáze bude nutné některé algoritmy, nebo jejich části, implementovat zcela pomocí komplexních grafových dotazů (například pomocí nadstavby jazyka \textit{Gremlin} - \textit{Pipes}). %TODO traversal api
 
-Horizontálně škálovatelná grafová databázy by měla být dostatečným řešením pro potřeby aplikace \textit{Manta Flow} a zároveň se jedná o relativně neinvazivní změnu v architektuře aplikace. \textit{Manta Flow} patří do kategorie \textit{Software as a Product (SaaP)} a je tedy dodávána jako instalační balíčky, které uživatel instaluje na vlastní infrastrukturu. Uživatel si tak může sám rozhodnout, zda si vystačí s \textit{embedded} grafovou databází, nebo zda potřebuje horizontálně škálovatelnou grafovou databázi a na jaké infrastruktuře bude v tom případě nasazena. Díky navržené vícevrstvé architektuře není problém, aby aplikace podporovala obě možnosti a použití konkrétní implementace databázové (a perzistentní) vrstvy bylo konfigurovatelné.
+Horizontálně škálovatelná grafová databázy by měla být dostatečným řešením pro potřeby aplikace \textit{Manta Flow} a zároveň se jedná o relativně neinvazivní změnu v architektuře aplikace. \textit{Manta Flow} je software dodávaný tzv. \textit{on premise}, uživatel tedy instaluje aplikaci na vlastní infrastrukturu a má nad ní plnou kontrolu. Uživatel si tak může sám rozhodnout, zda si vystačí s \textit{embedded} grafovou databází, nebo zda potřebuje horizontálně škálovatelnou grafovou databázi a na jaké infrastruktuře bude v tom případě nasazena. Díky navržené vícevrstvé architektuře není problém, aby aplikace podporovala obě možnosti a použití konkrétní implementace databázové (a perzistentní) vrstvy bylo konfigurovatelné.
+
 
 \subsection{Škálování Java komponent aplikace}
 \label{sec:des_scaling_java}
-%TODO  IaaS/ Faas
-% může být konfigurovatelně škálovatelné
+Dalším krokem pro zlepšení škálovatelnosti aplikace může být potenciálně horizontální škálování samotných \textit{Java} komponent aplikace. Protože tento krok již předpokládá použití horizontálně škálovatelné grafové databáze, je cílem v tomto případě již pouze zvýšení výkonu aplikace - schopnost analýzy zdrojových dat velkého objemu je již zaručena. Na elementární bázi to umožňuje i stávající architektura klient-server (v případě klientské části aplikace). Vzhledem k tomu, že klientská část aplikace obsahuje mimo samotné extrakce dat (databázových slovníků, zdrojových kódů, transformací, atd.) ze zdrojových systémů také logiku pro jejich analýzu, může několik instancí klientské části aplikace výkon zvýšit významně.\footnote{Paralelní instance klientské části aplikace ale není možné (či efektivní) použít ve všech případech, v případě silně propojených zdrojových systémů by musely jednotlivé instance sdílet témeř všechna data.} Teoreticky by také bylo možné paralelní nasazení několika serverových komponent, to by si ale vyžádalo úpravu některých algoritmů a především zavedení dalšíhi sdíleného zdroje (krom vstupů a grafové databáze), který by sloužil pro synchronizaci zámků v databázi (viz kapitola \ref{sec:des_transactions}). Pro nadměrnou komplexitu a nejistou efiktivitu tak tento přístup není možné doporučit.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Škálovatelnost - cloud
-% https://acloud.guru/
-% https://martinfowler.com/articles/microservices.html
-% https://martinfowler.com/tags/application%20architecture.html - Serverless Architectures on AWS
-% AWS Lambda - amazon SaaS (?)
-% S3 - cloud storage (?)
-% Cloud computing http://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-145.pdf
-% Cloud Awareness ;  OpenStack
+Efektivněji škálovatelná by serverová část aplikace byla, pokud by její architektura byla upravena postupným vyčleňováním jednotlivých služeb podle architektonického stylu \textit{microservices}. Vzhledem ke komplexní a specifické infrastruktuře, kterou takové řešení vyžaduje, by ale taková architektura nebyla vhodná pro software dodávaný jako \textit{on premise}. Přechod na software \textit{on demand} je ale rozhodnutí zahrnující více faktorů než jen architektonická omezení aplikace a v současné době není vzhledem k prototypu uživatele aplikace možný.
