@@ -3,7 +3,7 @@ Součástí práce je prototypová implementace architektury navržené v kapito
 
 %Domain
 \section{Doménový model}
-Doménový model definuje typy entit, se kterými může aplikace pracovat a možné parametry těchto entit. Prakticky tak definuje také schéma (datový model) grafové databáze, přestože ta nutně nemusí koncept schémat podporovat. Hlavní entity doménového modelu jsou popsány \textit{\nomExpl{BDM}{Business Domain Model} UML diagramem} \ref{fig:impl-domain} (cílem diagramu je popsat entity a vztahy mezi nimy, ne konkrétní implementaci). Při porovnání s datovým modelem metadatového uložiště je patrné, že:
+Doménový model definuje typy entit, se kterými může aplikace pracovat a možné parametry těchto entit. Prakticky tak definuje také schéma (datový model) grafové databáze, přestože ta nutně nemusí koncept schémat podporovat. Hlavní entity doménového modelu jsou popsány \textit{\nomExpl{BDM}{Business Domain Model} UML diagramem} \ref{fig:impl-domain} (cílem diagramu je popsat entity a vztahy mezi nimy, ne konkrétní implementaci). Při porovnání s datovým modelem metadatového úložiště je patrné, že:
 
 \begin{itemize}
    \item Pro každý typ uzlu, který je součástí datového modelu existuje ekvivalent v doménovém modelu (s adekvátně definovanými parametry). Výjimku tvoří umělé typy uzlů, tedy \textit{REVISION\_ROOT, SOURCE\_ROOT a SUPER\_ROOT}.
@@ -22,7 +22,7 @@ Implementace perzistentní vrstvy je tvořena především implementací \textit
 \subsection{Vrstva \textit{mapperů}}
 Modul obsahující implementaci perzistentní vrstvy obsahuje další vnitřní vrstvu tzv. \textit{mapperů} - objektů provádějících mapování vrcholů a hran grafové databáze (reprezentovaných \textit{Gremlin} třídami \textit{Vertex a Edge}) na objekty doménového modelu.  Pro účely prototypu byla zvolena implementace pro (aplikací aktuálně používaný) jazyk \textit{Gremlin 2.x}.
 
-\subsection{Dotazy do metadatového uložiště}
+\subsection{Dotazy do metadatového úložiště}
 Jednoduché dotazy jsou implementovány nativními dotazy jazyka \textit{Gremlin}. Příklad \ref{exa:mapper} ukazuje mapování entity \textit{Flow} pomocí jazyka \textit{Gremlin 2.x}.
 
 \lstinputlisting[language=Java, caption=Mapování entity \textit{Flow} (implementace pomocí \textit{Gremlin 2.x}), label=exa:mapper]{code/clear_gremlin.java}
@@ -40,9 +40,9 @@ TODO
 \textit{API} této vrstvy v zásadě kopíruje \textit{API} perzistentní vrstvy.  U metod, u kterých musí být ověřována práva uživatele na dotazovaná data, je ale navíc přidán parametr reprezentující strategii, pomocí které budou data ověřována. Asi tedy nepřekvapí, že je vrstva implementována pomocí návrhovému vzoru \textit{Strategy} - aktuálně existují dvě strategie (v budoucnu může být ale tento seznam rozšířen):
 
 \begin{itemize}
-   \item{\textit{Oprávnění na základě pohledů a rolí}}: Je zaveden nový termín \textit{pohled}. Ten reprezentuje část dat uložených v metadatovém uložišti - každý pohled se skládá ze sady zahrnutých a vyloučených objektů ve smyslů hiearchie grafu datových toků (entity \textit{Node} a \textit{Resource}). Pohledů může být teoreticky neomezené množství a mohou se navzájem překrývat. Uživatelům jsou pak přidělována oprávnění na jednotlivé pohledy na základě jejich \textit{LDAP\footnote{Lightwight Directory Access Protocol}} rolí.
+   \item{\textit{Oprávnění na základě pohledů a rolí}}: Je zaveden nový termín \textit{pohled}. Ten reprezentuje část dat uložených v metadatovém úložišti - každý pohled se skládá ze sady zahrnutých a vyloučených objektů ve smyslů hiearchie grafu datových toků (entity \textit{Node} a \textit{Resource}). Pohledů může být teoreticky neomezené množství a mohou se navzájem překrývat. Uživatelům jsou pak přidělována oprávnění na jednotlivé pohledy na základě jejich \textit{LDAP\footnote{Lightwight Directory Access Protocol}} rolí.
 
-   \item{\textit{Neomezená oprávnění}}: Existují operace, u kterých není za žádných okolností žádoucí oprávnění kontrolovat. Například kompletní exporty metadatového uložiště. Proto existuje strategie přidělující všem uživatelům neomezená oprávnění.
+   \item{\textit{Neomezená oprávnění}}: Existují operace, u kterých není za žádných okolností žádoucí oprávnění kontrolovat. Například kompletní exporty metadatového úložiště. Proto existuje strategie přidělující všem uživatelům neomezená oprávnění.
 \end{itemize}
 
 Pro implementaci strategie kontroly oprávnění na základě pohledů je navíc za účelem rozdělení zodpovědností použit návrhový vzor \textit{Chain of responsibility} (součástí implementace je také vlastní \textit{cache} a další logika). Tato implmenetace je pospána diagramem tříd \ref{fig:impl-permission}.
@@ -55,7 +55,7 @@ Funkcionalita obou implementovaných vrstev byla pokryta jednotkovými testy. %T
 V rámci validace provedené implementace a návrhu vícevrstvé architektury byly pomocí těchto vrstev implementovány některé operace vyšších vrstev, konkrétně:
 
 \begin{itemize}
-   \item{\textit{Merge}}: Byla implementována operace \textit{merge}, tedy stěžejní část operace updatu metadatového uložiště. Operace je blíže popsána v kapitole \ref{sec:ana_merger}.
+   \item{\textit{Merge}}: Byla implementována operace \textit{merge}, tedy stěžejní část operace updatu metadatového úložiště. Operace je blíže popsána v kapitole \ref{sec:ana_merger}.
    \item{\textit{Flow Algorithm}}: Byl také implementován základní algoritmus pro hledání datových toků. Tento algoritmus je součástí mnoha sloužitějších algoritmů, které \textit{Manta Flow} používá.
 \end{itemize}
 
