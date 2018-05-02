@@ -6,7 +6,8 @@ Tyto požadavky jsou rozděleny na tři skupiny, přičemž řešení požadavk�
 
 První jsou problémy způsobené mícháním perzistentní a byznys logiky v rámci serverové části aplikace aplikace, mezi které patří především špatná \textit{modifikovatelnost} aplikace a nízká \textit{viditelnost} interakcí jednotlivých komponent serverové částí aplikace. Také jsou diskutovány dopady těchto omezení na \textit{výkon} aplikace. Konkrétně do této skupiny patří požadavky \textit{N1, N2, N3, N5, N6} a \textit{N8}. Tyto požadavky jsou realizovány především změnou architektury komponenty \textit{Connector} (sekce \ref{sec:ana_connector}) popsanou v sekci \ref{sec:des_api} této kapitoly.
 
-Do druhé skupiny patří omezení vyplývající z aktuální architektury \textit{Manta Flow} na úrovni orchestrace jednotlivých aplikací, které jsou součástí celého řešení. Nově vzniklé podpůrné aplikace \textit{Configurator} (kapitola \ref{sec:ana_configurator}) a \textit{Updater} (kapitola \ref{sec:ana_updater}) zatím nejsou ukotveny v architektuře celého řešení. Do této skupiny patří požadavky \textit{F1, F2} a \textit{N7}. Návrh řešení této skupiny požadavků je popsán sekcí \ref{sec:des_architecture} této kapitoly.
+Do druhé skupiny patří omezení vyplývající z aktuální architektury \textit{Manta Flow} na úrovni orchestrace jednotlivých aplikací, které jsou součástí celého řešení. Nově vzniklé podpůrné aplikace \textit{Configurator} (kapitola \ref{sec:ana_configurator}) a \textit{Updater} (kapitola \ref{sec:ana_updater}) zatím nejsou ukotveny v architektuře celého řešení.
+Do této skupiny patří požadavky \textit{F1, F2} a \textit{N7}. Návrh řešení této skupiny požadavků je popsán sekcí \ref{sec:des_orchestration} této kapitoly.
 
 Třetí část této kapitoly je věnována požadavku \textit{N4} a navrhuje možnosti horizontálního škálování aplikace - sekce \ref{sec:des_scaling}.
 
@@ -156,25 +157,34 @@ Další vrstva - \textit{Algoritmy} obsahuje funkcionalitu stávajícího modulu
 
 
 \section{Orchestrace komponent Manta Flow}
-\label{sec:des_architecture}
+\label{sec:des_orchestration}
 TODO
 
 \section{Možnosti horizontálního škálování aplikace}
 \label{sec:des_scaling}
-TODO
+V kapitole \ref{sec:ana_scaling} je uvedeno, že \textit{Manta Flow} může mít v budoucnu problémy s množstvím dat, které zpracovává. Aplikace může narazit na mezní hranici kapacity metadatového uložiště, která je v současné době omezena především používáním \textit{embedded} databáze \textit{Persistit} jako podkladové vrstvy pro \textit{Titan}. Současně může být v některých kontextech problematický i výpočetní čas operací byznys logiky aplikace (viz sekce \ref{sec:ana_performance}), který při současné architektuře narůstá lineárně v závislosti na vstupních datech.
+
+V této kapitole jsou popsány možnosti, jak může být stávající architektura aplikace \textit{Manta Flow} (nutně zahrnující změny popsané v kapitole \ref{sec:des_api} a volitelně zahnující změny popsané v kapitole \ref{sec:des_orchestration}) postupnými kroky upravována tak, aby průběžně vyhovovala zvyšujícím se požadavkům na horizontální škálování.
+
+\subsection{Škálování grafové databáze}
+\label{sec:des_scaling_db}
+Použití \textit{embedded} databáze \textit{Persistit} je zjevně potenciální úzké hrdlo aplikace a jeho nahrazení horizontálně škálovatelnou grafovou databází je tak první změna architektury směrem k vyšší škálovatelnosti celé aplikace. Jsou identifikovány dva hlavní důvody, které vedou k tomu, že je používána \textit{embedded} databáze.
+
+Prvním je výkon aplikace, který by při použití stávající architektury a jiné než \textit{embedded} databáze výrazně utrpěl - síťová komunikace představuje při komunikaci aplikace se vzdálenou databází vždy režii navíc, v případě \textit{RDBMS} databází (a většiny \textit{NoSQL} databází) je tato položka ale pro celkový výkon aplikace zanetbatelná. Důvodem je, že dotazy vykonávané těmito databázemi jsou často velmi komplexní a jejich vykonání trvá zpravidla déle, než síťová komunkace mezi aplikací a databází. U grafových databází tomu ale tak být nemusí, jazyky pro dotazování těchto databází jsou stále prochází vývojem a ne vždy poskytují takové nástroje, aby pomocí nich mohli být realizovány všechny komplexní grafové algoritmy. To vede v některých případech k tomu, že granularita dotazů do grafové databáze je velmi vysoká (dotazy se v některých případech omezují pouze na okolní hrany/uzly) a čas vykonávání těchto dotazů je tak srovnatelný, nebo dokonce menší, než doba potřebná pro síťovou komunikaci mezi aplikací a grafovou databází.
+
+Druhým omezením je závislost aplikace na dotazovacím jazyce \textit{Gremlin 2.x}, který je vzhledem k možnosti přímého dotazování grafové databáze pomocí programatických transakcí (viz sekce \ref{sec:ana_visibility}) používán všemi moduly serverové části aplikace a je tak obtížně nahraditelný. Některé uvažováané databáze, které by mohly případně aktuálně používaný \textit{Perzistit} nahradit jazyk \textit{Gremlin} ve verzi \textit{2.x} nepodporují.
+
+Změna architektury komponenty \textit{Connector} navržená v kapitole \ref{sec:des_api} oba tyto problémy řeší. Všechny dotazy do grafové databáze jsou definovány v nově navržené perzistentní vrstvě a jsou tak jednoduše upravitelné (včetně změny dotazovacího jazyk, kterým jsou realizovány) bez dopadů na ostatní komponenty (díky definovanému privátnímu \textit{API}). %TODO \textit{API} je navrženo tak, aby byla ve vhodných případech snížena granularita dotazů a byl tak omezen problém režie síťové komunikace aplikace se vzdálenou databází. Příkladem ...
+Díky tomu je otevřena možnost použití vzdálené grafové databáze, a je tedy možné \textbf{využít horizontální škálovatelnost grafových databází}, která je nativní vlastností většiny z nich. Je zřejmé, že lépší škálovatelnost budou vykazovat spíše komplexnější dotazy do grafové databáze, než dotazy atomické. Je proto možné, že pro maximalizaci využití horizontální škálovatelnosti grafové databáze bude nutné některé algoritmy, nebo jejich části, implementovat zcela pomocí komplexních grafových dotazů (například pomocí nadstavby jazyka \textit{Gremlin} - \textit{Pipes}). %TODO traversal api
+
+Horizontálně škálovatelná grafová databázy by měla být dostatečným řešením pro potřeby aplikace \textit{Manta Flow} a zároveň se jedná o relativně neinvazivní změnu v architektuře aplikace. \textit{Manta Flow} patří do kategorie \textit{Software as a Product (SaaP)} a je tedy dodávána jako instalační balíčky, které uživatel instaluje na vlastní infrastrukturu. Uživatel si tak může sám rozhodnout, zda si vystačí s \textit{embedded} grafovou databází, nebo zda potřebuje horizontálně škálovatelnou grafovou databázi a na jaké infrastruktuře bude v tom případě nasazena. Díky navržené vícevrstvé architektuře není problém, aby aplikace podporovala obě možnosti a použití konkrétní implementace databázové (a perzistentní) vrstvy bylo konfigurovatelné.
+
+\subsection{Škálování Java komponent aplikace}
+\label{sec:des_scaling_java}
+%TODO  IaaS/ Faas
+% může být konfigurovatelně škálovatelné
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Vrstvy:
-% Algorithm/Traversal layer - vrstva algoritmů a traversalů, resp. "business" v kontextu DAL, neměla by sahat přímo do DB. Tatvo vrstva by možná měla obsahovat ještě sourozence Index (lucene) a DAO (most na operations).
-
-
-%\subsection{Architektonická omezení}
-% Podněty
-% - Architektura vyhovující cloudovým požadavkům
-%  - žádný filesystem, jen pipes na jiné služby, které mohou filesystem podporovat (lze využívat pouze temp uložiště a sfree buckety)
-%  - např jedna služba client, jedna server, jedna grafovka
-%  - jak by se řešily veškeré konfigurace
-
 % Škálovatelnost - cloud
 % https://acloud.guru/
 % https://www.amazon.com/Patterns-Enterprise-Application-Architecture-Martin/dp/0321127420
