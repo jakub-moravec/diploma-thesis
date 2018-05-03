@@ -11,7 +11,9 @@ Doménový model definuje typy entit, se kterými může aplikace pracovat a mo�
    \item Doménový model obsahuje ekvivalenty hran typu \textit{DIRECT, FILTER a MAPS\_TO} datového modelu. Tyto hrany mají vlastní interval platnosti, který je sice omezen intervaly platnosti uzlů, které spojují, ale může se od těchto intervalů lišit. Hrany také obsahují další parametry podstatné pro analýzu datových toků. Entita doménového modelu \textit{Flow} zahrnuje hrany datového modelu \textit{DIRECT i FILTER}.
 \end{itemize}
 
-% TODO Databázová vrstva
+
+\section{Databázová vrstva}
+Databázová vrstva obsahuje dvě stežejní třídy (které musí obsahovat vždy) a to jsou implementace tříd \texttt{org.springframework.transaction.support.ResourceTransactionManager} a \texttt{com.tinkerpop.blueprints.Graph}. Tato rozhraní \textit{de-facto} definují \textit{API} databázové vrstvy. \textit{Transaction manager} musí být implementován, aby mohly vyšší vrstvy využívat deklarativní transakční model, který je pro návrh celé vícevrstvé architektury velmi důležitý. \textit{Graph} zpřístupňuje data uložená v grafové databázi dotazovacímu jazyku \textit{Gremlin 2.x}. V tomto případě nevadí, že je \textit{API} vrstvy závislé na konkrétním programovacím jazyku - implementace nejbližší vyšší vrstvy (perzistentní vrstvy) je (a vždy bude) z velké části tvořena právě tímto dotazovacím jazykem.    
 
 %Perzistence
 \section{Perzistentní vrstva}
