@@ -13,7 +13,7 @@ Doménový model definuje typy entit, se kterými může aplikace pracovat a mo�
 
 
 \section{Databázová vrstva}
-Databázová vrstva obsahuje dvě stežejní třídy (které musí obsahovat vždy) a to jsou implementace tříd \texttt{org.springframework.transaction.support.ResourceTransactionManager} a \texttt{com.tinkerpop.blueprints.Graph}. Tato rozhraní \textit{de-facto} definují \textit{API} databázové vrstvy. \textit{Transaction manager} musí být implementován, aby mohly vyšší vrstvy využívat deklarativní transakční model, který je pro návrh celé vícevrstvé architektury velmi důležitý. \textit{Graph} zpřístupňuje data uložená v grafové databázi dotazovacímu jazyku \textit{Gremlin 2.x}. V tomto případě nevadí, že je \textit{API} vrstvy závislé na konkrétním programovacím jazyku - implementace nejbližší vyšší vrstvy (perzistentní vrstvy) je (a vždy bude) z velké části tvořena právě tímto dotazovacím jazykem.    
+Databázová vrstva obsahuje dvě stežejní třídy (které musí obsahovat vždy) a to jsou implementace tříd \texttt{org.springframework.transaction.support.ResourceTransactionManager} a \texttt{com.tinkerpop.blueprints.Graph}. Tato rozhraní \textit{de-facto} definují \textit{API} databázové vrstvy. \textit{Transaction manager} musí být implementován, aby mohly vyšší vrstvy využívat deklarativní transakční model, který je pro návrh celé vícevrstvé architektury velmi důležitý. \textit{Graph} zpřístupňuje data uložená v grafové databázi dotazovacímu jazyku \textit{Gremlin 2.x}. V tomto případě nevadí, že je \textit{API} vrstvy závislé na konkrétním programovacím jazyku - implementace nejbližší vyšší vrstvy (perzistentní vrstvy) je (a vždy bude) z velké části tvořena právě tímto dotazovacím jazykem.
 
 %Perzistence
 \section{Perzistentní vrstva}
@@ -76,7 +76,6 @@ V rámci validace návrhu a prototypové implementace vícevrstvé architektury 
 
 Pro oba zmíněné algoritmy je v rámci stávající implementace definována řada jednotkových testů. Základním předpokladem validace vytvořeného prototypu je, že podaří-li se pomocí nově navržené architektury implementovat obě tyto funkcionality a budou-li nadále úspěšně procházet všechny testy pokrývající tyto funkcionality, podařilo se navrhnout architekturu a implementovat prototyp vyhovující zadání práce.
 
-% To se podařilo, lze tedy prohlásit, že \textbf{prototyp je validní}.
-%TODO integrační test
+To se podařilo, lze tedy prohlásit, že \textbf{prototyp je validní}.
 
 Další typy testů (např. \textit{performance} testy) nebyly provedeny, protože v kontextu této práce nedávají smysl. Cílem validace je ověřit vhodnost navržené architektury pro konkrétní funkcionality \textit{Manta Flow}. Vytvořená implementace (byť rozsáhlá - více než 22 tisíc \textit{LOC}) je navíc pouze prototypem, neobsahuje tak všechny optimalizace výkonu, které zahrnuje stávající aplikace.

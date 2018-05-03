@@ -255,7 +255,7 @@ Zároveň mohou obě aplikace aktuálně provádět změny pouze na stejném fyz
 
 Tento způsob orchestrace aplikací (popsaný \textit{UML} diagramem nasazení \ref{fig:ana-deployment}) má zřejmé nevýhody.
 
-Samotný fakt, že obě aplikace (\textit{Updater} i \textit{Configurator}) mají dvě instance na dvou různých zařízeních přináší novou režii při správě aplikací. Původní instalace nástroje \textit{Manta Flow} zahrnovala celkem dvě a více instancí (server a jeden či více klientů). S přidáním nových instancí \textit{Updateru} i \textit{Configuratoru} by se jednalo o šest a více instancí. Snížená režie pro správu nástroje, kterou tyto aplikace znamenají, by tak byla částečně kompenzována režií těchto čtyř nových instancí. Aplikace \textit{Updater} a \textit{Configurator} také obsahují konfiguraci (byť jednoduchou) a mohou být verzovány (byť méně dynamicky, než základní aplikace). To je také důvod, proč by měl \textit{Updater} být schopen provádět updaty aplikace \textit{Configurator}.
+Samotný fakt, že obě aplikace (\textit{Updater} i \textit{Configurator}) mají dvě instance na dvou různých zařízeních přináší novou režii při správě aplikací. Původní instalace nástroje \textit{Manta Flow} zahrnovala celkem dvě a více instancí (server a jeden či více klientů). S přidáním nových instancí \textit{Updateru} i \textit{Configuratoru} by se jednalo o šest a více instancí. Snížená režie pro správu nástroje, kterou tyto aplikace znamenají, by tak byla částečně kompenzována režií těchto čtyř nových instancí. Aplikace \textit{Updater} a \textit{Configurator} také obsahují konfiguraci (byť jednoduchou) a mohou být verzovány (byť méně dynamicky, než základní aplikace). To je také důvod, proč by měl \textit{Updater} být schopen provádět updaty aplikace \textit{Configurator} i sebe sama.
 
 Dalším problémem jsou možné nekonzistence, které mohou kvůli dvěma instancím obslužných aplikací vzniknout. Tento problém je zvlášť patrný u aplikace \textit{Updater}. Verzovací model \textit{Manta Flow} je nastaven tak, že verze klienta by měla vždy odpovídat verzi serveru - v opačném případě nemůže být zajištěna kompatibilita verzí. Dvě instance \textit{Updateru} ale znamenají, že \textit{update} každé instance serveru a klienta je samostatným procesem - může tak snadno dojít k \textit{updatu} na nekompatibilní verze instancí. U aplikace \textit{Configurator} tento problém není tak zásadní, protože konfigurace serveru a klienta jsou disjunktní a navzájem se neovlivňují. Provádění konfigurace pomocí dvou instancí \textit{Configuratoru} ale není příliš uživatelsky přívětivé.
 
@@ -279,9 +279,11 @@ Na základě rozboru omezeních aplikace je vytvořen seznam funkčních (tabulk
 	\hline
     ID & Popis & Závažnost & Cíl \\ \hline
 
-	 F1 & Navržená architektura umožní uživatelsky přívětivý update všech komponent aplikace (včetně aplikace \textit{Configurator}) v rámci jedné operace & Střední & N \\ \hline
+	 F1 & Navržená arhitektura umožní update všech komponent - tedy \textit{Manta Flow Server, Client, Configurator, Updater}. & Důležitá & N \\ \hline
 
-	 F2 & Navržená architektura umožní uživatelsky přívětivovu konfiguraci všech komponent aplikace z jednoho místa. & Střední & N \\ \hline
+	 F2 & Navržená architektura umožní uživatelsky přívětivý update všech komponent aplikace v rámci jednoho procesu & Střední & N \\ \hline
+
+	 F3 & Navržená architektura umožní uživatelsky přívětivovu konfiguraci všech komponent aplikace z jednoho místa. & Střední & N \\ \hline
  \end{tabular}
  \end{center}
  \end{table}
