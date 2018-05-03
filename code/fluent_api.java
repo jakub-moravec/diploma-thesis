@@ -1,0 +1,20 @@
+nodeRepository.query(
+   Query
+      .nodes()
+         .validIn(new RevisionInterval(1d, 1d))
+         .hasType(COLUMN)
+      .attributes()
+         .hasName("COLUMN_NULLABILITY")
+         .hasValue("nullable")
+      .node()
+      .parent()
+         .hasName("DF_EDGE_ATTRIBUTE")
+         .hasType(TABLE)
+      .parent()
+         .hasName("METADATA")
+         .hasType(SCHEMA)
+      .parent()
+         .hasName("ORCL")
+         .hasType(DATABASE)
+   .q()
+);

@@ -11,9 +11,7 @@ Doménový model definuje typy entit, se kterými může aplikace pracovat a mo�
    \item Doménový model obsahuje ekvivalenty hran typu \textit{DIRECT, FILTER a MAPS\_TO} datového modelu. Tyto hrany mají vlastní interval platnosti, který je sice omezen intervaly platnosti uzlů, které spojují, ale může se od těchto intervalů lišit. Hrany také obsahují další parametry podstatné pro analýzu datových toků. Entita doménového modelu \textit{Flow} zahrnuje hrany datového modelu \textit{DIRECT i FILTER}.
 \end{itemize}
 
-
 % TODO Databázová vrstva
-
 
 %Perzistence
 \section{Perzistentní vrstva}
@@ -31,9 +29,11 @@ Pro větší efektivitu dotazů byly v některých případech nativní \textit{
 
 \lstinputlisting[language=Java, caption=Nalezení uzlu dle kvalifikovaného jména (implementace pomocí \textit{Pipes}), label=exa:pipes]{code/pipes.java}
 
-\subsection{\textit{Fluent API} pro \textit{query} metody}
-TODO
+\subsection{Rozhraní pro \textit{query} metody}
+V kapitole \ref{sec:des_persistence} je popsán návrh \textit{query} metod. Ty by měly sloužit k obecnému dotazování dat z metadatového úložiště podle typu entity. Jedním z důvodů návrhu těchto metod je snaha o umožnění tvorby komplexnějších dotazů, které by měly být efektivnější, než kompozice atomických dotazů. Výsledkem toho je, že vstupem pro tyto metody jsou komplexní do sebe zanořené dotazovací objekty. Aby byl tento koncept reálně použitelný, bylo nutné vytvořit samostatné rozhraní pro tvorbu těchto objektů - jinak by tvorba dotazovacích objektů byla příliš komplikovaná, nutně by navíc musela obsahovat některé perzistenční detaily, od kterých by měl být vývojář při používání těchto metod odstíněn.
+Návrh byl inspirován návrhovým vzorem \textit{Builder Pattern} a stylem \textit{Fluent Interface} \cite{Fowler05}. Ukázka \ref{exa:fluent_api} obsahuje dotaz na všechny \textit{nullable} sloupce ze specifické tabulky, schématu a databáze. Pomocí stejného návrhu by bylo možné provádět průchody grafem datavých toků.
 
+\lstinputlisting[language=Java, caption=Fluent interface query metod, label=exa:fluent_api]{code/fluent_api.java}
 
 %Data-access
 \section{Vrstva datového přístupu}
@@ -50,9 +50,22 @@ Pro implementaci strategie kontroly oprávnění na základě pohledů je navíc
 
 %validation
 \section{Validace a testování}
-Funkcionalita obou implementovaných vrstev byla pokryta jednotkovými testy. %TODO test coverage
+Funkcionalita všech implementovaných modulů byla pokryta jednotkovými testy. Tabulka \ref{tab:coverage} obsahuje údaje o pokrytí implementace jednotkovými testy.
 
-V rámci validace provedené implementace a návrhu vícevrstvé architektury byly pomocí těchto vrstev implementovány některé operace vyšších vrstev, konkrétně:
+\begin{table}[h!]
+\begin{center}
+\centering
+\caption{Pokrytí prototypové impolementace návrhu jednotkovými testy}
+\label{tab:coverage}
+\begin{tabular}{|p{4cm}|p{4cm}|p{4cm}|}
+	\hline
+    Třídy & Metody & Řádky \\ \hline
+	 86\% (150/174) &	73\% (726/994) &	78\% (3476/4438) \\ \hline
+ \end{tabular}
+ \end{center}
+ \end{table}
+
+V rámci validace návrhu a prototypové implementace vícevrstvé architektury byly pomocí vytvořeného prototypu implementovány některé operace vyšších vrstev aplikace, konkrétně:
 
 \begin{itemize}
    \item{\textit{Merge}}: Byla implementována operace \textit{merge}, tedy stěžejní část operace updatu metadatového úložiště. Operace je blíže popsána v kapitole \ref{sec:ana_merger}.
@@ -61,6 +74,7 @@ V rámci validace provedené implementace a návrhu vícevrstvé architektury by
 
 Pro oba zmíněné algoritmy je v rámci stávající implementace definována řada jednotkových testů. Základním předpokladem validace vytvořeného prototypu je, že podaří-li se pomocí nově navržené architektury implementovat obě tyto funkcionality a budou-li nadále úspěšně procházet všechny testy pokrývající tyto funkcionality, podařilo se navrhnout architekturu a implementovat prototyp vyhovující zadání práce.
 
+% To se podařilo, lze tedy prohlásit, že \textbf{prototyp je validní}.
 %TODO integrační test
 
 Další typy testů (např. \textit{performance} testy) nebyly provedeny, protože v kontextu této práce nedávají smysl. Cílem validace je ověřit vhodnost navržené architektury pro konkrétní funkcionality \textit{Manta Flow}. Vytvořená implementace (byť rozsáhlá - více než 22 tisíc \textit{LOC}) je navíc pouze prototypem, neobsahuje tak všechny optimalizace výkonu, které zahrnuje stávající aplikace.
