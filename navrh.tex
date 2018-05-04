@@ -172,16 +172,32 @@ V rámci návrhu řešení tohoto problému jsou definovány dvě nové komponen
 
 \begin{itemize}
    \item{\textbf{Manta Flow Toolbox}}: Vzhledem k tomu, že aplikace \textit{Updater} a \textit{Configurator} fungují velmi podobným způsobem, mají stejnou vnitřní architekturu a měly by být nasazovány společně, mohou být sloučeny pro snadnější operace s nimi do jedné aplikace - pracovně pojmenované \textit{Manta Flow Toolbox}.\footnote{Přestože jsou aplikace sloučeny v jednu, měly by nadále fungovat jako samostatné moduly, které mezi sebou mají jasné rozhraní.}
-   \item{\textbf{Update Batch}}: Vstupem komponenty \textit{Updater} při aktualizaci některé komopnenty \textit{Manta Flow} by měl být podle \cite{Gondek16} archiv obsahující nové, či upravené soubory (zdrojové, nebo konfigurační) aktualizované komponenty a soubor obsahující instrukce k aktualizaci pro \textit{Updater}. \textit{Update Batch} je zobecněním tohoto konceptu, přičemž by měl obsahovat archiv pro každou z komponent, která má být aktualizována (\textit{Server, Toolbox, Client}), a konzolovou aplikaci\footnote{Pro aktualizaci \textit{Toolboxu} může být použit \textit{shell} skript nebo jednoduchá \textit{Java} aplikace}, která provede aktualizaci \textit{Toolboxu} (popsáno sekvenčním diagramem \ref{fig:des-upd_toolbox}).
+   \item{\textbf{Update Batch}}: Vstupem komponenty \textit{Updater} při aktualizaci některé komopnenty \textit{Manta Flow} by měl být podle \cite{Gondek16} archiv obsahující nové, či upravené soubory (zdrojové, nebo konfigurační) aktualizované komponenty a soubor obsahující instrukce k aktualizaci pro \textit{Updater}.
+   \textit{Update Batch} je zobecněním tohoto konceptu, přičemž by měl obsahovat archiv pro každou z komponent, která má být aktualizována (\textit{Server, Toolbox, Client}), a konzolovou aplikaci\footnote{Pro aktualizaci \textit{Toolboxu} může být použit \textit{shell} skript nebo jednoduchá \textit{Java} aplikace}, která provede aktualizaci \textit{Toolboxu} (popsáno sekvenčním diagramem \ref{fig:des-upd_toolbox}).
 \end{itemize}
 
 \textit{Server} a \textit{Client} mohou v rámci konkrétních nasazení obsahovat mnoho \textit{customizací} zdrojového kódu i konfiguračních souborů. Jejich aktualizace může být tedy v závislosti na množštví těchto \textit{customizací} velmi komplexní operace, která se neobejde bez účasti uživatele, který musí v některých případech zajistit správné sloučení některých souborů, které jsou při aktualizaci měněny. Na druhé straně u aplikací \textit{Updater} a \textit{Configurator} (respektive u aplikace \textit{Toolbox}) žádná \textit{customizace} nutné nejsou, jediná konfigurace, kterou obsahují, jsou odkazy na instance aplikací \textit{Server a Client}. Jejich aktualizaci je tak možné provést účasti uživatele skriptem, nebo jednoduchou aplikací. Spuštění této aplikace je prvním krokem aktualizace všech komponent a jeho součástí je aktualizace \textit{Toolboxu} a přesun vstupních dat pro aktualizace ostatních komponent na umístění, kde je \textit{Toolbox} očekává\footnote{Na rozdíl od popis procesu aktualizace v \cite{Gondek16} už tak uživatel při aktualizaci ostatních komponent nemusí manuálně vstupy pro aktualizace dohledávat.}.
 
-Tato architektura zajišťuje, že v případě instalace všech komponent na jedno fyzické zařízení je možné všechny jednoduše aktualizovat. 
+Tato architektura zajišťuje, že v případě instalace všech komponent na jedno fyzické zařízení je možné všechny jednoduše aktualizovat.
 
 \subsection{Orchestrace po síti}
 \label{sec:des_orchestration_multinode}
-TODO
+V případě, že jsou instance serverové a klientské části aplikace nasazené na různá fyzycká zařízení, architektura popsaná v předchozí kapitole není dostačující k tomu, aby mohly být obě tyto komponenty aktualizovány najednou.
+Předpokládejme situaci, kdy je na jednom zařízení nasazen \textit{Manta Flow Server} a \textit{Toolbox}, a na druhém \textit{Manta Flow Client}. Je tak možné aktualizovat (a konfigurovat) \textit{Server} i \textit{Toolbox} (dle návrhu v předchozí kapitole), není ale možné pomocí \textit{Toolboxu} aktualizovat a konfigurovat \textit{Client}. Primárním problémem je, že \textit{Toolbox} nemá přístup na souborový systém zařízení, na kterém je \textit{Client} nasazen.
+
+Tento problém by bylo teoreticky možné vyřešit pomocí některého z protokolů umožňující vzdálený přístup k souborovému systému (například \textit{FTP}). Tento přístup ale v současnosti není považovaný za standardní, ani za příliš bezpečný, není tak možné se spoléhat na to, že by byl v kontextu každého uživatele povolen. Nabízí se tak dnes již standardnější způsob síťové komunikace - protokol \textit{HTTPS}.
+
+V případě, kdy je \textit{Toolbox} instalován společně se aktualizovanou komponentou na jednom zařízení, průběh aktualizace probíhá tak, jak je zachyceno na diagramu \ref{fig:des-upd_server}. K tomu, aby komunikace mezi oběmi komponentami mohla probíhat obdobným způsobem i při použití protokolu \textit{HTTPS}, je zapotřebí aby na obou stranách komunikace byly aplikace, které jsou v provozu nepřetržitě. Tomu neodpovídá současná architektura klientské částti aplikace, která je konzolovou aplikací spouštěnou \textit{ad-hoc} jako dávková aplikace. Je tedy navržena úprava architektury aplikace \textit{Manta Flow Client} tak, aby reflektovala výše uvedené požadavky.
+
+Jak je zřejmé z diagramu \ref{fig:des-upd_client}, který zobrazuje průběh aktualizace aplikace \textit{Manta Flow Client} přes \textit{HTTPS}, je nutné, aby se tato aplikace skládala ze dvou komponent:
+
+\begin{itemize}
+   \item{\textit{Dávková aplikace}}: Dávková \textit{Java} aplikace, zcela odpovídá aktuální podobě klientské části aplikace, včetně způsobu použití.
+   \item{\textit{Webová aplikace}}: Webová aplikace bude obalovat dávkovou aplikaci a bude sloužit primárně pro komunikaci \textit{Manta Flow Toolbox}. Tato aplikace by měla být navržena striktně dle architektonického stylu \textit{REST} a měla by být pokud možno minimalistická co se týká vlastní konfigurace a poskytovaných funkcí. Vznikem této komponenty totiž vzniká problém s její aktualizací. Ten je řešitelný vygenerováním aktualizačního skriptu \textit{Toolboxem} (na základě rozhodnotí uživatele o případném sloučení konfigurací).
+\end{itemize}
+
+Diagram \ref{fig:ana-deployment-changed} ukazuje změna v nasazení jednotlivých aplikací.
+
 
 \section{Možnosti horizontálního škálování aplikace}
 \label{sec:des_scaling}
