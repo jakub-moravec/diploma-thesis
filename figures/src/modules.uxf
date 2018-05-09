@@ -4,112 +4,105 @@
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>830</x>
+      <x>740</x>
       <y>540</y>
       <w>700</w>
       <h>250</h>
     </coordinates>
     <panel_attributes>symbol=component
-bg=#aaaacc
+bg=#aaaaaa
 layer=-2
 Persistence Layer
-
-group=2</panel_attributes>
+</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>850</x>
+      <x>760</x>
       <y>600</y>
       <w>660</w>
       <h>50</h>
     </coordinates>
     <panel_attributes>symbol=component
-bg=#aaaacc
+bg=#aaaaaa
 Persistence API
-layer=-1
-group=2</panel_attributes>
+layer=-1</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>1210</x>
+      <x>1120</x>
       <y>700</y>
       <w>300</w>
       <h>50</h>
     </coordinates>
     <panel_attributes>symbol=component
-bg=#aaaacc
+bg=#aaaaaa
 Persistence Implementatiton
-layer=-1
-group=2</panel_attributes>
+layer=-1</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>850</x>
+      <x>760</x>
       <y>700</y>
       <w>230</w>
       <h>50</h>
     </coordinates>
     <panel_attributes>symbol=component
-bg=#aaaacc
+bg=#aaaaaa
 Persistence Test
-layer=-1
-group=2</panel_attributes>
+layer=-1</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>940</x>
+      <x>850</x>
       <y>640</y>
       <w>30</w>
       <h>80</h>
     </coordinates>
-    <panel_attributes>lt=.&gt;
-group=2</panel_attributes>
+    <panel_attributes>lt=.&gt;</panel_attributes>
     <additional_attributes>10.0;60.0;10.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1330</x>
+      <x>1240</x>
       <y>640</y>
       <w>30</w>
       <h>80</h>
     </coordinates>
     <panel_attributes>lt=.&gt;&gt;
-bg=#aaaacc
-group=2</panel_attributes>
+bg=#aaaaaa</panel_attributes>
     <additional_attributes>10.0;60.0;10.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1070</x>
+      <x>980</x>
       <y>720</y>
       <w>160</w>
       <h>30</h>
     </coordinates>
     <panel_attributes>lt=.&gt;&gt;
-bg=#aaaacc
-group=2</panel_attributes>
+bg=#aaaacc</panel_attributes>
     <additional_attributes>140.0;10.0;10.0;10.0</additional_attributes>
   </element>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>830</x>
+      <x>740</x>
       <y>850</y>
       <w>700</w>
       <h>60</h>
     </coordinates>
     <panel_attributes>symbol=component
-bg=#aaaacc
+bg=#aaaaaa
 layer=-2
 Database Layer</panel_attributes>
     <additional_attributes/>
@@ -117,93 +110,88 @@ Database Layer</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1350</x>
+      <x>1260</x>
       <y>810</y>
       <w>150</w>
       <h>60</h>
     </coordinates>
     <panel_attributes>lt=()-[Transanction Manager]
-bg=#aaaacc</panel_attributes>
+bg=#aaaaaa</panel_attributes>
     <additional_attributes>70.0;10.0;70.0;40.0</additional_attributes>
   </element>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>830</x>
+      <x>740</x>
       <y>240</y>
       <w>700</w>
       <h>250</h>
     </coordinates>
     <panel_attributes>symbol=component
-bg=#aaaacc
+bg=#aaaaaa
 Data Access Layer
-layer=-2
-group=1</panel_attributes>
+layer=-2</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>850</x>
+      <x>760</x>
       <y>290</y>
       <w>660</w>
       <h>50</h>
     </coordinates>
     <panel_attributes>symbol=component
-bg=#aaaacc
+bg=#aaaaaa
 Data Access API
-layer=-1
-group=1</panel_attributes>
+layer=-1</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>850</x>
+      <x>760</x>
       <y>390</y>
       <w>230</w>
       <h>50</h>
     </coordinates>
     <panel_attributes>symbol=component
-bg=#aaaacc
+bg=#aaaaaa
 Data Access Test
-layer=-1
-group=1</panel_attributes>
+layer=-1</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>1210</x>
+      <x>1120</x>
       <y>390</y>
       <w>300</w>
       <h>50</h>
     </coordinates>
     <panel_attributes>symbol=component
-bg=#aaaacc
+bg=#aaaaaa
 Data Access Implementatiton
-layer=-1
-group=1</panel_attributes>
+layer=-1</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1070</x>
+      <x>980</x>
       <y>400</y>
       <w>160</w>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=.&gt;&gt;
-bg=#aaaacc
-
-group=1</panel_attributes>
+bg=#aaaaaa
+</panel_attributes>
     <additional_attributes>140.0;20.0;10.0;20.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>940</x>
+      <x>850</x>
       <y>330</y>
       <w>30</w>
       <h>80</h>
@@ -214,39 +202,38 @@ group=1</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1330</x>
+      <x>1240</x>
       <y>330</y>
       <w>30</w>
       <h>80</h>
     </coordinates>
     <panel_attributes>lt=.&gt;&gt;
-bg=#aaaacc
-
-group=1</panel_attributes>
+bg=#aaaaaa
+</panel_attributes>
     <additional_attributes>10.0;60.0;10.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1350</x>
+      <x>1260</x>
       <y>510</y>
       <w>90</w>
       <h>110</h>
     </coordinates>
     <panel_attributes>lt=()-[Repositories]
-bg=#aaaacc</panel_attributes>
+bg=#aaaaaa</panel_attributes>
     <additional_attributes>40.0;10.0;40.0;90.0</additional_attributes>
   </element>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>830</x>
+      <x>740</x>
       <y>120</y>
       <w>700</w>
       <h>60</h>
     </coordinates>
     <panel_attributes>symbol=component
-bg=#aaaacc
+bg=#aaaaaa
 Bussiness Logic Test
 layer=-2</panel_attributes>
     <additional_attributes/>
@@ -254,68 +241,68 @@ layer=-2</panel_attributes>
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>640</x>
+      <x>550</x>
       <y>120</y>
       <w>130</w>
       <h>800</h>
     </coordinates>
     <panel_attributes>symbol=component
-bg=#aaaacc
+bg=#aaaaaa
 Domain</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1350</x>
+      <x>1260</x>
       <y>430</y>
       <w>90</w>
       <h>100</h>
     </coordinates>
     <panel_attributes>lt=[Repositories]-(
-bg=#aaaacc</panel_attributes>
+bg=#aaaaaa</panel_attributes>
     <additional_attributes>40.0;10.0;40.0;70.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1350</x>
+      <x>1260</x>
       <y>740</y>
       <w>150</w>
       <h>90</h>
     </coordinates>
     <panel_attributes>lt=[Transaction Manager]-(
-bg=#aaaacc</panel_attributes>
+bg=#aaaaaa</panel_attributes>
     <additional_attributes>70.0;10.0;70.0;60.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1360</x>
+      <x>1270</x>
       <y>210</y>
       <w>60</w>
       <h>100</h>
     </coordinates>
     <panel_attributes>lt=()-[DAOs]
-bg=#aaaacc</panel_attributes>
+bg=#aaaaaa</panel_attributes>
     <additional_attributes>20.0;10.0;20.0;80.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1360</x>
+      <x>1270</x>
       <y>170</y>
       <w>60</w>
       <h>60</h>
     </coordinates>
     <panel_attributes>lt=[DAOs]-(
-bg=#aaaacc</panel_attributes>
+bg=#aaaaaa</panel_attributes>
     <additional_attributes>20.0;10.0;20.0;30.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>760</x>
+      <x>670</x>
       <y>650</y>
       <w>90</w>
       <h>30</h>
@@ -326,31 +313,31 @@ bg=#aaaacc</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1250</x>
+      <x>1160</x>
       <y>810</y>
       <w>70</w>
       <h>60</h>
     </coordinates>
     <panel_attributes>lt=()-[Graph]
-bg=#aaaacc</panel_attributes>
+bg=#aaaaaa</panel_attributes>
     <additional_attributes>30.0;10.0;30.0;40.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1250</x>
+      <x>1160</x>
       <y>740</y>
       <w>70</w>
       <h>90</h>
     </coordinates>
     <panel_attributes>lt=[Graph]-(
-bg=#aaaacc</panel_attributes>
+bg=#aaaaaa</panel_attributes>
     <additional_attributes>30.0;10.0;30.0;60.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>760</x>
+      <x>670</x>
       <y>360</y>
       <w>90</w>
       <h>30</h>
@@ -361,7 +348,7 @@ bg=#aaaacc</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>760</x>
+      <x>670</x>
       <y>140</y>
       <w>90</w>
       <h>30</h>
@@ -372,7 +359,7 @@ bg=#aaaacc</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>760</x>
+      <x>670</x>
       <y>870</y>
       <w>90</w>
       <h>30</h>
