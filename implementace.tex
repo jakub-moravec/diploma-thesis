@@ -52,7 +52,7 @@ Pro implementaci strategie kontroly oprávnění na základě pohledů je navíc
 
 %validation
 \section{Validace a testování}
-Funkcionalita všech implementovaných modulů byla pokryta jednotkovými testy. Tabulka \ref{tab:coverage} obsahuje údaje o pokrytí implementace jednotkovými testy.
+Funkcionalita všech implementovaných modulů byla pokryta jednotkovými testy. Zvláštní důraz byl kladen na testování jednotlivých metod \textit{API} perzistentní vrstvy - jak je uvedeno v kapitole \ref{sec:des_persistence}, implementace \textit{API} není testována přímo, ale právě za použití \textit{API}. Testovací případy byly navrženy tak, aby pokryly nejdůležitější průchody jednotlivých metod. Tabulka \ref{tab:coverage} obsahuje údaje o pokrytí implementace jednotkovými testy.
 
 \begin{table}[h!]
 \begin{center}
@@ -67,15 +67,25 @@ Funkcionalita všech implementovaných modulů byla pokryta jednotkovými testy.
  \end{center}
  \end{table}
 
-V rámci validace návrhu a prototypové implementace vícevrstvé architektury byly pomocí vytvořeného prototypu implementovány některé operace vyšších vrstev aplikace, konkrétně:
+V rámci validace návrhu a prototypové implementace vícevrstvé architektury byly pomocí vytvořeného prototypu implementovány dvě operace vyšších vrstev aplikace, konkrétně:
 
 \begin{itemize}
    \item{\textit{Merge}}: Byla implementována operace \textit{merge}, tedy stěžejní část operace updatu metadatového úložiště. Operace je blíže popsána v kapitole \ref{sec:ana_merger}.
    \item{\textit{Flow Algorithm}}: Byl také implementován základní algoritmus pro hledání datových toků. Tento algoritmus je součástí mnoha sloužitějších algoritmů, které \textit{Manta Flow} používá.
 \end{itemize}
 
-Pro oba zmíněné algoritmy je v rámci stávající implementace definována řada jednotkových testů. Základním předpokladem validace vytvořeného prototypu je, že podaří-li se pomocí nově navržené architektury implementovat obě tyto funkcionality a budou-li nadále úspěšně procházet všechny testy pokrývající tyto funkcionality, podařilo se navrhnout architekturu a implementovat prototyp vyhovující zadání práce.
+Pro oba zmíněné algoritmy je v rámci stávající implementace definována řada jednotkových testů. Základním předpokladem validace vytvořeného prototypu je, že podaří-li se pomocí nově navržené architektury implementovat obě tyto funkcionality a budou-li nadále úspěšně procházet všechny testy pokrývající tyto funkcionality, podařilo se navrhnout architekturu a implementovat prototyp vyhovující zadání práce. Stávající jedotkové testy funkcinality vyšších vrstev tak jsou použity jako regresní testy funkcionality nižších vrstev.
 
-To se podařilo, lze tedy prohlásit, že \textbf{prototyp je validní}.
+Navíc byl definován integrační test skládající se z následujících kroků:
+
+\begin{itemize}
+   \item vytvoření \textit{major} revize úplným updatem metadatového uložiště
+   \item vytvoření \textit{minor} revize inkrementálním updatem metadatového uložiště
+   \item vytvoření \textit{minor} revize inkrementálním updatem metadatového uložiště
+   \item vytvoření \textit{major} revize úplným updatem metadatového uložiště
+   \item dohledání datových toků mezi sloupci různých tabulek
+\end{itemize}
+
+Všechny zmíněné testy procházejí, lze tedy prohlásit, že \textbf{prototyp je validní}.
 
 Další typy testů (např. \textit{performance} testy) nebyly provedeny, protože v kontextu této práce nedávají smysl. Cílem validace je ověřit vhodnost navržené architektury pro konkrétní funkcionality \textit{Manta Flow}. Vytvořená implementace (byť rozsáhlá - více než 22 tisíc \textit{LOC}) je navíc pouze prototypem, neobsahuje tak všechny optimalizace výkonu, které zahrnuje stávající aplikace.
