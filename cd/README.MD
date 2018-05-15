@@ -18,7 +18,7 @@ Součástí CD je spustitelný *JAR* soubor obsahující všechny závislosti, d
 ## Sestavení aplikace
 Přestože je součástí CD spustitelný *JAR* soubor, uživatel si může aplikaci sestavit sám. Sestavení je provedeno pomocí aplikace *Maven*.
 
-Většina používaných knihoven je součástí veřejného *Maven Repository* (nejdůležitějšími jsou knihovny projektu *Spring* a *jUnit*), jsou použity ale také privátní knihovny aplikace *Manta Flow*. Ty jsou na CD ve složce *knihovny* a před sestavením je musí uživatel přemístit do svého lokálního *Maven Repository*. Jedná se o následující knihovny:
+Většina používaných knihoven je součástí veřejného *Maven Repository* (nejdůležitějšími jsou knihovny projektu *Spring*, *Titan* a *jUnit*), jsou použity ale také privátní knihovny aplikace *Manta Flow*. Ty jsou na CD ve složce *knihovny* a před sestavením je musí uživatel přemístit do svého lokálního *Maven Repository*. Jedná se o následující knihovny:
 
 - *manta-connector-common-csv* (knihovna *Manta Flow* pro práci s *CSV* soubory)
 - *manta-platform-cache* (knihovna *Manta Flow* implementující *cache*)
