@@ -1,0 +1,15 @@
+layer,0,Physical,PHYSICAL
+resource,1,resName,resType,resDesc,0
+node,3,,db,Database,1
+node,4,3,table1,Table,1
+node_attribute,4,TABLE_TYPE,TABLE
+node,5,4,t1c1,Column,1
+node,6,4,t1c2,Column,1
+node,7,3,table2,Table,1
+node_attribute,7,TABLE_TYPE,VIEW
+node,8,7,t2c1,Column,1
+node,9,7,t2c2,Column,1
+edge,1,5,6,DIRECT,1
+edge,2,6,8,DIRECT,1
+edge,3,8,9,DIRECT,1
+edge,4,5,8,FILTER,1
