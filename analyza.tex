@@ -1,11 +1,11 @@
 \chapter{Analýza}
 % popis Manty
 \section{Manta Flow}
-\textit{Manta Flow}\footnote{https://getmanta.com/} je nástroj umožňující automatickou analýzu zdrojového kódu (\textit{SQL}, Java) a následný popis transformační logiky v něm obsažené. Software je schopný rozpoznat i těžce čitelné konstruky zdrojového kódu. Díky tomu dokáže automaticky zanalyzovat rozsáhlé databáze a vytvořit z nich přehlednou mapu datových toků, neboli \textit{Data Lineage}. To se v praxi využívá převážně k optimalizaci datových skladů, snižování nákladů na vývoj softwaru, provádění dopadových analýz a při dokumentování prostředí pro potřeby regulačních úřadů.
+\textit{Manta Flow}\footnote{https://getmanta.com/} je nástroj umožňující automatickou analýzu zdrojového kódu (\textit{SQL}, Java) a následný popis transformační logiky v něm obsažené. Software je schopný rozpoznat i těžce čitelné konstrukty zdrojového kódu. Díky tomu dokáže automaticky zanalyzovat rozsáhlé databáze a vytvořit z nich přehlednou mapu datových toků, neboli \textit{Data Lineage}. To se v praxi využívá převážně k optimalizaci datových skladů, snižování nákladů na vývoj softwaru, provádění dopadových analýz a při dokumentování prostředí pro potřeby regulačních úřadů.
 
 V souladu s architektonickým stylem \textit{klient - server} má aplikace dvě hlavní komponenty (viz diagram \ref{fig:ana-flow-comp}):
 \begin{itemize}
-	\item{\textit{Manta Flow CLI}}: je Java řádková aplikace provádějící extrakci skriptů ze zdrojových databází a úložišť a jejich analýzu. Analyzovaná data jsou následně poslána \textit{Manta Flow Serveru}. \textit{Klientská aplikace} také může nahrávat vygenerované exporty ze \textit{serveru} do externí metadatové databáze.
+	\item{\textit{Manta Flow CLI}}: je řádková Java aplikace provádějící extrakci skriptů ze zdrojových databází a úložišť a jejich analýzu. Analyzovaná data jsou následně poslána \textit{Manta Flow Serveru}. \textit{Klientská aplikace} také může nahrávat vygenerované exporty ze \textit{serveru} do externí metadatové databáze.
 	\item{\textit{Manta Flow Server}}: je serverová Java aplikace, která ukládá získané informace do interního metadatového úložiště, transformuje je, umožňuje jejich visualizaci a přístup k nim pomocí veřejného \textit{API}.
 \end{itemize}
 
@@ -15,7 +15,7 @@ Pro tuto práci je podstatná především \textit{serverová} část aplikace (
 
 \section{Metadatové úložiště}
 \label{sec:ana_model}
-Jak již bylo zmíněno v úvodu práce (kapitola \ref{sec:uvod}) metadatové úložiště produktu \textit{Manta Flow} je aktuálně implementováno grafovou databází \textit{Titan} (ve verzi 0.4) a je snaha o výměnu této databáze\cite{Kovar18}.
+Jak již bylo zmíněno v úvodu práce (kapitola \ref{sec:uvod}), metadatové úložiště produktu \textit{Manta Flow} je aktuálně implementováno grafovou databází \textit{Titan} (ve verzi 0.4) a je snaha o výměnu této databáze \cite{Kovar18}.
 Než přistoupíme k bližšímu popisu jednotlivých komponent aplikace a jejich interakcí s metadatovým úložištěm (kapitola \ref{sec:ana_components}), je třeba nejdříve popsat entity, které jsou součástí analýzy datových toků, a datový model metadatového úložiště (zobrazený na obrázku \ref{fig:ana-model}\footnote{Z modelu metadatového úložiště je zřejmé, že ne všechny podgrafy tvoří \textit{strom}. Vlastnosti \textit{stromu} nicméně porušují pouze hrany typu \textit{directFlow} a \textit{filterFlow}, které jsou výsledkem analýzy datových toků a jejichž odstraněním by strom vznikl. V textu je tak v některých případech používána teminologie vztahující se ke \textit{stromům} (například \textit{kořen}) - na celý graf je nahlíženo jako ne \textit{les}.}).
 
 % entity datového modelu
@@ -41,18 +41,18 @@ Samotný datový model se skládá z devíti typů uzlů:
 	\item{\textit{SOURCE\_ROOT}}: Uzel (právě jeden v databázi), který slouží jako umělý kořen všech uzlů typu \textit{SOURCE\_NODE}.
 	\item{\textit{SOURCE\_NODE}}: Uzly typu \textit{SOURCE\_NODE} reprezentují soubory se zdrojovými kódy extrahovanými ze zdrojových systémů.
 	\item{\textit{REVISION\_ROOT}}: Uzel (právě jeden v databázi), který slouží jako umělý kořen všech uzlů typu \textit{REVISION\_NODE}.
-	\item{\textit{REVISION\_NODE}}: Uzly typu \textit{ATTRIBUTE} reprezentují revize modelu metadat, definují tedy jeho verzování. Kromě dalších parametrů mají všechny hrany grafu parametry \textit{tranEnd} a \textit{tranStart} definující platnost hran (viz obrázek \ref{fig:ana-model-rev}). Při každé analýze zdrojových systémů (která je prováděna dávkově klientskou částí aplikace) je vytvořena nová revize metadatového úložiště obsahující všechny objekty zdrojových systémů.\footnote{Je snaha tento princip upravit tak, aby byly objekty v metadatovém úložišti minimálně repklikovány \cite{Sykora17}.}
+	\item{\textit{REVISION\_NODE}}: Uzly typu \textit{REVISION\_NODE} reprezentují revize modelu metadat, definují tedy jeho verzování. Kromě dalších parametrů mají všechny hrany grafu parametry \textit{tranEnd} a \textit{tranStart} definující platnost hran (viz obrázek \ref{fig:ana-model-rev}). Při každé analýze zdrojových systémů (která je prováděna dávkově klientskou částí aplikace) je vytvořena nová revize metadatového úložiště obsahující všechny objekty zdrojových systémů.\footnote{Je snaha tento princip upravit tak, aby byly objekty v metadatovém úložišti minimálně repklikovány \cite{Sykora17}.}
 \end{itemize}
 
  a osmi typů hran:
 
  \begin{itemize}
-	\item{\textit{hasResource}}: Hrana přiřazuje objekty (uzly typu \textit{NODE}) ke svým zdrojovým systémům (uzlům typu \textit{RESOURCE}). Hrana je také použite k propojení uzlů typu \textit{RESOURCE} s uzlem \textit{RESOURCE\_ROOT}.
+	\item{\textit{hasResource}}: Hrana přiřazuje objekty (uzly typu \textit{NODE}) ke svým zdrojovým systémům (uzlům typu \textit{RESOURCE}). Hrana je také použita k propojení uzlů typu \textit{RESOURCE} s uzlem \textit{RESOURCE\_ROOT}.
 	\item{\textit{hasParent}}: Hrana mezi dvěmi uzly typu \textit{NODE} vytvářející klasickou hiearchickou strukturu mezi těmito uzly - strom závislostí objektů zdrojových systémů.
 	\item{\textit{directFlow}}: Hrana mezi dvěmi uzly typu \textit{NODE} říkající, že mezi těmito uzly existuje přímý datový tok (ve směru hrany).
 	\item{\textit{filterFlow}}: Hrana mezi dvěmi uzly typu \textit{NODE} říkající, že mezi těmito uzly existuje nepřímý datový tok (ve směru hrany).
 	\item{\textit{hasAttribute}}: Hrana přiřazující uzlům typu \textit{NODE} jejich atributy (uzly typu \textit{ATTRIBUTE}).
-	\item{\textit{inLayer}}: Hrana typu \textit{inLayer} spojeju zdroje (uzly typu \textit{RESOURCE}) a vrstvy a říká, že zdroj patří do dané vrstvy modelu metadat.
+	\item{\textit{inLayer}}: Hrana typu \textit{inLayer} spojuje zdroje (uzly typu \textit{RESOURCE}) a vrstvy a říká, že zdroj patří do dané vrstvy modelu metadat.
 	\item{\textit{hasSource}}: Hrana je použita k propojení uzlů reprezentujících zdrojové kódy (uzly typu \textit{SOURCE\_NODE}) s uzlem \textit{SOURCE\_ROOT}.
 	\item{\textit{hasRevision}}: Hrana je použita k propojení uzlů reprezentujících revize modelu metadat (uzly typu \textit{REVISION\_NODE}) s uzlem \textit{REVISION\_ROOT}.
 \end{itemize}
@@ -65,13 +65,13 @@ Samotný datový model se skládá z devíti typů uzlů:
 \end{center}
 \end{figure}
 
-Uzly i hrany mají dle svého typu několik specifických atributů, ty ale nebudeme blíže popisovat, protože nejsou pro analýzu zásadní.
+Uzly i hrany mají dle svého typu několik specifických atributů, ty ale nejsou blíže popsány, protože nejsou pro analýzu zásadní.
 
 V metadatovém úložišti je dále definováno několik typů indexů, konkrétně se jedná o standardní indexy:
 
 \begin{itemize}
-	\item{\textit{indexy na kořeny}}: indexy pro konkrétní uzly, kořeny jednotlivých stromů datového modelu - \textit{SUPER\_ROOT, SOURCE\_ROOT, REVISION\_ROOT}
-	\item{\textit{indexy na atributy hran}}: indexy zrychlující dohledávání atributů hran
+	\item{\textit{indexy na kořeny}}: indexy pro konkrétní uzly, kořeny jednotlivých stromů datového modelu - \textit{SUPER\_ROOT, SOURCE\_ROOT, REVISION\_ROOT},
+	\item{\textit{indexy na atributy hran}}: indexy zrychlující dohledávání atributů hran,
 	\item{\textit{indexy na typy hran}}: indexy zrychlující dohledávání hran daného typu pro jednotlivé uzly
 \end{itemize}
 
@@ -81,22 +81,22 @@ a externí \textit{Apache Lucene} indexy, které slouží pro \textit{fulltextov
 \section{Popis komponent serverové části}
 \label{sec:ana_components}
 
-Aplikace \textit{Manta Flow} praceje s metadatovým úložištěm několika různými způsoby, přičemž různé moduly aplikace využívají jeden či více těchto přístupů (a často také provádí vlastní pomocné dotazy přímo do metadatového úložiště). Cílem této sekce je tyto způsoby manipulace s metadatovým úložištěm identifikovat a popsat (není tedy účelem detailní technický popis všech dotazů do metadatového úložiště, ale spíše popis obecných principů a specifických situací - například netradiční zacházení s transakcemi).
+Aplikace \textit{Manta Flow} pracuje s metadatovým úložištěm několika různými způsoby, přičemž různé moduly aplikace využívají jeden či více těchto přístupů (a často také provádí vlastní pomocné dotazy přímo do metadatového úložiště). Cílem této sekce je tyto způsoby manipulace s metadatovým úložištěm identifikovat a popsat (není tedy účelem detailní technický popis všech dotazů do metadatového úložiště, ale spíše popis obecných principů a specifických situací - například netradiční zacházení s transakcemi).
 
 \subsection{Connector}
 \label{sec:ana_connector}
 Modul, který je nejblíže metadatovému úložišti, tzv. \textbf{connector} má dvě hlavní zodpovědnosti - zajištění připojení aplikace k úložišti a provádění dotazů nad ním.
 
 %Operations
-Modul obsahuje sadu základních dotazů, tzv. \textit{operatinos}, mezi které patří například:
+Modul obsahuje sadu základních dotazů, tzv. \textit{operations}, mezi které patří například:
 \begin{itemize}
-	\item{získání předka uzlu}
-	\item{získání atributů uzlu}
-	\item{získání sousedních uzlů a hran}
-	\item{získání cesty ke kořeni}
-	\item{získání podstromu}
+	\item{získání předka uzlu},
+	\item{získání atributů uzlu},
+	\item{získání sousedních uzlů a hran},
+	\item{získání cesty ke kořeni},
+	\item{získání podstromu}.
 \end{itemize}
-Tyto operace přímo přistupují do databáze a pomocí programovacího jazyka \textit{Gremlin}\footnote{Používá se \textit{TinkerPop} ve verzi \textit{2.6}.} a jsou na nich postaveny složitější operace nad grafouvou databází. U základních operací nejsou transakce řízeny explicitně, ale implicitně grafovou databází.
+Tyto operace přímo přistupují do databáze pomocí programovacího jazyka \textit{Gremlin}\footnote{Používá se \textit{TinkerPop} ve verzi \textit{2.6}.} a jsou na nich postaveny složitější operace nad grafouvou databází. U základních operací nejsou transakce řízeny explicitně, ale implicitně grafovou databází.
 
 % Algorithm
 Další částí modulu \textit{connector} jsou tzv. algoritmy, tedy komponenta, pomocí které jsou v metadatovém úložišti hledány samotné datové toky. Tato komponenta řetězí několik grafových algoritmů, přičemž první z nich získá z metadatového úložiště podmnožinu datových toků, která je dalšími algoritmy filtrována a omezována. Tímto způsobem vzniká tzv. \textit{referenční view} - objekt obsahující kompletní graf datových toků pro zadané výchozí uzly a směr datových toků. To je pak využíváno dalšími moduly aplikace, například \textit{viewerem} (viz \ref{sec:ana_viewer}), který dle parametrů zadaných ve webové aplikaci graf datových toků vizualizuje.
@@ -109,11 +109,11 @@ Posledním způsobem manipulace s metadatovým úložištěm, který modul umož
 \label{sec:ana_merger}
 \textit{Merger} je modul, který je používán při analýze zdrojových systémů. Slouží k zanesení výsledků dílčích analýz jednotlivých částí (např. skriptů) zdrojových systémů do metadatového úložiště.
 
-Vlastní operace \textit{merge}\footnote{Operace \textit{merge} má v kontextu aplikace \textit{Manta Flow} obdobný význam, jako například v \textit{SQL}: pokud objekt není uložen v persistentní vrstvě, je do ní uložen (\textit{insert}), jinak je aktualizován (\textit{update}).} lze zjednodušeně popsat pseudokódem \ref{alg_merger} (správa transakcí a synchronizace je blíže popsána v kapitole \ref{sec:ana_transactions}). Ten je uveden především kvůli složitému transakčnímu modelu, jehož účelem je umožňení provádění dotazů do metadatového úložiště jinými částmi aplikace, zatímco je prováděn \textit{merge} analyzoných částí zdrojových systémů.
+Vlastní operace \textit{merge}\footnote{Operace \textit{merge} má v kontextu aplikace \textit{Manta Flow} obdobný význam, jako například v \textit{SQL}: pokud objekt není uložen v persistentní vrstvě, je do ní uložen (\textit{insert}), jinak je aktualizován (\textit{update}).} lze zjednodušeně popsat pseudokódem \ref{alg_merger} (správa transakcí a synchronizace je blíže popsána v kapitole \ref{sec:ana_transactions}). Ten je uveden především kvůli složitému transakčnímu modelu, jehož účelem je umožnění provádění dotazů do metadatového úložiště jinými částmi aplikace, zatímco je prováděn \textit{merge} analyzovaných částí zdrojových systémů.
 
-Operace se chová různě v případě, kdy je umožňěno verzovaní metadatového úložiště (a to tak obsahuje více revízí) a kdy je vypnuto. V případě zapnutého verzování je \textit{merge} prováděn vždy do nové revize, pokud je verzování vypnuté, je prováděn do hlavní (jediné) revize.
+Operace se chová různě v případě, kdy je umožněno verzovaní metadatového úložiště (a to tak obsahuje více revizí) a kdy je vypnuto. V případě zapnutého verzování je \textit{merge} prováděn vždy do nové revize, pokud je verzování vypnuté, je prováděn do hlavní (jediné) revize.
 
-Samotné \textit{merge} operace nad objekty grafové databáze (uzly, hranami, atributy, ...) jsou prováděny přímímy dotazy do databáze pomocí jazyka \textit{Gremlin}. K přístupu do metadadtového úložiště se tedy nevyužívá modul k tomu předurčený - \textit{Connector} (viz \ref{sec:ana_connector}).
+Samotné \textit{merge} operace nad objekty grafové databáze (uzly, hranami, atributy, ...) jsou prováděny přímými dotazy do databáze pomocí jazyka \textit{Gremlin}. K přístupu do metadatového úložiště se tedy nevyužívá modul k tomu předurčený - \textit{Connector} (viz \ref{sec:ana_connector}).
 
 \begin{algorithm}
 \caption{Merger pseudocode}
@@ -148,7 +148,7 @@ Kromě toho \textit{viewer} dotazuje metadatové úložiště o další informac
 
 \subsection{Public API}
 \label{sec:ana_public}
-\textit{Public API} je modul, který umo6+nuje vzdálené volání veřejné části funkcionality aplikace pomocí \textit{REST API}. Konkrétně lze tímto způsobem provést například analýzu datových toků mezi různými objekty zdrojového systému. Modul přepoužívá část funkcionality poskytovanou modulem \textit{connector}, část těchto funkcionalit ale duplikuje (s menšími úpravami) a přímo tak dotazuje metadatové úložiště.
+\textit{Public API} je modul, který umožnuje vzdálené volání veřejné části funkcionality aplikace pomocí \textit{REST API}. Konkrétně lze tímto způsobem provést například analýzu datových toků mezi různými objekty zdrojového systému. Modul přepoužívá část funkcionality poskytovanou modulem \textit{connector}, část těchto funkcionalit ale duplikuje (s menšími úpravami) a přímo tak dotazuje metadatové úložiště.
 
 \subsection{Exporter}
 \label{sec:ana_exporter}
