@@ -75,6 +75,10 @@ unicode=true,
 }
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% footnote settings
+\interfootnotelinepenalty=10000 % prevent multi-page footnote
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % vlastní dokument
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
@@ -137,7 +141,7 @@ unicode=true,
 	\noindent{\Huge \textbf{Abstrakt}}
 	\vskip 2.75\baselineskip
 
-	Grafové databáze jsou novou rozvíjející se technologií a neexistují proto zatím obecně podporované standardy pro jejich dotazování. Aplikace \textit{Manta Flow}, která grafovou databází používá, se potýká se závislostí na konkrétní grafové databázi a dotazovacím jazyku, přičemž oba nástroje již nejsou vyvíjeny a brzy nebudou ani podporovány.
+	Grafové databáze jsou novou rozvíjející se technologií a neexistují proto zatím obecně podporované standardy pro jejich dotazování. Aplikace \textit{Manta Flow}, která grafovou databázi používá, se potýká se závislostí na konkrétní grafové databázi a dotazovacím jazyku, přičemž oba nástroje již nejsou vyvíjeny a brzy nebudou ani podporovány.
 
    Tato práce má za cíl vytvoření návrhu a prototypové implementace vícevrstvé architektury abstrahující perzistentní logiku aplikace \textit{Manta Flow} pro práci s grafovou databází.
    Součástí práce je rešerše grafových databází, různých úrovní softwarových abstrakcí, analýza aplikace \textit{Manta Flow}, jejích požadavků a omezení ve spojení s používáním grafové databáze. Na jejich základě je navržena vícevrstvá architektura pro práci s grafovou databází, \textit{API} definující metody pro přístup do databáze a další úpravy architektury aplikace. Je vytvořena prototypová implementace navržené architektury a ta je validována a testována, na základě čehož je navržená architektura označena jako vhodné řešení pro definovaný problém.
@@ -364,6 +368,7 @@ unicode=true,
          \item{\textit{diplomova\_prace}} (zdrojové kódy diplomové práce ve formátu \textit{TEX})
       \end{itemize}
    \item{\textit{knihovny}} (privátní knihovny \textit{Manta FLow} nutné k sestavení prototypové implementace)
+   \item{\textit{vzorove\_vstupy}} (vzorové vstupní soubory pro prototypovou implementaci)
    \item{\textit{README.MD}} (soubor definující požadavky k sestavení, spuštění a korektní funkčnosti prototypové implementace)
 \end{itemize}
 
