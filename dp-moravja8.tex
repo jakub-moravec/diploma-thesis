@@ -8,6 +8,7 @@
 \usepackage{fancyhdr}					% tisk hlaviček a patiček stránek
 \usepackage{nomencl} 					% umožňuje snadno definovat zkratky a jejich seznam
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % informace o práci
 \newcommand\WorkTitle{Analýza a návrh abstraktní vícevrstvé architektury pro práci s grafovou databází realizující metadatové úložiště pro data lineage}
@@ -42,7 +43,7 @@ unicode=true,
 \usepackage{algpseudocode} 		%slouží pro výpis pseudokódu
 \usepackage{amsmath}            %vzorce
 \usepackage[dvipsnames]{xcolor} % barvy
-
+\usepackage[final]{pdfpages}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % příkazy šablony
 \makenomenclature								% při překladu zajistí vytvoření pracovního souboru se seznamem zkratek
@@ -89,24 +90,14 @@ unicode=true,
 	\translate				% nastaví české nebo anglické popisy (např. katedra -> department); viz k336_thesis_macros
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% Poznamky ke kompletaci prace
-	% Nasledujici pasaz uzavrenou v {} ve sve praci samozrejme
-	% zakomentujte nebo odstrante.
-	% Ve vysledne svazane praci bude nahrazena skutecnym
-	% oficialnim zadanim vasi prace.
-	{
-	\pagenumbering{roman} \cleardoublepage \thispagestyle{empty}
-	\chapter*{Na tomto místě bude oficiální zadání vaší práce}
-	\begin{itemize}
-		\item Toto zadání je podepsané děkanem a vedoucím katedry,
-		\item musíte si ho vyzvednout na studijním oddělení Katedry počítačů na Karlově náměstí,
-		\item v jedné odevzdané práci bude originál tohoto zadání (originál zůstává po obhajobě na katedře),
-		\item ve druhé bude na stejném místě neověřená kopie tohoto dokumentu (tato se vám vrátí po obhajobě).
-	\end{itemize}
-	\newpage
-	}
-
-	%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% Zadání
+   {
+      \pagenumbering{roman} \cleardoublepage \thispagestyle{empty}
+   	\setboolean{@twoside}{false}
+      \includepdf[pages={1}, offset=10 -14]{figures/zadani_retus.pdf}
+   }
+   
+   %%%%%%%%%%%%%%%%%%%%%%%%%%
 	% Titulni stranka / Title page
 	\coverpagestarts
 
