@@ -13,7 +13,7 @@ Doménový model definuje typy entit, se kterými může aplikace pracovat a mo�
 
 
 \section{Databázová vrstva}
-Databázová vrstva obsahuje dvě stežejní třídy (které musí obsahovat vždy) a to jsou implementace tříd \texttt{org.springframework.transaction.support.ResourceTransactionManager} a \texttt{com.tinkerpop.blueprints.Graph}. Tato rozhraní \textit{de-facto} definují \textit{API} databázové vrstvy. \textit{Transaction manager} musí být implementován, aby mohly vyšší vrstvy využívat deklarativní transakční model, který je pro návrh celé vícevrstvé architektury velmi důležitý. \textit{Graph} zpřístupňuje data uložená v grafové databázi dotazovacímu jazyku \textit{Gremlin 2.x}. V tomto případě nevadí, že je \textit{API} vrstvy závislé na konkrétním dotazovacím jazyku - implementace nejbližší vyšší vrstvy (perzistentní vrstvy) je (a vždy bude) z velké části tvořena právě tímto dotazovacím jazykem.
+Databázová vrstva obsahuje dvě stežejní třídy (které musí obsahovat vždy) a to jsou implementace tříd \texttt{org.springframework.transaction.support.ResourceTransactionManager} a \texttt{com.tinkerpop.blueprints.Graph}. Tato rozhraní \textit{de facto} definují \textit{API} databázové vrstvy. \textit{Transaction manager} musí být implementován, aby mohly vyšší vrstvy využívat deklarativní transakční model, který je pro návrh celé vícevrstvé architektury velmi důležitý. \textit{Graph} zpřístupňuje data uložená v grafové databázi dotazovacímu jazyku \textit{Gremlin 2.x}. V tomto případě nevadí, že je \textit{API} vrstvy závislé na konkrétním dotazovacím jazyku - implementace nejbližší vyšší vrstvy (perzistentní vrstvy) je (a vždy bude) z velké části tvořena právě tímto dotazovacím jazykem.
 
 %Perzistence
 \section{Perzistentní vrstva}
@@ -27,19 +27,19 @@ Jednoduché dotazy jsou implementovány nativními dotazy jazyka \textit{Gremlin
 
 \lstinputlisting[language=Java, caption=Mapování entity \textit{Flow} (implementace pomocí \textit{Gremlin 2.x}), label=exa:mapper]{code/clear_gremlin.java}
 
-Pro větší efektivitu dotazů byly v některých případech nativní \textit{Gremlin} dotazy nahrazeny dotazy pomocí další součástí \textit{TinkerPop} projektu - \textit{Pipes}\footnote{\url{https://github.com/tinkerpop/pipes/wiki}}. \textit{Pipes} slouží právě jako nástroj pro komplexnější průchody grafem pro jazyk \textit{Gremlin 2.x}\footnote{\textit{Gremlin 3.x} nahrazuje \textit{Pipes} navazujícím řešením s názvem \textit{Graph Traversal}}. Průchodu grafu pomocí \textit{Pipes} je ukázán na příkladu \ref{exa:pipes}, kde uvedený kód nalzene instanci entity \textit{Node} podle kvalifikovaného jména (jedná se tedy o průchod víceúrovňovou hierchií grafu datových toků).
+Pro větší efektivitu dotazů byly v některých případech nativní \textit{Gremlin} dotazy nahrazeny dotazy pomocí další součástí \textit{TinkerPop} projektu - \textit{Pipes}\footnote{\url{https://github.com/tinkerpop/pipes/wiki}}. \textit{Pipes} slouží právě jako nástroj pro komplexnější průchody grafem pro jazyk \textit{Gremlin 2.x}\footnote{\textit{Gremlin 3.x} nahrazuje \textit{Pipes} navazujícím řešením s názvem \textit{Graph Traversal}}. Průchod grafu pomocí \textit{Pipes} je ukázán na příkladu \ref{exa:pipes}, kde uvedený kód nalezne instanci entity \textit{Node} podle kvalifikovaného jména (jedná se tedy o průchod víceúrovňovou hierchií grafu datových toků).
 
 \lstinputlisting[language=Java, caption=Nalezení uzlu dle kvalifikovaného jména (implementace pomocí \textit{Pipes}), label=exa:pipes]{code/pipes.java}
 
 \subsection{Rozhraní pro \textit{query} metody}
-V kapitole \ref{sec:des_persistence} je popsán návrh \textit{query} metod. Ty by měly sloužit k obecnému dotazování dat z metadatového úložiště podle typu entity. Jedním z důvodů návrhu těchto metod je snaha o umožnění tvorby komplexnějších dotazů, které by měly být efektivnější, než kompozice atomických dotazů. Výsledkem toho je, že vstupem pro tyto metody jsou komplexní do sebe zanořené dotazovací objekty. Aby byl tento koncept reálně použitelný, bylo nutné vytvořit samostatné rozhraní pro tvorbu těchto objektů - jinak by tvorba dotazovacích objektů byla příliš komplikovaná a nutně by navíc musela obsahovat některé perzistenční detaily, od kterých by měl být vývojář při používání těchto metod odstíněn.
-Návrh byl inspirován návrhovým vzorem \textit{Builder Pattern} a stylem \textit{Fluent Interface} \cite{Fowler05}. Ukázka \ref{exa:fluent_api} obsahuje dotaz na všechny \textit{nullable} sloupce ze specifické tabulky, schématu a databáze. Pomocí stejného návrhu by bylo možné provádět průchody grafem datavých toků.
+V kapitole \ref{sec:des_persistence} je popsán návrh \textit{query} metod. Ty by měly sloužit k obecnému dotazování dat z metadatového úložiště podle typu entity. Jedním z důvodů návrhu těchto metod je snaha o umožnění tvorby komplexnějších dotazů, které by měly být efektivnější, než kompozice atomických dotazů. Výsledkem toho je, že vstupem pro tyto metody jsou komplexní, do sebe zanořené dotazovací objekty. Aby byl tento koncept reálně použitelný, bylo nutné vytvořit samostatné rozhraní pro tvorbu těchto objektů - jinak by tvorba dotazovacích objektů byla příliš komplikovaná a nutně by navíc musela obsahovat některé perzistenční detaily, od kterých by měl být vývojář při používání těchto metod odstíněn.
+Návrh byl inspirován návrhovým vzorem \textit{Builder Pattern} a stylem \textit{Fluent Interface} \cite{Fowler05}. Ukázka \ref{exa:fluent_api} obsahuje dotaz na všechny \textit{nullable} sloupce ze specifické tabulky, schématu a databáze. Pomocí stejného návrhu by bylo možné provádět průchody grafem datových toků.
 
 \lstinputlisting[language=Java, caption=Fluent interface query metod, label=exa:fluent_api]{code/fluent_api.java}
 
 %Data-access
 \section{Vrstva datového přístupu}
-\textit{API} této vrstvy v zásadě kopíruje \textit{API} perzistentní vrstvy.  U metod, u kterých musí být ověřována práva uživatele na dotazovaná data, je ale navíc přidán parametr reprezentující strategii, pomocí které budou data ověřována. Asi tedy nepřekvapí, že je vrstva implementována pomocí návrhovému vzoru \textit{Strategy} - aktuálně existují dvě strategie (v budoucnu může být ale tento seznam rozšířen):
+\textit{API} této vrstvy v zásadě kopíruje \textit{API} perzistentní vrstvy.  U metod, u kterých musí být ověřována práva uživatele na dotazovaná data, je ale navíc přidán parametr reprezentující strategii, pomocí které budou data ověřována. Asi tedy nepřekvapí, že je vrstva implementována pomocí návrhového vzoru \textit{Strategy} - aktuálně existují dvě strategie (v budoucnu může být ale tento seznam rozšířen):
 
 \begin{itemize}
    \item{\textit{Oprávnění na základě pohledů a rolí}}: Je zaveden nový termín \textit{pohled}. Ten reprezentuje část dat uložených v metadatovém úložišti - každý pohled se skládá ze sady zahrnutých a vyloučených objektů ve smyslů hiearchie grafu datových toků (entity \textit{Node} a \textit{Resource}). Pohledů může být teoreticky neomezené množství a mohou se navzájem překrývat. Uživatelům jsou pak přidělována oprávnění na jednotlivé pohledy na základě jejich \textit{LDAP\footnote{Lightwight Directory Access Protocol}} rolí.
@@ -79,11 +79,11 @@ Pro oba zmíněné algoritmy je v rámci stávající implementace definována �
 Navíc byl definován integrační test skládající se z následujících kroků:
 
 \begin{itemize}
-   \item vytvoření \textit{major} revize úplným updatem metadatového uložiště
-   \item vytvoření \textit{minor} revize inkrementálním updatem metadatového uložiště
-   \item vytvoření \textit{minor} revize inkrementálním updatem metadatového uložiště
-   \item vytvoření \textit{major} revize úplným updatem metadatového uložiště
-   \item dohledání datových toků mezi sloupci různých tabulek
+   \item vytvoření \textit{major} revize úplným updatem metadatového uložiště,
+   \item vytvoření \textit{minor} revize inkrementálním updatem metadatového uložiště,
+   \item vytvoření \textit{minor} revize inkrementálním updatem metadatového uložiště,
+   \item vytvoření \textit{major} revize úplným updatem metadatového uložiště,
+   \item dohledání datových toků mezi sloupci různých tabulek.
 \end{itemize}
 
 Všechny zmíněné testy procházejí, lze tedy prohlásit, že \textbf{prototyp je validní}.
