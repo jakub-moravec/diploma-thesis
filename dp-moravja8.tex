@@ -27,7 +27,7 @@
 \usepackage[
 pdftitle={\WorkTitle},				% nastaví v informacích o pdf název
 pdfauthor={\FirstandFamilyName},	% nastaví v informacích o pdf autora
-colorlinks=true,					% před tiskem doporučujeme nastavit na false, aby odkazy a url nebyly šedé při ČB tisku
+colorlinks=false,					% před tiskem doporučujeme nastavit na false, aby odkazy a url nebyly šedé při ČB tisku
 breaklinks=true,
 urlcolor=red,
 citecolor=blue,
@@ -67,10 +67,10 @@ unicode=true,
   basicstyle=\footnotesize,        % size of fonts used for the code
   breaklines=true,                 % automatic line breaking only at whitespace
   captionpos=b,                    % sets the caption-position to bottom
-  commentstyle=\color{OliveGreen},    % comment style
+  commentstyle=\color{gray},    % comment style
   escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
-  keywordstyle=\color{blue},       % keyword style
-  stringstyle=\color{red},     % string literal style
+  keywordstyle=\color{black},       % keyword style
+  stringstyle=\color{black},     % string literal style
   showstringspaces=false,
   frame=lines,
 }
@@ -96,7 +96,7 @@ unicode=true,
    	\setboolean{@twoside}{false}
       \includepdf[pages={1}, offset=10 -14]{figures/zadani_retus.pdf}
    }
-   
+
    %%%%%%%%%%%%%%%%%%%%%%%%%%
 	% Titulni stranka / Title page
 	\coverpagestarts
