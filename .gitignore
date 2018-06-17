@@ -13,3 +13,8 @@
 *.fdb_latexmk
 *.fls
 cd/zdrojove_kody/
+*beamer*
+prezentace/multimedia
+*.snm
+*.nav
+*.vrb
