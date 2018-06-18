@@ -71,10 +71,15 @@ Otevřená Informatika, Softwarové Inženýrství \\
 
 \section{Uvedení kontextu}
 \begin{frame}
-\frametitle{Uvedení kontextu}
+\frametitle{Uvedení kontextu - \textit{Manta Flow}}
    \begin{itemize}
-      \item
+      \item Nástroj pro \textit{data lineage} - analýza datových toků
+      \item Parsuje zdrojové kódy informačních systémů (databáze, ETL nástroje) a sestavuje z nich datové toky
+      \item Ze zdrojových kódu je sestaven syntakční strom, ten je ukládán v grafové databázi a dále analyzován
    \end{itemize}
+   \begin{figure}
+   \includegraphics[width=0.8\linewidth]{img/flow_visualizace}
+   \end{figure}
 \end{frame}
 
 \section{Definice problému}
@@ -83,7 +88,7 @@ Otevřená Informatika, Softwarové Inženýrství \\
    \begin{itemize}
       \item Existuje velké množství grafových databází
       \item Jednotlivé databáze se výrazně liší ve výkonostních parametrech
-      \item Oblast je dinamická, vznikají nové nástroje, končí podpora pro některé stávající
+      \item Oblast je dynamická, vznikají nové nástroje, končí podpora pro některé stávající
       \item Neexistují obecné standardy pro jejich dotazování
       \item To vede k silné závislosti aplikací na používané grafové databázi a dotazovacím jazyce
       \begin{itemize}
@@ -116,7 +121,7 @@ Otevřená Informatika, Softwarové Inženýrství \\
       \item Analýza jednotlivých komponent aplikace \textit{Manta Flow} a způsobu práce aplikace s grafovou databází
       \item Identifikace omezení aplikace plynoucích ze stávající architektury aplikace
       \item Specifikace konkrétních požadavků na navrhovanou architekturu na základě analýzy
-      \item Rešerše existujících nástrojů pro abstrakci grafových databází
+      \item Analýza existujících nástrojů pro abstrakci grafových databází
       \seti
    \end{enumerate}
 \end{frame}
@@ -134,9 +139,21 @@ Otevřená Informatika, Softwarové Inženýrství \\
 \end{frame}
 
 
+\section{Základní charakteristiky navržené architektury}
 %------------------------------------------------
 \begin{frame}
-\frametitle{Návrh - vícevrstvá architektura}
+\frametitle{Základní charakteristiky navržené architektury}
+   \begin{itemize}
+      \item Vícevrstvá architektura - funkcionalita rozdělena do několika vrstev
+      \item Definován specifický doménový model
+      \item API perzistentní vrstvy vycházející z \textit{Repository patternu}
+      \item Oddělené metody využívající externí indexy
+      \item Deklarativní transakční model
+   \end{itemize}
+\end{frame}
+%------------------------------------------------
+\begin{frame}
+\frametitle{Základní charakteristiky navržené architektury}
    \begin{figure}
    \includegraphics[width=0.7\linewidth]{img/connector_modules}
    \end{figure}
@@ -149,15 +166,10 @@ Otevřená Informatika, Softwarové Inženýrství \\
 \frametitle{Přínosy práce}
 % TODO
 \begin{itemize}
-\item Hlavní výstupy práce jsou:
-   \begin{itemize}
-      \item návrh vícevrstvév architektury,
-      \item návrh příslušných API,
-      \item prototypová implementace.
-   \end{itemize}
-\item Práce má přímé uplatnění ve splečnosti Manta.
-\item Zadání práce bylo splněno.
-\item Z posudků nevyplývají žádné otázky.
+\item Je navržena vícevrstvá architektura sloužící pro přístup ke grafové databázi
+\item Na základě prototypové implementace je ověřena vhodnost návrhu architektury
+\item Architektura odděluje perzistentní a byznys logiku aplikace a výrazně tak zlepšuje její modifikovatlnost
+\item Jsou navrženy dílčí kroky umožňující budoucí škálování aplikace
 \end{itemize}
 \end{frame}
 %------------------------------------------------
@@ -167,44 +179,6 @@ Otevřená Informatika, Softwarové Inženýrství \\
 
    \centering\normalsize
    Jakub Moravec\\ jkb.moravec@gmail.com
-\end{frame}
-
-
-%------------------------------------------------
-
-\begin{frame}
-\frametitle{Blocks of Highlighted Text}
-\begin{block}{Block 1}
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer lectus nisl, ultricies in feugiat rutrum, porttitor sit amet augue. Aliquam ut tortor mauris. Sed volutpat ante purus, quis accumsan dolor.
-\end{block}
-
-\begin{block}{Block 2}
-Pellentesque sed tellus purus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vestibulum quis magna at risus dictum tempor eu vitae velit.
-\end{block}
-
-\begin{block}{Block 3}
-Suspendisse tincidunt sagittis gravida. Curabitur condimentum, enim sed venenatis rutrum, ipsum neque consectetur orci, sed blandit justo nisi ac lacus.
-\end{block}
-\end{frame}
-
-%------------------------------------------------
-
-\begin{frame}
-\frametitle{Multiple Columns}
-\begin{columns}[c] % The "c" option specifies centered vertical alignment while the "t" option is used for top vertical alignment
-
-\column{.45\textwidth} % Left column and width
-\textbf{Heading}
-\begin{enumerate}
-\item Statement
-\item Explanation
-\item Example
-\end{enumerate}
-
-\column{.5\textwidth} % Right column and width
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer lectus nisl, ultricies in feugiat rutrum, porttitor sit amet augue. Aliquam ut tortor mauris. Sed volutpat ante purus, quis accumsan dolor.
-
-\end{columns}
 \end{frame}
 
 
